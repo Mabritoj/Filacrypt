@@ -41,6 +41,7 @@ export function ChatWidget() {
       <button
         type="button"
         className={styles.badge}
+        data-open={isOpen}
         onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? 'Close inventory assistant chat' : 'Open inventory assistant chat'}
       >

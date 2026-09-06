@@ -277,6 +277,28 @@ describe('AccountSettings', () => {
     });
   });
 
+  describe('General / Members tabs', () => {
+    it('shows General-tab content by default and hides the Members roster', async () => {
+      renderAccountSettings();
+      await screen.findByText(mockUser.name);
+
+      expect(screen.getByRole('tab', { name: 'General' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.queryByRole('heading', { name: 'Members' })).not.toBeInTheDocument();
+    });
+
+    it('switches to the Members tab and hides General-tab content', async () => {
+      renderAccountSettings();
+      await screen.findByText(mockUser.name);
+
+      fireEvent.click(screen.getByRole('tab', { name: 'Members' }));
+
+      expect(await screen.findByRole('heading', { name: 'Members' })).toBeInTheDocument();
+      expect(await screen.findByText(mockMembers[0].email)).toBeInTheDocument();
+      expect(screen.queryByText(mockUser.username)).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Delete account' })).not.toBeInTheDocument();
+    });
+  });
+
   it('shows the header while account data is still loading', async () => {
     server.use(
       http.get(`${import.meta.env.VITE_API_URL}/me`, () =>

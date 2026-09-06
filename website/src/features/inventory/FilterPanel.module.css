@@ -150,3 +150,17 @@
   color: var(--color-brand-ink);
   cursor: pointer;
 }
+
+@media (max-width: 640px) {
+  .panel {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    width: auto;
+    max-width: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;
+  }
+}
