@@ -1,10 +1,11 @@
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
+import { getPathParam } from 'event-utils';
 import type { WorkspaceEvent } from '../index.js';
 import { listMembers } from '../members-lookup.js';
 
 export async function handler(event: WorkspaceEvent, logger: Logger): Promise<APIGatewayProxyStructuredResultV2> {
-  const workspaceId = event.pathParameters?.workspaceId as string;
+  const workspaceId = getPathParam(event, 'workspaceId');
 
   try {
     const members = await listMembers(workspaceId);

@@ -3,6 +3,8 @@ import { DynamoDBClient, GetItemCommand, TransactWriteItemsCommand, UpdateItemCo
 import { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
 import { config } from 'env-config';
+import { getUserId } from 'event-utils';
+import { validationError } from 'http-responses';
 import { getUserAndWorkspaces } from '../lookup.js';
 
 const ddbClient = new DynamoDBClient({});
@@ -15,13 +17,6 @@ const DEFAULT_PREFERENCES = {
   theme: 'dark',
   defaultEntryMode: 'nfc',
 };
-
-function validationError(message: string): APIGatewayProxyStructuredResultV2 {
-  return {
-    statusCode: 400,
-    body: JSON.stringify({ error: { code: 'VALIDATION_ERROR', message } }),
-  };
-}
 
 function usernameTaken(): APIGatewayProxyStructuredResultV2 {
   return {
@@ -69,7 +64,7 @@ export async function handler(
   event: APIGatewayProxyEventV2WithJWTAuthorizer,
   logger: Logger
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
+  const userId = getUserId(event);
   const email = event.requestContext.authorizer.jwt.claims.email as string;
   const emailVerified = event.requestContext.authorizer.jwt.claims.email_verified === 'true';
 

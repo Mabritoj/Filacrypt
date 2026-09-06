@@ -1,6 +1,7 @@
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
 import { getMember } from 'workspace-auth';
+import { getPathParam } from 'event-utils';
 import type { WorkspaceEvent } from './index.js';
 import { getWorkspace, updateWorkspace, type UpdateWorkspaceInput } from './workspace-lookup.js';
 
@@ -32,14 +33,18 @@ export async function handler(
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const userId = event.requestContext.authorizer.lambda.userId;
   const role = event.requestContext.authorizer.lambda.role;
-  const workspaceId = event.pathParameters?.workspaceId as string;
+  const workspaceId = getPathParam(event, 'workspaceId');
   const method = event.requestContext.http.method;
 
   try {
     if (method === 'GET') {
-      const workspace = await getWorkspace(workspaceId);
+      // Independent reads -- run them together instead of paying their
+      // latency serially.
+      const [workspace, member] = await Promise.all([
+        getWorkspace(workspaceId),
+        getMember(userId, workspaceId),
+      ]);
       if (!workspace) return notFound();
-      const member = await getMember(userId, workspaceId);
       return {
         statusCode: 200,
         body: JSON.stringify({
@@ -82,9 +87,12 @@ export async function handler(
         }
       }
 
-      const workspace = await updateWorkspace(workspaceId, updates);
+      // The write and the member read are independent of each other.
+      const [workspace, member] = await Promise.all([
+        updateWorkspace(workspaceId, updates),
+        getMember(userId, workspaceId),
+      ]);
       if (!workspace) return notFound();
-      const member = await getMember(userId, workspaceId);
       return {
         statusCode: 200,
         body: JSON.stringify({
