@@ -1,0 +1,12 @@
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-destructive-bg);
+  border: 1px solid var(--color-destructive);
+  color: var(--color-destructive);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  margin-bottom: 18px;
+}

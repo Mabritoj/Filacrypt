@@ -1,0 +1,36 @@
+.label {
+  font:
+    600 11px 'JetBrains Mono',
+    monospace;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.group {
+  display: flex;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.option {
+  flex: 1;
+  text-align: center;
+  font:
+    600 12px 'Hanken Grotesk',
+    sans-serif;
+  padding: 7px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+}
+
+.option[data-active='true'] {
+  color: var(--color-brand-ink);
+  background: var(--color-brand);
+}

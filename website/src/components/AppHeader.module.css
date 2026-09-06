@@ -1,0 +1,67 @@
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brandLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandMark {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--color-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font:
+    800 13px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-brand-ink);
+}
+
+.brandName {
+  font:
+    700 15px 'Hanken Grotesk',
+    sans-serif;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* When .left's content forces a wrap on narrow viewports, .right lands
+     alone on its own line, where justify-content: space-between has
+     nothing left to space it from and it sits flush-left. margin-left:
+     auto pins it to the right of whichever line it ends up on. */
+  margin-left: auto;
+}
+
+/* On narrow viewports, a page with a breadcrumb replaces the "Filacrypt"
+   wordmark with Breadcrumb's own mobile back-arrow + current-page label
+   (see Breadcrumb.module.css) -- the brand mark icon alone still anchors
+   the left edge. Pages with no breadcrumb (e.g. Inventory) keep the full
+   wordmark at every width. */
+@media (max-width: 640px) {
+  .hasBreadcrumb .brandName {
+    display: none;
+  }
+}

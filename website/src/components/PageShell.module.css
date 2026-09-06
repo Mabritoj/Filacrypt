@@ -1,0 +1,43 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.pageCentered {
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  padding: 0 24px 60px;
+}
+
+.pageCentered .container {
+  /* app-container's `margin: 0 auto` is meant for block-layout centering,
+     but a horizontal auto margin on a flex item disables cross-axis
+     stretch alignment per spec -- without an explicit width, this box
+     shrinks to fit its content instead of filling up to max-width. */
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.centered {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font:
+    500 14px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 16px 40px;
+  }
+}

@@ -1,0 +1,947 @@
+openapi: 3.0.3
+info:
+  title: Filacrypt API
+  version: '1.0.0'
+  description: |
+    Backend API for Filacrypt, an NFC-native filament inventory tracker.
+
+    Every route except `/health` requires a Cognito ID token (a JWT, not an
+    access token) passed as `Authorization: Bearer <token>`. Sign-in is
+    passwordless: Cognito's native email-OTP `USER_AUTH` flow, via the
+    frontend's Amplify integration — there is no username/password grant
+    exposed by this API directly.
+
+    All error responses share one envelope: `{ "error": { "code": "...",
+    "message": "..." } }`. Success responses are a single JSON object with one
+    named top-level key matching the resource (`{ "user": ... }`,
+    `{ "workspace": ... }`, `{ "spools": [...] }`, etc.) — never a bare array
+    or scalar at the top level.
+  contact:
+    name: Filacrypt
+    url: https://filacrypt.com
+
+servers:
+  - url: https://api.filacrypt.com
+    description: dev (custom domain; the default API Gateway execute-api URL also works but this is the address everything should use)
+
+security:
+  - CognitoAuth: []
+
+tags:
+  - name: Health
+    description: Unauthenticated liveness check
+  - name: Identity
+    description: The signed-in user's own profile and one-time provisioning
+  - name: Workspace
+    description: Workspace metadata and settings
+  - name: Spools
+    description: Filament spool inventory, scoped to a workspace
+  - name: Usage Events
+    description: Print-job usage history for a spool
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness check
+      operationId: getHealth
+      security: []
+      description: >
+        No authentication required. Used as a deploy/CORS smoke test — if
+        this doesn't return 200, nothing else will either.
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /me:
+    get:
+      tags: [Identity]
+      summary: Get the current user's profile and workspace memberships
+      operationId: getCurrentUser
+      description: >
+        Returns `404` if the caller's Cognito account exists but hasn't
+        completed `POST /user/setup` yet — this is the signal the frontend
+        uses to route a first-time signer-in to the setup form, not an error
+        condition.
+      responses:
+        '200':
+          description: The user is provisioned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAndWorkspaces'
+        '404':
+          description: Authenticated, but not yet provisioned — call `POST /user/setup`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Identity]
+      summary: Update the current user's preferences
+      operationId: updateUserPreferences
+      description: >
+        Partial update — only the keys present inside `preferences` are
+        changed. There's no way to update `name`/`username`/`email` here;
+        Profile is read-only. Each present preference key is validated
+        against its fixed set of allowed values (`currency` is free-form,
+        not enum-validated).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePreferencesInput'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: A present preference key has a value outside its allowed set, or the body isn't valid JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Authenticated, but not yet provisioned (or the profile was deleted mid-request)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Identity]
+      summary: Permanently delete the current user's account
+      operationId: deleteCurrentUser
+      description: >
+        Identity is always derived from the JWT `sub` claim — never a path
+        parameter or request body field — so this can only ever delete the
+        caller's own account. Hard delete: the Cognito user is removed too
+        (via `AdminDeleteUserCommand`), not just the DynamoDB profile, so
+        sign-in stops working entirely afterward.
+
+        Cascades per workspace the user belongs to: if they're the sole
+        member, the whole workspace (metadata, spools, usage events) is
+        deleted; if they're a non-owner member, only their own membership
+        row is removed; if they're an owner with other members, ownership is
+        reassigned to another member first (a stopgap for a scenario no
+        current invite/add-member flow can actually produce), then their
+        membership row is removed.
+
+        Runs as a sequence of batched, idempotent deletes rather than one
+        transaction — safe to retry if interrupted partway through. The
+        Cognito user is only removed after all DynamoDB cleanup succeeds.
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: The profile was already gone (e.g. a retried request after a prior successful delete)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /user/setup:
+    post:
+      tags: [Identity]
+      summary: Complete first-time profile setup
+      operationId: setupProfile
+      description: >
+        Creates the user's profile, a personal workspace (owned by them), and
+        the owner membership record, all in one transaction. Enforces
+        case-insensitive username uniqueness. **Idempotent**: calling this
+        again for an already-provisioned user returns their existing data
+        with `200` instead of erroring — safe to retry.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetupProfileInput'
+      responses:
+        '200':
+          description: User was already provisioned — existing data returned unchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAndWorkspaces'
+        '201':
+          description: Newly provisioned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAndWorkspaces'
+        '400':
+          description: Missing `name`/`username`, or the request body isn't valid JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Username already taken (case-insensitive)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /workspaces/{workspaceId}:
+    parameters:
+      - $ref: '#/components/parameters/WorkspaceId'
+    get:
+      tags: [Workspace]
+      summary: Get workspace metadata and settings
+      operationId: getWorkspace
+      description: >
+        `lowStockThresholdG`, `defaultDiameterMm`, and `defaultEmptySpoolWeightG`
+        are defensively defaulted on every read if missing from the stored
+        record (covers workspaces provisioned before these fields existed) —
+        the response always includes all three, never `undefined`.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace]
+                properties:
+                  workspace:
+                    $ref: '#/components/schemas/Workspace'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No workspace with this ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Workspace]
+      summary: Update workspace settings
+      operationId: updateWorkspace
+      description: >
+        Partial update — only the four fields listed in
+        `UpdateWorkspaceInput` may be set; any other key in the body is
+        silently ignored. Each present field's type is validated
+        (`lowStockThresholdG`/`defaultDiameterMm`/`defaultEmptySpoolWeightG`
+        must be numbers, `defaultPrinterId` must be a string) before being
+        written.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkspaceInput'
+      responses:
+        '200':
+          description: Updated workspace
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [workspace]
+                properties:
+                  workspace:
+                    $ref: '#/components/schemas/Workspace'
+        '400':
+          description: A present field has the wrong type, or the body isn't valid JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No workspace with this ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /workspaces/{workspaceId}/spools:
+    parameters:
+      - $ref: '#/components/parameters/WorkspaceId'
+    get:
+      tags: [Spools]
+      summary: List all spools in a workspace
+      operationId: listSpools
+      responses:
+        '200':
+          description: OK (empty array if the workspace has no spools yet)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [spools]
+                properties:
+                  spools:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Spool'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Spools]
+      summary: Add a new spool to the workspace
+      operationId: createSpool
+      description: >
+        `workspaceId` and `addedBy` are **always** server-derived (from the
+        URL path and the caller's JWT `sub` claim, respectively) — any value
+        sent for either field in the request body is silently ignored, even
+        though both are part of the `NewSpool` shape. `id`, `createdAt`, and
+        `updatedAt` are also server-generated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSpool'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [spool]
+                properties:
+                  spool:
+                    $ref: '#/components/schemas/Spool'
+        '400':
+          description: A required field is missing or the wrong type — see `error.message` for which one
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /workspaces/{workspaceId}/spools/{spoolId}:
+    parameters:
+      - $ref: '#/components/parameters/WorkspaceId'
+      - $ref: '#/components/parameters/SpoolId'
+    get:
+      tags: [Spools]
+      summary: Get one spool
+      operationId: getSpool
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [spool]
+                properties:
+                  spool:
+                    $ref: '#/components/schemas/Spool'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No spool with this ID in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Spools]
+      summary: Update a spool
+      operationId: updateSpool
+      description: >
+        Partial update — send only the fields you want to change. Each
+        present field's type is validated (numbers must be numbers, strings
+        must be strings, `tags` must be an array) before being written.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSpoolInput'
+      responses:
+        '200':
+          description: Updated spool
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [spool]
+                properties:
+                  spool:
+                    $ref: '#/components/schemas/Spool'
+        '400':
+          description: A present field has the wrong type, or the body isn't valid JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No spool with this ID in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Spools]
+      summary: Delete a spool
+      operationId: deleteSpool
+      description: Immediate and permanent — there is no soft-delete or undo.
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No spool with this ID in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /workspaces/{workspaceId}/spools/{spoolId}/usage:
+    parameters:
+      - $ref: '#/components/parameters/WorkspaceId'
+      - $ref: '#/components/parameters/SpoolId'
+    get:
+      tags: [Usage Events]
+      summary: List usage (print job) history for a spool
+      operationId: listUsageEvents
+      description: >
+        Returns `200` with an empty array if the spool exists but has no
+        usage events — a `404` here specifically means the spool itself
+        wasn't found in this workspace, not "no events." This distinction is
+        also a security control: usage events are keyed by spool ID alone
+        (not nested under the workspace in storage), so this endpoint always
+        confirms the spool belongs to `{workspaceId}` before returning
+        anything, closing an otherwise-real cross-tenant read.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [usageEvents]
+                properties:
+                  usageEvents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UsageEvent'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No spool with this ID in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    CognitoAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        A Cognito ID token (not an access token). Obtained via Cognito's
+        native email-OTP `USER_AUTH` flow — the frontend never collects a
+        password. Validated by API Gateway's JWT
+        authorizer against the Cognito user pool's issuer/audience; the
+        `sub` claim identifies the caller for every route below.
+
+  parameters:
+    WorkspaceId:
+      name: workspaceId
+      in: path
+      required: true
+      description: >
+        Not derived from the token — every route validates the caller is
+        actually a member of this specific workspace (`403` if not), so this
+        is safe to pass explicitly even though today's provisioning flow
+        only ever gives a user one workspace.
+      schema:
+        type: string
+        format: uuid
+    SpoolId:
+      name: spoolId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Authenticated, but not a member of this workspace
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: NOT_FOUND
+              description: >
+                Machine-readable: `VALIDATION_ERROR`, `NOT_FOUND`,
+                `FORBIDDEN`, `USERNAME_TAKEN`, `METHOD_NOT_ALLOWED`, or
+                `INTERNAL_ERROR`.
+            message:
+              type: string
+              example: Workspace not found
+
+    UserPreferences:
+      type: object
+      required: [weightUnit, temperatureUnit, lengthUnit, currency, theme, defaultEntryMode]
+      properties:
+        weightUnit:
+          type: string
+          enum: [g, kg]
+        temperatureUnit:
+          type: string
+          enum: [C, F]
+        lengthUnit:
+          type: string
+          enum: [m, ft]
+        currency:
+          type: string
+          example: USD
+        theme:
+          type: string
+          enum: [dark, light]
+        defaultEntryMode:
+          type: string
+          enum: [nfc, manual]
+          description: >
+            Which add-spool screen to open first — the NFC-listening screen
+            or straight to the manual-entry form.
+
+    UpdatePreferencesInput:
+      type: object
+      required: [preferences]
+      description: >
+        Partial update to `preferences` only — every key inside `preferences`
+        is optional, send only what you want to change. There is no way to
+        update `name`/`username`/`email` via this endpoint; Profile is
+        read-only.
+      properties:
+        preferences:
+          type: object
+          properties:
+            weightUnit:
+              type: string
+              enum: [g, kg]
+            temperatureUnit:
+              type: string
+              enum: [C, F]
+            lengthUnit:
+              type: string
+              enum: [m, ft]
+            currency:
+              type: string
+              example: USD
+            theme:
+              type: string
+              enum: [dark, light]
+            defaultEntryMode:
+              type: string
+              enum: [nfc, manual]
+
+    User:
+      type: object
+      required: [id, name, username, email, emailVerified, preferences, createdAt]
+      properties:
+        id:
+          type: string
+          description: Cognito `sub` — stable user identifier
+        name:
+          type: string
+        username:
+          type: string
+          description: Case-insensitively unique across all users
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        avatarUrl:
+          type: string
+          format: uri
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+        createdAt:
+          type: string
+          format: date-time
+
+    UserAndWorkspaces:
+      type: object
+      required: [user, workspaceIds]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        workspaceIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: >
+            Every workspace this user belongs to. Today's provisioning flow
+            always produces exactly one (their own, auto-created at setup);
+            the shape is a list because the schema doesn't rule out more in
+            the future.
+
+    SetupProfileInput:
+      type: object
+      required: [name, username]
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+          description: Checked case-insensitively against every existing username
+
+    Workspace:
+      type: object
+      required: [id, name, ownerId, lowStockThresholdG, defaultDiameterMm, defaultEmptySpoolWeightG, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        ownerId:
+          type: string
+          description: The `User.id` of the workspace's owner
+        lowStockThresholdG:
+          type: number
+          description: Default 200 for newly-provisioned workspaces
+        defaultDiameterMm:
+          type: number
+          description: Default 1.75 (the near-universal standard filament diameter)
+        defaultEmptySpoolWeightG:
+          type: number
+          description: Default 215
+        defaultPrinterId:
+          type: string
+          description: Not yet a real foreign key — no Printer resource exists in this API yet
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateWorkspaceInput:
+      type: object
+      description: Every field optional — send only what you want to change
+      properties:
+        lowStockThresholdG:
+          type: number
+        defaultDiameterMm:
+          type: number
+        defaultEmptySpoolWeightG:
+          type: number
+        defaultPrinterId:
+          type: string
+
+    SpoolNfcTagStatus:
+      type: object
+      required: [uid, standard, writeProtection, healthy]
+      properties:
+        uid:
+          type: string
+          description: NFC tag hardware UID
+        standard:
+          type: string
+          example: NFC-V (ISO 15693) · ICODE SLIX2
+        writeProtection:
+          type: string
+          enum: [no, irreversible, protect_page_unlockable]
+        healthy:
+          type: boolean
+        lastScannedAt:
+          type: string
+          format: date-time
+        lastWrittenAt:
+          type: string
+          format: date-time
+        memoryUsedBytes:
+          type: integer
+        memoryTotalBytes:
+          type: integer
+
+    Spool:
+      type: object
+      required:
+        - id
+        - workspaceId
+        - brand
+        - materialType
+        - materialName
+        - tags
+        - netWeightG
+        - remainingWeightG
+        - filamentDiameterMm
+        - status
+        - addedBy
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspaceId:
+          type: string
+          format: uuid
+          description: Server-derived on create — see `POST .../spools`
+        brand:
+          type: string
+        materialType:
+          type: string
+          description: OpenPrintTag material code
+          enum:
+            [PLA, PETG, TPU, ABS, ASA, PC, PCTG, PP, PA6, PA11, PA12, PA612, PA66, CPE, TPE, HIPS, PHA, PET, PEI, PBT, PVB, PVA, PEKK, PEEK, BVOH, TPC, PPS, PPSU, PVC, PEBA, PVDF, PPA, PCL, PES, PMMA, POM, PPE, PS, PSU, TPI, SBS, OBC, EVA]
+        materialName:
+          type: string
+          example: Galaxy Black
+        tags:
+          type: array
+          description: OpenPrintTag material tags (biological/physical/electrical/chemical/visual/additive attributes)
+          items:
+            type: string
+        certifications:
+          type: array
+          items:
+            type: string
+            enum: [ul_2818, ul_94_v0, ul_2904]
+        colorHex:
+          type: string
+          example: '#26272f'
+        netWeightG:
+          type: number
+          description: Nominal filament weight as sold (excludes spool/container)
+        actualNetWeightG:
+          type: number
+        emptyContainerWeightG:
+          type: number
+        remainingWeightG:
+          type: number
+        filamentDiameterMm:
+          type: number
+          example: 1.75
+        densityGCm3:
+          type: number
+        totalLengthMm:
+          type: number
+        minNozzleTempC:
+          type: number
+        maxNozzleTempC:
+          type: number
+        preheatTempC:
+          type: number
+        minBedTempC:
+          type: number
+        maxBedTempC:
+          type: number
+        minChamberTempC:
+          type: number
+        maxChamberTempC:
+          type: number
+        idealChamberTempC:
+          type: number
+        maxVolumetricFlowMm3s:
+          type: number
+        partCoolingFanPct:
+          type: number
+        dryingTempC:
+          type: number
+        dryingTimeMin:
+          type: number
+        purchasePriceCents:
+          type: integer
+        purchaseCurrency:
+          type: string
+          example: USD
+        purchasedAt:
+          type: string
+          format: date-time
+        vendor:
+          type: string
+        storageLocation:
+          type: string
+        status:
+          type: string
+          enum: [in_use, stored, empty, archived]
+        loadedInPrinterId:
+          type: string
+          description: Not yet a real foreign key — no Printer resource exists in this API yet
+        openedAt:
+          type: string
+          format: date-time
+        brandUuid:
+          type: string
+        materialUuid:
+          type: string
+        packageUuid:
+          type: string
+        instanceUuid:
+          type: string
+        gtin:
+          type: string
+        batchLot:
+          type: string
+        serial:
+          type: string
+        manufacturedAt:
+          type: string
+          format: date-time
+        countryOfOrigin:
+          type: string
+        tag:
+          $ref: '#/components/schemas/SpoolNfcTagStatus'
+        addedBy:
+          type: string
+          description: Server-derived on create (JWT `sub`) — see `POST .../spools`
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NewSpool:
+      description: >
+        The full `Spool` shape minus server-generated fields (`id`,
+        `createdAt`, `updatedAt`). `workspaceId` and `addedBy` are part of
+        this shape but ignored server-side — see `POST .../spools`.
+      allOf:
+        - $ref: '#/components/schemas/Spool'
+      # id/createdAt/updatedAt are omitted by convention here, not by OpenAPI
+      # mechanics -- this schema exists for documentation clarity; POST
+      # accepts (and ignores) all Spool fields, since the handler validates
+      # only the specific required subset called out below.
+
+    UpdateSpoolInput:
+      description: >
+        Every field optional — send only what you want to change. Excludes
+        `id`, `workspaceId`, `addedBy`, `createdAt`, `updatedAt`
+        (server-controlled) and `tag` (NFC hardware state, only ever written
+        by an actual tag scan/write). Everything else in `Spool`, including
+        `netWeightG`, is updatable via this endpoint even where the current
+        frontend UI doesn't expose an editor for it.
+      allOf:
+        - $ref: '#/components/schemas/Spool'
+      # As with NewSpool, the exclusions above are documentation-only --
+      # PATCH .../spools/{spoolId} validates each present key against its
+      # own allowlist server-side, not against this schema mechanically.
+
+    UsageEvent:
+      type: object
+      required: [id, spoolId, workspaceId, printJobName, usedWeightG, loggedBy, occurredAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        spoolId:
+          type: string
+          format: uuid
+        workspaceId:
+          type: string
+          format: uuid
+        printJobName:
+          type: string
+        usedWeightG:
+          type: number
+        durationMin:
+          type: number
+        printerId:
+          type: string
+          description: Not yet a real foreign key — no Printer resource exists in this API yet
+        loggedBy:
+          type: string
+          description: The `User.id` who logged this usage event
+        occurredAt:
+          type: string
+          format: date-time

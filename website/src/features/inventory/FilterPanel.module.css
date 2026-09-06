@@ -1,0 +1,152 @@
+.panel {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  z-index: 30;
+  width: 344px;
+  max-width: calc(100vw - 40px);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 13px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font:
+    700 14px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text);
+}
+
+.close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font:
+    500 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+  padding: 0;
+}
+
+.sectionLabel {
+  font:
+    600 10px 'JetBrains Mono',
+    monospace;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 9px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.chip {
+  font:
+    600 12px 'Hanken Grotesk',
+    sans-serif;
+  padding: 6px 11px;
+  border-radius: 7px;
+  background: var(--color-chip);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted-2);
+  cursor: pointer;
+}
+
+.chip[data-active='true'] {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-brand-ink);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 16px;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  padding: 0;
+  cursor: pointer;
+}
+
+.swatch[data-active='true'] {
+  border: 2px solid var(--color-brand);
+}
+
+.brandSelect {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-chip);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font:
+    500 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text);
+  margin-bottom: 16px;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font:
+    500 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted-2);
+  margin-bottom: 18px;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.reset {
+  flex: 1;
+  text-align: center;
+  font:
+    600 12px 'Hanken Grotesk',
+    sans-serif;
+  padding: 10px;
+  border-radius: 9px;
+  background: var(--color-chip);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted-2);
+  cursor: pointer;
+}
+
+.apply {
+  flex: 2;
+  text-align: center;
+  font:
+    600 12px 'Hanken Grotesk',
+    sans-serif;
+  padding: 10px;
+  border-radius: 9px;
+  background: var(--color-brand);
+  border: none;
+  color: var(--color-brand-ink);
+  cursor: pointer;
+}

@@ -1,0 +1,28 @@
+# Copy this file to samconfig.toml and fill in your own AWS account's values.
+# samconfig.toml is gitignored — it holds real account IDs, role ARNs, and
+# DNS/domain identifiers that shouldn't be committed.
+version = 0.1
+
+[dev]
+[dev.deploy.parameters]
+stack_name = "filacrypt"
+s3_bucket = "<YOUR_SAM_DEPLOYMENTS_BUCKET>"
+s3_prefix = "filacrypt-dev"
+region = "us-east-1"
+confirm_changeset = true
+role_arn = "arn:aws:iam::<YOUR_ACCOUNT_ID>:role/filacrypt_sam_deployments"
+capabilities = "CAPABILITY_IAM"
+tags = "BACKUP=\"filacrypt\""
+parameter_overrides = "DomainName=<YOUR_DOMAIN> HostedZoneId=<YOUR_ROUTE53_HOSTED_ZONE_ID>"
+
+[prd]
+[prd.deploy.parameters]
+stack_name = "filacrypt"
+s3_bucket = "<YOUR_SAM_DEPLOYMENTS_BUCKET>"
+s3_prefix = "filacrypt-prd"
+region = "us-east-1"
+confirm_changeset = true
+role_arn = "arn:aws:iam::<YOUR_ACCOUNT_ID>:role/filacrypt_sam_deployments"
+capabilities = "CAPABILITY_IAM"
+tags = "BACKUP=\"filacrypt\""
+parameter_overrides = "DomainName=<YOUR_DOMAIN> HostedZoneId=<YOUR_ROUTE53_HOSTED_ZONE_ID>"

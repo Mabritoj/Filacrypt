@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Filacrypt Cognito user pool
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Apex domain used to construct the sender address (e.g. filacrypt.com)
+  SesIdentityArn:
+    Type: String
+    Description: Verified SES domain identity ARN to send from
+  SesConfigurationSetName:
+    Type: String
+    Description: SES configuration set name for tracking Cognito's email sends
+  CustomMessageFunctionArn:
+    Type: String
+    Description: ARN of the Lambda function handling Cognito custom-message triggers (e.g. branding the sign-in code email)
+
+Resources:
+  FilacryptUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: filacrypt-users
+      EmailConfiguration:
+        EmailSendingAccount: DEVELOPER
+        SourceArn: !Ref SesIdentityArn
+        From: !Sub 'Filacrypt <no-reply@${DomainName}>'
+        ConfigurationSet: !Ref SesConfigurationSetName
+      LambdaConfig:
+        CustomMessage: !Ref CustomMessageFunctionArn
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+        SignInPolicy:
+          # Cognito rejects updates that drop PASSWORD from this list entirely
+          # ("PASSWORD should be configured as one of the allowed first auth
+          # factors"). This does not re-enable password sign-in in the app --
+          # that's gated separately by FilacryptWebClient's ExplicitAuthFlows,
+          # which has no password-capable flow, and the app always requests
+          # EMAIL_OTP explicitly rather than letting Cognito offer a choice.
+          AllowedFirstAuthFactors:
+            - PASSWORD
+            - EMAIL_OTP
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+
+  FilacryptWebClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: filacrypt-web
+      UserPoolId: !Ref FilacryptUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: LEGACY
+
+Outputs:
+  UserPoolId:
+    Value: !Ref FilacryptUserPool
+  UserPoolArn:
+    Value: !GetAtt FilacryptUserPool.Arn
+  UserPoolClientId:
+    Value: !Ref FilacryptWebClient

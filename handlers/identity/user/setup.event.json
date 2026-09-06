@@ -1,0 +1,33 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /user/setup",
+  "rawPath": "/user/setup",
+  "rawQueryString": "",
+  "headers": { "authorization": "Bearer eyExampleJwt", "content-type": "application/json" },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "exampleapiid",
+    "authorizer": {
+      "jwt": {
+        "claims": { "sub": "user-123", "email": "jonathan@example.com", "email_verified": "true" },
+        "scopes": null
+      }
+    },
+    "domainName": "exampleapiid.execute-api.us-east-1.amazonaws.com",
+    "domainPrefix": "exampleapiid",
+    "http": {
+      "method": "POST",
+      "path": "/user/setup",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "curl/8.0"
+    },
+    "requestId": "example-request-id",
+    "routeKey": "POST /user/setup",
+    "stage": "$default",
+    "time": "11/Jul/2026:00:00:00 +0000",
+    "timeEpoch": 1752192000
+  },
+  "body": "{\"name\":\"Jonathan Mabrito\",\"username\":\"jmabrito\"}",
+  "isBase64Encoded": false
+}

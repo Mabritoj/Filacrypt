@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Filacrypt SES domain identity (Phase 1 -- not yet wired to Cognito)
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Apex domain to verify for sending (e.g. filacrypt.com)
+  HostedZoneId:
+    Type: String
+    Description: Route53 hosted zone ID for DomainName
+
+Resources:
+  SesConfigurationSet:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: filacrypt-ses
+
+  SesEmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref DomainName
+      DkimSigningAttributes:
+        NextSigningKeyLength: RSA_2048_BIT
+      MailFromAttributes:
+        MailFromDomain: !Sub 'mail.${DomainName}'
+        BehaviorOnMxFailure: USE_DEFAULT_VALUE
+      ConfigurationSetAttributes:
+        ConfigurationSetName: !Ref SesConfigurationSet
+
+  SesDkimRecord1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !GetAtt SesEmailIdentity.DkimDNSTokenName1
+      Type: CNAME
+      TTL: '300'
+      ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue1
+
+  SesDkimRecord2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !GetAtt SesEmailIdentity.DkimDNSTokenName2
+      Type: CNAME
+      TTL: '300'
+      ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue2
+
+  SesDkimRecord3:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !GetAtt SesEmailIdentity.DkimDNSTokenName3
+      Type: CNAME
+      TTL: '300'
+      ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue3
+
+  SesMailFromMxRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub 'mail.${DomainName}'
+      Type: MX
+      TTL: '300'
+      ResourceRecords:
+        - !Sub '10 feedback-smtp.${AWS::Region}.amazonses.com'
+
+  SesMailFromSpfRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub 'mail.${DomainName}'
+      Type: TXT
+      TTL: '300'
+      ResourceRecords:
+        - '"v=spf1 include:amazonses.com ~all"'
+
+  DmarcRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub '_dmarc.${DomainName}'
+      Type: TXT
+      TTL: '300'
+      ResourceRecords:
+        - '"v=DMARC1; p=none;"'
+
+Outputs:
+  SesIdentityArn:
+    Value: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${DomainName}'
+  SesConfigurationSetName:
+    Value: !Ref SesConfigurationSet

@@ -1,0 +1,50 @@
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sep {
+  color: var(--color-text-muted);
+}
+
+.link {
+  font:
+    600 13px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+}
+
+.current {
+  font:
+    600 13px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text);
+}
+
+.mobileBack {
+  display: none;
+}
+
+/* Below AppHeader's collapse breakpoint, only the final (current-page)
+   segment stays visible next to the brand mark — matches the app-wide
+   640px breakpoint convention (see CLAUDE.md Responsive Design). The
+   mobile-only back arrow (to the last item with a `to` before the final
+   segment) takes over the hidden segments' wayfinding role, so the final
+   segment's own separator is redundant and hidden alongside them. */
+@media (max-width: 640px) {
+  .hidable {
+    display: none;
+  }
+
+  .mobileBack {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text);
+  }
+
+  .sepLast {
+    display: none;
+  }
+}

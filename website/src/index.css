@@ -1,0 +1,85 @@
+:root {
+  /* 1480px keeps a 4-column spool grid's cards the same ~348px width the
+     original 3-column grid had at 1120px, instead of shrinking them. */
+  --content-max-width: 1480px;
+}
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #121110;
+  --color-surface: #1c1a17;
+  --color-surface-alt: #171410;
+  --color-chip: #2a2621;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
+  --color-text: #ece8e2;
+  --color-text-muted: #9d968c;
+  --color-text-muted-2: #b8b0a5;
+  --color-brand: #cf9161;
+  --color-brand-hover: #e0a878;
+  --color-brand-ink: #1a120b;
+  --color-danger: #d98a6a;
+  --color-danger-bg: rgba(217, 138, 106, 0.14);
+  --color-success: #86ae7f;
+  --color-success-bg: rgba(134, 174, 127, 0.12);
+  --color-destructive: #e0685f;
+  --color-destructive-bg: rgba(224, 104, 95, 0.1);
+  --color-accent-tint-bg: #1a1512;
+  --color-accent-tint-border: rgba(207, 145, 97, 0.28);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #faf8f3;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f2ede4;
+  --color-chip: #efe7dd;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.12);
+  --color-text: #22201c;
+  --color-text-muted: #6f685e;
+  --color-text-muted-2: #857d72;
+  --color-brand: #b06a37;
+  --color-brand-hover: #c17a44;
+  --color-brand-ink: #ffffff;
+  --color-danger: #c25b3a;
+  --color-danger-bg: rgba(194, 91, 58, 0.14);
+  --color-success: #4e8c5f;
+  --color-success-bg: rgba(78, 140, 95, 0.12);
+  --color-destructive: #c0392b;
+  --color-destructive-bg: rgba(192, 57, 43, 0.1);
+  --color-accent-tint-bg: #fbf4ec;
+  --color-accent-tint-border: rgba(176, 106, 55, 0.28);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-brand);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-brand-hover);
+}
+
+/*
+  Shared content-width container. Use this exact class (not a
+  per-page copy) on every page's outer wrapper so the header/logo
+  stay pixel-aligned when navigating between pages.
+*/
+.app-container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  box-sizing: border-box;
+}

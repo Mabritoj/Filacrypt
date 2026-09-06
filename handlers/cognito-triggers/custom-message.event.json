@@ -1,0 +1,27 @@
+{
+  "version": "1",
+  "region": "us-east-1",
+  "userPoolId": "us-east-1_test",
+  "userName": "12345678-1234-1234-1234-123456789012",
+  "callerContext": {
+    "awsSdkVersion": "aws-sdk-unknown-unknown",
+    "clientId": "test-client-id"
+  },
+  "triggerSource": "CustomMessage_Authentication",
+  "request": {
+    "userAttributes": {
+      "sub": "12345678-1234-1234-1234-123456789012",
+      "email": "maker@example.com",
+      "email_verified": "true"
+    },
+    "codeParameter": "{####}",
+    "linkParameter": "{##Verify Email##}",
+    "usernameParameter": null,
+    "clientMetadata": {}
+  },
+  "response": {
+    "smsMessage": null,
+    "emailMessage": null,
+    "emailSubject": null
+  }
+}

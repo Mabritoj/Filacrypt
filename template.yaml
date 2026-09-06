@@ -1,0 +1,533 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Filacrypt
+
+Globals:
+  Function:
+    Runtime: nodejs24.x
+    Timeout: 30 # 1s above API Gateway's 29s integration timeout
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Apex domain the website and API are served from (e.g. filacrypt.com)
+  HostedZoneId:
+    Type: String
+    Description: Route53 hosted zone ID for DomainName
+
+Resources:
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: filacrypt-common
+      ContentUri: layers/common/
+      CompatibleRuntimes:
+        - nodejs24.x
+    Metadata:
+      BuildMethod: makefile
+
+  DynamoDbStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/dynamodb.yaml
+
+  CognitoStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/cognito.yaml
+      Parameters:
+        DomainName: !Ref DomainName
+        SesIdentityArn: !GetAtt SesStack.Outputs.SesIdentityArn
+        SesConfigurationSetName: !GetAtt SesStack.Outputs.SesConfigurationSetName
+        CustomMessageFunctionArn: !GetAtt CognitoTriggersFunction.Arn
+
+  CloudFrontStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/cloudfront.yaml
+      Parameters:
+        DomainName: !Ref DomainName
+        HostedZoneId: !Ref HostedZoneId
+        # FunctionUrl is a full URL ('https://<host>/'); CloudFront wants the
+        # bare host, so strip the scheme and trailing slash.
+        ChatFunctionUrlDomain: !Select [2, !Split ['/', !GetAtt ChatFunctionUrl.FunctionUrl]]
+
+  ApiDomainStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/api-domain.yaml
+      Parameters:
+        DomainName: !Ref DomainName
+        HostedZoneId: !Ref HostedZoneId
+
+  SesStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/ses.yaml
+      Parameters:
+        DomainName: !Ref DomainName
+        HostedZoneId: !Ref HostedZoneId
+
+  FilacryptHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: filacrypt-api
+      Domain:
+        DomainName: !Sub 'api.${DomainName}'
+        CertificateArn: !GetAtt ApiDomainStack.Outputs.ApiCertificateArn
+        Route53:
+          HostedZoneId: !Ref HostedZoneId
+      # Real hosting domain now exists (CloudFrontStack), so the wildcard from
+      # before is gone. localhost is kept so `npm run dev` against this dev
+      # backend keeps working.
+      CorsConfiguration:
+        AllowOrigins:
+          - !Sub 'https://${DomainName}'
+          - 'http://localhost:3000'
+        AllowMethods:
+          - '*'
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            JwtConfiguration:
+              issuer: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${CognitoStack.Outputs.UserPoolId}'
+              audience:
+                - !GetAtt CognitoStack.Outputs.UserPoolClientId
+            IdentitySource: '$request.header.Authorization'
+          PermissionAuthorizer:
+            FunctionArn: !GetAtt PermissionAuthorizerFunction.Arn
+            FunctionPayloadType: REQUEST
+            Identity:
+              Headers:
+                - Authorization
+            AuthorizerPayloadFormatVersion: '2.0'
+            EnableSimpleResponses: true
+            AuthorizerResultTtlInSeconds: 0
+
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: filacrypt-health
+      CodeUri: handlers/health/
+      Handler: index.handler
+      MemorySize: 128
+      Layers:
+        - !Ref CommonLayer
+      Events:
+        HealthGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /health
+            Method: get
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        # sam build's esbuild integration doesn't copy the handler's package.json
+        # (with "type": "module") into the bundle, so a plain index.js next to no
+        # package.json defaults to CommonJS and fails on the ESM output at Lambda
+        # cold start. .mjs is always treated as ESM regardless of package.json --
+        # Handler: index.handler still resolves correctly against index.mjs.
+        OutExtension:
+          - '.js=.mjs'
+        # AWS SDK v3 (and other CJS deps) call require() at runtime for Node
+        # built-ins (e.g. node:https) -- esbuild's ESM output doesn't provide a
+        # working require/__filename/__dirname in that context by default,
+        # which crashes at invoke with "Dynamic require of ... is not
+        # supported". Shim all three via Node's createRequire.
+        Banner:
+          - 'js=import { createRequire } from "module"; import { fileURLToPath } from "url"; import { dirname } from "path"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);'
+        External:
+          - logger
+          - env-config
+
+  CognitoTriggersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: filacrypt-cognito-triggers
+      CodeUri: handlers/cognito-triggers/
+      Handler: index.handler
+      MemorySize: 128
+      Layers:
+        - !Ref CommonLayer
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        # See HealthFunction for why this is required -- sam build's esbuild
+        # integration doesn't carry the handler's package.json ("type": "module")
+        # into the bundle, so a plain index.js next to no package.json defaults to
+        # CommonJS and crashes on this ESM output at Lambda cold start. .mjs is
+        # always treated as ESM regardless of package.json -- Handler:
+        # index.handler still resolves correctly against index.mjs.
+        OutExtension:
+          - '.js=.mjs'
+        External:
+          - logger
+
+  CognitoTriggersInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref CognitoTriggersFunction
+      Action: lambda:InvokeFunction
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !GetAtt CognitoStack.Outputs.UserPoolArn
+
+  IdentityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: filacrypt-identity
+      CodeUri: handlers/identity/
+      Handler: index.handler
+      MemorySize: 256
+      Layers:
+        - !Ref CommonLayer
+      Environment:
+        Variables:
+          TABLE_NAME: !GetAtt DynamoDbStack.Outputs.TableName
+          USER_POOL_ID: !GetAtt CognitoStack.Outputs.UserPoolId
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt DynamoDbStack.Outputs.TableName
+        - Statement:
+            - Effect: Allow
+              Action: cognito-idp:AdminDeleteUser
+              Resource: !GetAtt CognitoStack.Outputs.UserPoolArn
+      Events:
+        Me:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /me
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+        MePatch:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /me
+            Method: patch
+            Auth:
+              Authorizer: CognitoAuthorizer
+        MeDelete:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /me
+            Method: delete
+            Auth:
+              Authorizer: CognitoAuthorizer
+        MeDeletionImpact:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /me/deletion-impact
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+        UserSetup:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /user/setup
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        OutExtension:
+          - '.js=.mjs'
+        Banner:
+          - 'js=import { createRequire } from "module"; import { fileURLToPath } from "url"; import { dirname } from "path"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);'
+        External:
+          - logger
+          - env-config
+
+  WorkspaceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: filacrypt-workspace
+      CodeUri: handlers/workspace/
+      Handler: index.handler
+      MemorySize: 256
+      Layers:
+        - !Ref CommonLayer
+      Environment:
+        Variables:
+          TABLE_NAME: !GetAtt DynamoDbStack.Outputs.TableName
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt DynamoDbStack.Outputs.TableName
+      Events:
+        WorkspaceGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}
+            Method: get
+            Auth:
+              Authorizer: PermissionAuthorizer
+        WorkspacePatch:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}
+            Method: patch
+            Auth:
+              Authorizer: PermissionAuthorizer
+        SpoolsList:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/spools
+            Method: get
+            Auth:
+              Authorizer: PermissionAuthorizer
+        SpoolsCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/spools
+            Method: post
+            Auth:
+              Authorizer: PermissionAuthorizer
+        SpoolGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/spools/{spoolId}
+            Method: get
+            Auth:
+              Authorizer: PermissionAuthorizer
+        SpoolUpdate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/spools/{spoolId}
+            Method: patch
+            Auth:
+              Authorizer: PermissionAuthorizer
+        SpoolDelete:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/spools/{spoolId}
+            Method: delete
+            Auth:
+              Authorizer: PermissionAuthorizer
+        SpoolUsage:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/spools/{spoolId}/usage
+            Method: get
+            Auth:
+              Authorizer: PermissionAuthorizer
+        MembersList:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/members
+            Method: get
+            Auth:
+              Authorizer: PermissionAuthorizer
+        MembersInvite:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/members
+            Method: post
+            Auth:
+              Authorizer: PermissionAuthorizer
+        MemberRoleUpdate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/members/{userId}/role
+            Method: patch
+            Auth:
+              Authorizer: PermissionAuthorizer
+        MemberPermissionsUpdate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/members/{userId}/permissions
+            Method: patch
+            Auth:
+              Authorizer: PermissionAuthorizer
+        MemberRemove:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FilacryptHttpApi
+            Path: /workspaces/{workspaceId}/members/{userId}
+            Method: delete
+            Auth:
+              Authorizer: PermissionAuthorizer
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        # See HealthFunction/IdentityFunction for why both of these are required --
+        # esbuild's ESM output crashes at Lambda cold start / invoke time without them.
+        OutExtension:
+          - '.js=.mjs'
+        Banner:
+          - 'js=import { createRequire } from "module"; import { fileURLToPath } from "url"; import { dirname } from "path"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);'
+        External:
+          - logger
+          - env-config
+          - workspace-auth
+          - dynamo-utils
+
+  PermissionAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: filacrypt-permission-authorizer
+      CodeUri: handlers/permission-authorizer/
+      Handler: index.handler
+      MemorySize: 128
+      Layers:
+        - !Ref CommonLayer
+      Environment:
+        Variables:
+          TABLE_NAME: !GetAtt DynamoDbStack.Outputs.TableName
+          COGNITO_USER_POOL_ID: !GetAtt CognitoStack.Outputs.UserPoolId
+          COGNITO_CLIENT_ID: !GetAtt CognitoStack.Outputs.UserPoolClientId
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !GetAtt DynamoDbStack.Outputs.TableName
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        OutExtension:
+          - '.js=.mjs'
+        Banner:
+          - 'js=import { createRequire } from "module"; import { fileURLToPath } from "url"; import { dirname } from "path"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);'
+        External:
+          - logger
+          - env-config
+          - workspace-auth
+
+  PermissionAuthorizerInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref PermissionAuthorizerFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${FilacryptHttpApi}/*'
+
+  ChatFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: filacrypt-chat
+      CodeUri: handlers/chat/
+      Handler: index.handler
+      # Overrides the 30s global: a chat turn can run several Bedrock round trips.
+      Timeout: 60
+      MemorySize: 512
+      Layers:
+        - !Ref CommonLayer
+      FunctionUrlConfig:
+        # The Lambda verifies the Cognito ID token itself (handlers/chat/auth.ts)
+        # -- a Function URL cannot use the HTTP API's JWT authorizer, and IAM auth
+        # would require SigV4 credentials the browser does not have.
+        AuthType: NONE
+        InvokeMode: RESPONSE_STREAM
+        Cors:
+          AllowOrigins:
+            - !Sub 'https://${DomainName}'
+            - 'http://localhost:3000'
+          AllowHeaders:
+            - Authorization
+            - Content-Type
+          AllowMethods:
+            - POST
+      Environment:
+        Variables:
+          TABLE_NAME: !GetAtt DynamoDbStack.Outputs.TableName
+          COGNITO_USER_POOL_ID: !GetAtt CognitoStack.Outputs.UserPoolId
+          COGNITO_CLIENT_ID: !GetAtt CognitoStack.Outputs.UserPoolClientId
+          # No BEDROCK_MODEL_ID here -- the model is hardcoded in
+          # handlers/chat/index.ts. See the comment on ChatFunction's IAM
+          # policy below for why an env var isn't good enough here.
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !GetAtt DynamoDbStack.Outputs.TableName
+        - Statement:
+            # bedrock-runtime's InvokeModelWithResponseStream, not Mantle's
+            # bedrock-mantle:CreateInference. Mantle was tried first (see git
+            # history) but its account-level model entitlement never cleared
+            # for this account even after Bedrock's "submit use case details"
+            # gate cleared for bedrock-runtime -- so this function uses the
+            # endpoint that's actually proven working.
+            #
+            # Two Resources are both required, per AWS's own inference-profile
+            # docs: "When you specify an inference profile in the Resource
+            # field ... you must also specify the foundation model in each
+            # Region associated with it." The foundation-model ARN uses a
+            # region wildcard rather than an enumerated region list, since the
+            # `us.` cross-region profile's exact member regions aren't
+            # something we control or want to hardcode -- AWS can rebalance
+            # which region actually serves a given request.
+            #
+            # Unlike Mantle's project-scoped resource, this ARN genuinely is
+            # model-specific: IAM alone would stop this role from invoking any
+            # model other than Haiku through this profile.
+            - Effect: Allow
+              Action:
+                - 'bedrock:InvokeModelWithResponseStream'
+              Resource:
+                - !Sub 'arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0'
+                - 'arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        OutExtension:
+          - '.js=.mjs'
+        Banner:
+          - 'js=import { createRequire } from "module"; import { fileURLToPath } from "url"; import { dirname } from "path"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);'
+        External:
+          - logger
+          - env-config
+          - workspace-auth
+          - dynamo-utils
+        EntryPoints:
+          - index.ts
+
+Outputs:
+  ApiUrl:
+    Description: Base invoke URL for the HTTP API (custom domain -- the default execute-api URL still works underneath but isn't the address anything should point at)
+    Value: !Sub 'https://api.${DomainName}'
+  TableName:
+    Description: DynamoDB table name
+    Value: !GetAtt DynamoDbStack.Outputs.TableName
+  UserPoolId:
+    Description: Cognito user pool id
+    Value: !GetAtt CognitoStack.Outputs.UserPoolId
+  UserPoolClientId:
+    Description: Cognito app client id
+    Value: !GetAtt CognitoStack.Outputs.UserPoolClientId
+  ChatFunctionUrl:
+    Description: Function URL for the streaming chat handler (VITE_CHAT_URL)
+    Value: !GetAtt ChatFunctionUrl.FunctionUrl
+  WebsiteBucketName:
+    Description: S3 bucket name for the deployed website build
+    Value: !GetAtt CloudFrontStack.Outputs.WebsiteBucketName
+  CloudFrontDistributionId:
+    Description: CloudFront distribution ID, for deploy:website's cache invalidation
+    Value: !GetAtt CloudFrontStack.Outputs.CloudFrontDistributionId
+  SesIdentityArn:
+    Description: SES domain identity ARN for filacrypt.com (Phase 1 -- not yet wired to Cognito)
+    Value: !GetAtt SesStack.Outputs.SesIdentityArn
+  SesConfigurationSetName:
+    Description: SES configuration set name, for Phase 2's future Cognito EmailConfiguration wiring
+    Value: !GetAtt SesStack.Outputs.SesConfigurationSetName

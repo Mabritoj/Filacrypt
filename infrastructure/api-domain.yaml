@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Filacrypt API custom domain certificate
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Apex domain (e.g. filacrypt.com) -- this cert covers api.<DomainName>
+  HostedZoneId:
+    Type: String
+    Description: Route53 hosted zone ID for DomainName
+
+Resources:
+  ApiCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub 'api.${DomainName}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub 'api.${DomainName}'
+          HostedZoneId: !Ref HostedZoneId
+
+Outputs:
+  ApiCertificateArn:
+    Value: !Ref ApiCertificate

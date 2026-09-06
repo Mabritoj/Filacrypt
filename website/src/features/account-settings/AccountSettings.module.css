@@ -1,0 +1,249 @@
+.title {
+  margin: 0 0 4px;
+  font:
+    700 28px 'Hanken Grotesk',
+    sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.subtitle {
+  margin: 0 0 28px;
+  font:
+    500 14px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+}
+
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-brand), #8a5227);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font:
+    700 22px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-brand-ink);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field {
+  display: block;
+}
+
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.fieldLabel {
+  font:
+    600 11px 'JetBrains Mono',
+    monospace;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.input {
+  margin-top: 7px;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+  padding: 11px 13px;
+  color: var(--color-text);
+  font:
+    500 14px 'Hanken Grotesk',
+    sans-serif;
+  outline: none;
+}
+
+.emailRow {
+  margin-top: 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+  padding: 11px 13px;
+}
+
+.emailInput {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font:
+    500 14px 'Hanken Grotesk',
+    sans-serif;
+  outline: none;
+}
+
+.verifiedBadge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font:
+    700 10px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+
+.securityRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.securityRowLast {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+.securityLabel {
+  font:
+    600 14px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text);
+}
+
+.securityMeta {
+  font:
+    500 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.enabledBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font:
+    600 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-success);
+}
+
+.enabledDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+.unitRow {
+  margin-top: 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+  padding: 11px 13px;
+}
+
+.unitInput {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font:
+    500 14px 'Hanken Grotesk',
+    sans-serif;
+  outline: none;
+}
+
+.unitLabel {
+  flex: none;
+  font:
+    600 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+}
+
+.disabledField {
+  margin-top: 7px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+  padding: 11px 13px;
+  font:
+    500 14px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+}
+
+.saveBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 22px 0 34px;
+}
+
+.dangerCard {
+  border: 1px solid var(--color-destructive-bg);
+  background: color-mix(in srgb, var(--color-destructive) 5%, transparent);
+  border-radius: 16px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dangerTitle {
+  font:
+    700 14px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-destructive);
+}
+
+.dangerMeta {
+  font:
+    500 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

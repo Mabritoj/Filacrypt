@@ -1,0 +1,28 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font:
+    700 15px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text);
+  margin-bottom: 18px;
+}
+
+.titleTight {
+  composes: title;
+  margin-bottom: 4px;
+}
+
+.description {
+  font:
+    500 12px 'Hanken Grotesk',
+    sans-serif;
+  color: var(--color-text-muted);
+  margin-bottom: 18px;
+}

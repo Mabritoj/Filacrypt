@@ -1,0 +1,191 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Filacrypt website hosting (S3 + CloudFront + ACM + Route53)
+
+# WebsiteCertificate below must be in us-east-1 -- a hard CloudFront requirement.
+# Nested stacks always deploy in their parent stack's region, so this only works
+# because samconfig.toml's [dev] section sets region = "us-east-1". Changing that
+# region in the future would break this stack.
+Parameters:
+  DomainName:
+    Type: String
+    Description: Apex domain the website is served from (e.g. filacrypt.com)
+  HostedZoneId:
+    Type: String
+    Description: Route53 hosted zone ID for DomainName
+  ChatFunctionUrlDomain:
+    Type: String
+    Description: >-
+      Host of the chat Lambda's Function URL (no scheme, no trailing slash).
+      Serving it under the site's own domain makes the widget's request
+      same-origin, so the browser never sends a CORS preflight.
+
+Resources:
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      # Bucket name must be globally unique across all AWS accounts, not just this
+      # one -- the domain name itself guarantees that, the filacrypt-<service>
+      # convention used elsewhere in this project doesn't.
+      BucketName: !Ref DomainName
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireNoncurrentVersions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 7
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  WebsiteOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: filacrypt-website-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  WebsiteCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+
+  WebsiteDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: filacrypt-website
+        Enabled: true
+        DefaultRootObject: index.html
+        Aliases:
+          - !Ref DomainName
+        ViewerCertificate:
+          AcmCertificateArn: !Ref WebsiteCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: WebsiteBucketOrigin
+            DomainName: !GetAtt WebsiteBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt WebsiteOriginAccessControl.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+          # No OriginAccessControlId here, deliberately. OAC would have CloudFront
+          # overwrite the viewer's Authorization header with its own SigV4
+          # signature -- but that header carries the Cognito ID token the chat
+          # Lambda authenticates on. The 'no-override' signing mode preserves the
+          # viewer header but then doesn't sign, so IAM auth fails either way.
+          # OAC also requires the browser to send an x-amz-content-sha256 of the
+          # request body. The Function URL therefore stays AuthType: NONE and the
+          # Lambda remains responsible for its own authentication.
+          - Id: ChatFunctionOrigin
+            DomainName: !Ref ChatFunctionUrlDomain
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        CacheBehaviors:
+          - PathPattern: /chat
+            TargetOriginId: ChatFunctionOrigin
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            # Compression buffers the response, which would defeat the whole
+            # point -- the widget renders assistant text as it streams in.
+            Compress: false
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # AWS managed: CachingDisabled
+            # AllViewer would forward the viewer's Host header, which breaks a
+            # Function URL origin -- Lambda routes on its own hostname and the
+            # TLS SNI has to match it. This policy forwards everything else,
+            # including the Authorization header the chat handler needs.
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # AWS managed: AllViewerExceptHostHeader
+        DefaultCacheBehavior:
+          TargetOriginId: WebsiteBucketOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # AWS managed: CachingOptimized
+        # SPA deep-link support: S3 404s on /inventory/xyz, and this rewrites it
+        # to the app shell so the client router can handle the route.
+        #
+        # These are distribution-wide -- CloudFront has no per-behavior error
+        # config -- so they also cover /chat. In practice the chat handler always
+        # returns 200 and reports failures as in-band NDJSON error events, so
+        # this never fires for it. But if the Function URL itself ever 403s
+        # (throttled, permission removed), the widget receives index.html and
+        # fails at JSON.parse rather than showing a useful message.
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${WebsiteBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${WebsiteDistribution}'
+
+  WebsiteDnsRecordA:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt WebsiteDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # fixed CloudFront hosted zone ID, same for every distribution/region
+        EvaluateTargetHealth: false
+
+  WebsiteDnsRecordAAAA:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt WebsiteDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+        EvaluateTargetHealth: false
+
+Outputs:
+  WebsiteBucketName:
+    Value: !Ref WebsiteBucket
+  CloudFrontDistributionId:
+    Value: !Ref WebsiteDistribution

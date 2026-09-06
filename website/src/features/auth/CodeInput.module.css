@@ -1,0 +1,25 @@
+.row {
+  display: flex;
+  gap: 6px;
+}
+
+.box {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 42px;
+  height: 52px;
+  box-sizing: border-box;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+  color: var(--color-text);
+  font:
+    700 20px 'Hanken Grotesk',
+    sans-serif;
+  text-align: center;
+  outline: none;
+}
+
+.box:disabled {
+  opacity: 0.6;
+}
