@@ -249,6 +249,8 @@ Resources:
         External:
           - logger
           - env-config
+          - event-utils
+          - http-responses
 
   WorkspaceFunction:
     Type: AWS::Serverless::Function
@@ -385,6 +387,8 @@ Resources:
           - env-config
           - workspace-auth
           - dynamo-utils
+          - event-utils
+          - http-responses
 
   PermissionAuthorizerFunction:
     Type: AWS::Serverless::Function

@@ -1,5 +1,7 @@
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
+import { getPathParam } from 'event-utils';
+import { validationError } from 'http-responses';
 import type { WorkspaceEvent } from '../index.js';
 import { updateSpool, type Spool } from '../spools-lookup.js';
 
@@ -36,6 +38,7 @@ const STRING_UPDATE_KEYS: (keyof Spool)[] = [
   'vendor',
   'storageLocation',
   'status',
+  'loadedInPrinterId',
   'openedAt',
   'brandUuid',
   'materialUuid',
@@ -48,13 +51,9 @@ const STRING_UPDATE_KEYS: (keyof Spool)[] = [
   'countryOfOrigin',
 ];
 
-const ARRAY_UPDATE_KEYS: (keyof Spool)[] = ['tags'];
+const ARRAY_UPDATE_KEYS: (keyof Spool)[] = ['tags', 'certifications'];
 
 const ALLOWED_UPDATE_KEYS: (keyof Spool)[] = [...NUMBER_UPDATE_KEYS, ...STRING_UPDATE_KEYS, ...ARRAY_UPDATE_KEYS];
-
-function validationError(message: string): APIGatewayProxyStructuredResultV2 {
-  return { statusCode: 400, body: JSON.stringify({ error: { code: 'VALIDATION_ERROR', message } }) };
-}
 
 function notFound(): APIGatewayProxyStructuredResultV2 {
   return {
@@ -67,8 +66,8 @@ export async function handler(
   event: WorkspaceEvent,
   logger: Logger,
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  const workspaceId = event.pathParameters?.workspaceId as string;
-  const spoolId = event.pathParameters?.spoolId as string;
+  const workspaceId = getPathParam(event, 'workspaceId');
+  const spoolId = getPathParam(event, 'spoolId');
 
   let body: Record<string, unknown>;
   try {

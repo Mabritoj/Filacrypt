@@ -18,3 +18,11 @@ build-CommonLayer:
 	  --banner:js='import { createRequire } from "module"; import { fileURLToPath } from "url"; import { dirname } from "path"; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);' \
 	  --outfile="$(ARTIFACTS_DIR)/nodejs/node_modules/dynamo-utils/index.js"
 	cp src/dynamo-utils/package.json "$(ARTIFACTS_DIR)/nodejs/node_modules/dynamo-utils/package.json"
+	mkdir -p "$(ARTIFACTS_DIR)/nodejs/node_modules/http-responses"
+	npx esbuild src/http-responses/index.ts --bundle --platform=node --format=esm \
+	  --outfile="$(ARTIFACTS_DIR)/nodejs/node_modules/http-responses/index.js"
+	cp src/http-responses/package.json "$(ARTIFACTS_DIR)/nodejs/node_modules/http-responses/package.json"
+	mkdir -p "$(ARTIFACTS_DIR)/nodejs/node_modules/event-utils"
+	npx esbuild src/event-utils/index.ts --bundle --platform=node --format=esm \
+	  --outfile="$(ARTIFACTS_DIR)/nodejs/node_modules/event-utils/index.js"
+	cp src/event-utils/package.json "$(ARTIFACTS_DIR)/nodejs/node_modules/event-utils/package.json"

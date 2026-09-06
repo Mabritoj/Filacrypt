@@ -10,6 +10,8 @@ module.exports = {
     '^env-config$': '<rootDir>/layers/common/src/config/index.ts',
     '^workspace-auth$': '<rootDir>/layers/common/src/workspace-auth/index.ts',
     '^dynamo-utils$': '<rootDir>/layers/common/src/dynamo-utils/index.ts',
+    '^http-responses$': '<rootDir>/layers/common/src/http-responses/index.ts',
+    '^event-utils$': '<rootDir>/layers/common/src/event-utils/index.ts',
     // Handler folders and layers/common/ each get their own independent `npm install`
     // (see CLAUDE.md), so '@aws-sdk/lib-dynamodb'/'@aws-sdk/client-dynamodb' resolve to
     // physically distinct copies per folder. aws-sdk-client-mock's `.on(Command)` matches

@@ -14,7 +14,9 @@
       "logger": ["layers/common/src/logger/index.ts"],
       "env-config": ["layers/common/src/config/index.ts"],
       "workspace-auth": ["layers/common/src/workspace-auth/index.ts"],
-      "dynamo-utils": ["layers/common/src/dynamo-utils/index.ts"]
+      "dynamo-utils": ["layers/common/src/dynamo-utils/index.ts"],
+      "http-responses": ["layers/common/src/http-responses/index.ts"],
+      "event-utils": ["layers/common/src/event-utils/index.ts"]
     }
   },
   "include": ["handlers/**/*.ts", "layers/common/src/**/*.ts"]

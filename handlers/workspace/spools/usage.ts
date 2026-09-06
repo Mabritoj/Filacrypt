@@ -1,5 +1,6 @@
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
+import { getPathParam } from 'event-utils';
 import type { WorkspaceEvent } from '../index.js';
 import { getSpool } from '../spools-lookup.js';
 import { listUsageEvents } from '../usage-lookup.js';
@@ -8,8 +9,8 @@ export async function handler(
   event: WorkspaceEvent,
   logger: Logger,
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  const workspaceId = event.pathParameters?.workspaceId as string;
-  const spoolId = event.pathParameters?.spoolId as string;
+  const workspaceId = getPathParam(event, 'workspaceId');
+  const spoolId = getPathParam(event, 'spoolId');
 
   try {
     // Confirm the spool actually belongs to this workspace before querying its

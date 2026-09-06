@@ -2,20 +2,18 @@ import { CognitoIdentityProviderClient, AdminDeleteUserCommand } from '@aws-sdk/
 import { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
 import { requireEnv } from 'env-config';
+import { getUserId } from 'event-utils';
+import { validationError } from 'http-responses';
 import { deleteUserAccount, getDeletionImpact, type WorkspaceResolution } from './lookup.js';
 
 const cognitoClient = new CognitoIdentityProviderClient({});
 const userPoolId = requireEnv('USER_POOL_ID');
 
-function validationError(message: string): APIGatewayProxyStructuredResultV2 {
-  return { statusCode: 400, body: JSON.stringify({ error: { code: 'VALIDATION_ERROR', message } }) };
-}
-
 export async function handler(
   event: APIGatewayProxyEventV2WithJWTAuthorizer,
   logger: Logger,
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
+  const userId = getUserId(event);
 
   let body: { workspaceResolutions?: Record<string, { action?: unknown; newOwnerId?: unknown }> };
   try {

@@ -1,5 +1,7 @@
 import { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
+import { getUserId } from 'event-utils';
+import { validationError } from 'http-responses';
 import { updateUserPreferences, type UserProfile } from './lookup.js';
 
 type Preferences = UserProfile['preferences'];
@@ -14,10 +16,6 @@ const ALLOWED_VALUES: { [K in keyof Preferences]?: readonly string[] } = {
 
 const ALLOWED_KEYS = ['weightUnit', 'temperatureUnit', 'lengthUnit', 'currency', 'theme', 'defaultEntryMode'] as const;
 
-function validationError(message: string): APIGatewayProxyStructuredResultV2 {
-  return { statusCode: 400, body: JSON.stringify({ error: { code: 'VALIDATION_ERROR', message } }) };
-}
-
 function notFound(): APIGatewayProxyStructuredResultV2 {
   return {
     statusCode: 404,
@@ -29,7 +27,7 @@ export async function handler(
   event: APIGatewayProxyEventV2WithJWTAuthorizer,
   logger: Logger,
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
+  const userId = getUserId(event);
 
   let body: { preferences?: Record<string, unknown> };
   try {
