@@ -152,21 +152,7 @@ describe('ProfileMenu', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it('shows the current workspace name with an "(owner)" suffix when the user owns it', async () => {
-    renderWithProviders(<ProfileMenu />);
-    fireEvent.click(screen.getByRole('button', { name: 'Open profile menu' }));
-    const menu = screen.getByRole('menu');
-
-    const workspaceName = await within(menu).findByTestId('workspace-name');
-    expect(workspaceName).toHaveTextContent('My Workspace (owner)');
-  });
-
-  it('omits the "(owner)" suffix when the user does not own the workspace', async () => {
-    server.use(
-      http.get(`${import.meta.env.VITE_API_URL}/workspaces/workspace-1`, () =>
-        HttpResponse.json({ workspace: { ...mockWorkspace, ownerId: 'someone-else' } }),
-      ),
-    );
+  it('shows just the workspace name, without an owner/role suffix, even when the user owns it', async () => {
     renderWithProviders(<ProfileMenu />);
     fireEvent.click(screen.getByRole('button', { name: 'Open profile menu' }));
     const menu = screen.getByRole('menu');

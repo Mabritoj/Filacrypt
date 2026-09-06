@@ -139,13 +139,6 @@
   color: var(--color-text);
 }
 
-.workspaceRole {
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text-muted);
-}
-
 .switchWorkspaceButton {
   display: flex;
   align-items: center;
