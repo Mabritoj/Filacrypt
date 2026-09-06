@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signOut } from 'aws-amplify/auth';
 import { useDismissablePanel } from '../hooks/useDismissablePanel';
 import { useThemeStore } from '../stores/themeStore';
-import { useUser, useUpdateUserPreferences } from '../api/user';
+import { useUpdateUserPreferences } from '../api/user';
 import { useWorkspace } from '../api/workspace';
 import { useWorkspaceId } from '../hooks/useWorkspaceId';
 import styles from './ProfileMenu.module.css';
@@ -21,7 +21,6 @@ export function ProfileMenu({ name = 'Maker', email = 'you@filacrypt.com' }: Pro
   const updatePreferences = useUpdateUserPreferences();
   const rootRef = useDismissablePanel<HTMLDivElement>(open, () => setOpen(false));
 
-  const { data: user } = useUser();
   const workspaceId = useWorkspaceId();
   const { data: workspace } = useWorkspace(workspaceId ?? '');
 
@@ -76,9 +75,6 @@ export function ProfileMenu({ name = 'Maker', email = 'you@filacrypt.com' }: Pro
               <div className={styles.workspaceRow}>
                 <span className={styles.workspaceName} data-testid="workspace-name">
                   {workspace.name}
-                  {workspace.ownerId === user?.id && (
-                    <span className={styles.workspaceRole}> (owner)</span>
-                  )}
                 </span>
                 <button
                   type="button"
