@@ -221,7 +221,7 @@ export function ScanSpool() {
         minBedTempC: values.bedTempC,
         maxBedTempC: values.bedTempC,
         status: 'in_use',
-        addedBy: 'user-1',
+        addedBy: userQuery.data?.id ?? '',
         tag: scannedTag?.status,
       },
       {

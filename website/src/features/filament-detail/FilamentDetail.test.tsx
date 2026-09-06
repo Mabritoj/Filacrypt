@@ -180,6 +180,35 @@ describe('FilamentDetail', () => {
     expect(screen.getByText('50%')).toBeInTheDocument();
   });
 
+  it('shows an error message, not a "not found" state, when the spool fetch fails', async () => {
+    server.use(
+      http.get(`${import.meta.env.VITE_API_URL}/workspaces/ws-1/spools/:id`, () =>
+        HttpResponse.json(
+          { error: { code: 'INTERNAL_ERROR', message: 'Could not load spool' } },
+          { status: 500 },
+        ),
+      ),
+    );
+    renderAtSpool('spool-galaxy-black');
+
+    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
+    expect(screen.queryByText('Spool not found.')).not.toBeInTheDocument();
+  });
+
+  it('shows an error message when the usage-history fetch fails', async () => {
+    server.use(
+      http.get(`${import.meta.env.VITE_API_URL}/workspaces/ws-1/spools/:id/usage`, () =>
+        HttpResponse.json(
+          { error: { code: 'INTERNAL_ERROR', message: 'Could not load usage' } },
+          { status: 500 },
+        ),
+      ),
+    );
+    renderAtSpool('spool-galaxy-black');
+
+    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
+  });
+
   it('shows a not-found state for an unknown spool id', async () => {
     renderAtSpool('does-not-exist');
     expect(await screen.findByText('Spool not found.')).toBeInTheDocument();

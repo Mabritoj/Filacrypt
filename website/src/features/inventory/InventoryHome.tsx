@@ -4,11 +4,13 @@ import { useSpools } from '../../api/spools';
 import { usePreferences } from '../../api/user';
 import { useWorkspace } from '../../api/workspace';
 import { AppHeader } from '../../components/AppHeader';
+import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
 import { useDismissablePanel } from '../../hooks/useDismissablePanel';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { formatWeight } from '../../utils/units';
+import { canFilament } from '../../utils/permissions';
 import { Button } from '../../components/Button';
 import { FilterPanel } from './FilterPanel';
 import { SpoolCard } from './SpoolCard';
@@ -32,10 +34,7 @@ export function InventoryHome() {
   const spools = useMemo(() => spoolsData ?? [], [spoolsData]);
   const lowStockThresholdG = workspaceQuery.data?.lowStockThresholdG ?? 0;
   const workspace = workspaceQuery.data;
-  const canAddSpool =
-    workspace?.callerRole === 'owner' ||
-    workspace?.callerRole === 'admin' ||
-    Boolean(workspace?.callerFilamentPermissions?.create);
+  const canAddSpool = canFilament(workspace, 'create');
 
   const {
     filters,
@@ -81,6 +80,14 @@ export function InventoryHome() {
     return (
       <PageShell centered header={<AppHeader />}>
         <LoadingSpool message="Loading inventory…" />
+      </PageShell>
+    );
+  }
+
+  if (spoolsQuery.isError || workspaceQuery.isError) {
+    return (
+      <PageShell centered header={<AppHeader />}>
+        <ErrorMessage message="Something went wrong loading your inventory." />
       </PageShell>
     );
   }
