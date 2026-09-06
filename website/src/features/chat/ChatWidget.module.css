@@ -135,11 +135,15 @@
     height: 48px;
   }
 
+  .badge[data-open='true'] {
+    display: none;
+  }
+
   .panel {
-    right: 8px;
-    left: 8px;
-    bottom: 68px;
+    inset: 0;
     width: auto;
-    max-height: calc(100vh - 76px);
+    max-height: none;
+    border: none;
+    border-radius: 0;
   }
 }
