@@ -33,6 +33,34 @@ test('forwards only the allowed fields and returns the updated spool', async () 
   expect(mockUpdateSpool).toHaveBeenCalledWith('ws-1', 'spool-1', { brand: 'New Brand' });
 });
 
+test('forwards loadedInPrinterId, a documented-updatable field currently missing from the allowlist', async () => {
+  mockUpdateSpool.mockResolvedValue({ id: 'spool-1', loadedInPrinterId: 'printer-123' });
+
+  const result = await handler(
+    mockEvent('ws-1', 'spool-1', { loadedInPrinterId: 'printer-123' }),
+    mockLogger,
+  );
+
+  expect(result.statusCode).toBe(200);
+  expect(mockUpdateSpool).toHaveBeenCalledWith('ws-1', 'spool-1', {
+    loadedInPrinterId: 'printer-123',
+  });
+});
+
+test('forwards certifications, a documented-updatable field currently missing from the allowlist', async () => {
+  mockUpdateSpool.mockResolvedValue({ id: 'spool-1', certifications: ['ul_2818'] });
+
+  const result = await handler(
+    mockEvent('ws-1', 'spool-1', { certifications: ['ul_2818'] }),
+    mockLogger,
+  );
+
+  expect(result.statusCode).toBe(200);
+  expect(mockUpdateSpool).toHaveBeenCalledWith('ws-1', 'spool-1', {
+    certifications: ['ul_2818'],
+  });
+});
+
 test('returns 404 when the spool does not exist', async () => {
   mockUpdateSpool.mockResolvedValue(null);
 

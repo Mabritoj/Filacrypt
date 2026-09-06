@@ -123,10 +123,15 @@ export async function updateSpool(
   spoolId: string,
   updates: Partial<Spool>,
 ): Promise<Spool | null> {
-  const keys = Object.keys(updates) as (keyof Spool)[];
-  if (keys.length === 0) {
+  const requestedKeys = Object.keys(updates) as (keyof Spool)[];
+  if (requestedKeys.length === 0) {
     return getSpool(workspaceId, spoolId);
   }
+
+  // updatedAt is server-controlled -- always bumped on a real update,
+  // regardless of what the caller asked to change.
+  const values: Partial<Spool> = { ...updates, updatedAt: new Date().toISOString() };
+  const keys = Object.keys(values) as (keyof Spool)[];
 
   try {
     const result = await ddbClient.send(
@@ -135,7 +140,7 @@ export async function updateSpool(
         Key: { PK: `WORKSPACE#${workspaceId}`, SK: `SPOOL#${spoolId}` },
         UpdateExpression: `SET ${keys.map((_key, i) => `#k${i} = :v${i}`).join(', ')}`,
         ExpressionAttributeNames: Object.fromEntries(keys.map((key, i) => [`#k${i}`, key])),
-        ExpressionAttributeValues: Object.fromEntries(keys.map((key, i) => [`:v${i}`, updates[key]])),
+        ExpressionAttributeValues: Object.fromEntries(keys.map((key, i) => [`:v${i}`, values[key]])),
         ConditionExpression: 'attribute_exists(PK)',
         ReturnValues: 'ALL_NEW',
       }),

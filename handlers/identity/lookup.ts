@@ -8,6 +8,7 @@ import {
   UpdateItemCommand,
   type AttributeValue,
   type QueryCommandInput,
+  type WriteRequest,
 } from '@aws-sdk/client-dynamodb';
 import { config } from 'env-config';
 
@@ -136,15 +137,25 @@ export async function updateUserPreferences(
 }
 
 const BATCH_WRITE_LIMIT = 25;
+const MAX_UNPROCESSED_RETRIES = 5;
 
 async function batchDeleteKeys(keys: { PK: AttributeValue; SK: AttributeValue }[]): Promise<void> {
   for (let i = 0; i < keys.length; i += BATCH_WRITE_LIMIT) {
-    const batch = keys.slice(i, i + BATCH_WRITE_LIMIT);
-    await ddbClient.send(new BatchWriteItemCommand({
-      RequestItems: {
-        [config.tableName]: batch.map((key) => ({ DeleteRequest: { Key: key } })),
-      },
-    }));
+    let requestItems: WriteRequest[] = keys
+      .slice(i, i + BATCH_WRITE_LIMIT)
+      .map((key) => ({ DeleteRequest: { Key: key } }));
+
+    for (let attempt = 0; requestItems.length > 0; attempt++) {
+      if (attempt >= MAX_UNPROCESSED_RETRIES) {
+        throw new Error(
+          `batchDeleteKeys: ${requestItems.length} item(s) still unprocessed after ${MAX_UNPROCESSED_RETRIES} retries`,
+        );
+      }
+      const result = await ddbClient.send(new BatchWriteItemCommand({
+        RequestItems: { [config.tableName]: requestItems },
+      }));
+      requestItems = result.UnprocessedItems?.[config.tableName] ?? [];
+    }
   }
 }
 

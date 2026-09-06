@@ -124,6 +124,23 @@ test('updateSpool applies a partial update and returns the merged result', async
   });
 });
 
+test('updateSpool always bumps updatedAt server-side, even though the caller did not ask for it', async () => {
+  ddbMock.on(UpdateCommand).resolves({
+    Attributes: { ...SAMPLE_SPOOL_ITEM, brand: 'New Brand', updatedAt: '2026-06-01T00:00:00.000Z' },
+  });
+
+  await updateSpool('ws-1', 'spool-1', { brand: 'New Brand' });
+
+  const call = ddbMock.commandCalls(UpdateCommand)[0];
+  const names = call.args[0].input.ExpressionAttributeNames as Record<string, string>;
+  const values = call.args[0].input.ExpressionAttributeValues as Record<string, unknown>;
+  const updatedAtNameKey = Object.entries(names).find(([, v]) => v === 'updatedAt')?.[0];
+
+  expect(updatedAtNameKey).toBeDefined();
+  const updatedAtValueKey = updatedAtNameKey!.replace('#k', ':v');
+  expect(typeof values[updatedAtValueKey]).toBe('string');
+});
+
 test('deleteSpool returns false when the spool does not exist', async () => {
   const conditionalError = Object.assign(new Error('conditional check failed'), {
     name: 'ConditionalCheckFailedException',
