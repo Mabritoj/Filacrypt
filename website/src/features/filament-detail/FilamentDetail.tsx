@@ -16,6 +16,7 @@ import { PageShell } from '../../components/PageShell';
 import { useDismissablePanel } from '../../hooks/useDismissablePanel';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { formatCurrency, formatLength, formatTemperature, formatWeight } from '../../utils/units';
+import { canFilament } from '../../utils/permissions';
 import { DetailCard } from './DetailCard';
 import { SpoolVisualization } from './SpoolVisualization';
 import { UsageHistoryTable } from './UsageHistoryTable';
@@ -116,19 +117,24 @@ export function FilamentDetail() {
 
   const spool = spoolQuery.data;
   const workspace = workspaceQuery.data;
-  const canEditSpool =
-    workspace?.callerRole === 'owner' ||
-    workspace?.callerRole === 'admin' ||
-    Boolean(workspace?.callerFilamentPermissions?.update);
-  const canDeleteSpool =
-    workspace?.callerRole === 'owner' ||
-    workspace?.callerRole === 'admin' ||
-    Boolean(workspace?.callerFilamentPermissions?.delete);
+  const canEditSpool = canFilament(workspace, 'update');
+  const canDeleteSpool = canFilament(workspace, 'delete');
 
   if (spoolQuery.isPending || usageQuery.isPending || workspaceQuery.isPending) {
     return (
       <PageShell centered header={<AppHeader />}>
         <LoadingSpool message="Loading spool…" />
+      </PageShell>
+    );
+  }
+
+  if (spoolQuery.isError || usageQuery.isError || workspaceQuery.isError) {
+    return (
+      <PageShell centered>
+        <ErrorMessage message="Something went wrong loading this spool." />
+        <Link to="/inventory" className={styles.backLink}>
+          Back to inventory
+        </Link>
       </PageShell>
     );
   }

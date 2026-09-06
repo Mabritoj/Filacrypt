@@ -1,18 +1,16 @@
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
 import { getMember } from 'workspace-auth';
+import { getPathParam } from 'event-utils';
+import { validationError } from 'http-responses';
 import type { WorkspaceEvent } from '../index.js';
 import { updateMemberRole } from '../members-lookup.js';
 
 const VALID_ROLES = ['admin', 'member'];
 
-function validationError(message: string): APIGatewayProxyStructuredResultV2 {
-  return { statusCode: 400, body: JSON.stringify({ error: { code: 'VALIDATION_ERROR', message } }) };
-}
-
 export async function handler(event: WorkspaceEvent, logger: Logger): Promise<APIGatewayProxyStructuredResultV2> {
-  const workspaceId = event.pathParameters?.workspaceId as string;
-  const targetUserId = event.pathParameters?.userId as string;
+  const workspaceId = getPathParam(event, 'workspaceId');
+  const targetUserId = getPathParam(event, 'userId');
 
   let body: { role?: unknown };
   try {

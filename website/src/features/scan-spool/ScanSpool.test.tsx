@@ -17,10 +17,14 @@ import {
 
 let lastPostBody: Record<string, unknown> | null = null;
 
-function renderScanSpoolRaw(entryMode: 'nfc' | 'manual' = 'nfc') {
+function renderScanSpoolRaw(
+  entryMode: 'nfc' | 'manual' = 'nfc',
+  userOverrides: Partial<typeof mockUser> = {},
+) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   queryClient.setQueryData(['user'], {
     ...mockUser,
+    ...userOverrides,
     workspaceIds: ['ws-1'],
     preferences: { ...mockUser.preferences, defaultEntryMode: entryMode },
   });
@@ -123,6 +127,20 @@ describe('ScanSpool', () => {
       ).toBeInTheDocument();
       const cached = queryClient.getQueryData<typeof mockSpools>(['spools', 'ws-1']);
       expect(cached?.at(-1)?.brand).toBe('eSun');
+    });
+
+    it("sends the signed-in user's own id as addedBy, not a hardcoded placeholder", async () => {
+      // A distinct id from the hardcoded 'user-1' placeholder this guards
+      // against, so the test actually fails if that placeholder comes back.
+      renderScanSpoolRaw('nfc', { id: 'user-999' });
+      await screen.findByText('Manual entry');
+
+      fireEvent.change(screen.getByLabelText('Brand'), { target: { value: 'eSun' } });
+      fireEvent.change(screen.getByLabelText('Spool name'), { target: { value: 'Forest Green' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Add to inventory' }));
+
+      await screen.findByRole('heading', { name: 'Added to inventory' });
+      expect(lastPostBody?.addedBy).toBe('user-999');
     });
 
     it('leaves tag status unset for a manually entered spool', async () => {

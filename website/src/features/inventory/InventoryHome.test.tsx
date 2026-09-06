@@ -120,6 +120,21 @@ describe('InventoryHome', () => {
     expect(screen.getByText('No spools match your search or filters.')).toBeInTheDocument();
   });
 
+  it('shows an error message, not an empty inventory, when the spools fetch fails', async () => {
+    server.use(
+      http.get(`${import.meta.env.VITE_API_URL}/workspaces/ws-1/spools`, () =>
+        HttpResponse.json(
+          { error: { code: 'INTERNAL_ERROR', message: 'Could not load spools' } },
+          { status: 500 },
+        ),
+      ),
+    );
+    renderWithProviders(<InventoryHome />);
+
+    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
+    expect(screen.queryByText('No spools match your search or filters.')).not.toBeInTheDocument();
+  });
+
   it('shows the header while inventory data is still loading', async () => {
     server.use(
       http.get(`${import.meta.env.VITE_API_URL}/workspaces/ws-1/spools`, async () => {

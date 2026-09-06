@@ -1,20 +1,18 @@
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
+import { getPathParam } from 'event-utils';
+import { validationError } from 'http-responses';
 import type { WorkspaceEvent } from '../index.js';
 import { createSpool, type NewSpool } from '../spools-lookup.js';
 
 const REQUIRED_STRING_FIELDS = ['brand', 'materialType', 'materialName', 'status'] as const;
 const REQUIRED_NUMBER_FIELDS = ['netWeightG', 'remainingWeightG', 'filamentDiameterMm'] as const;
 
-function validationError(message: string): APIGatewayProxyStructuredResultV2 {
-  return { statusCode: 400, body: JSON.stringify({ error: { code: 'VALIDATION_ERROR', message } }) };
-}
-
 export async function handler(
   event: WorkspaceEvent,
   logger: Logger,
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  const workspaceId = event.pathParameters?.workspaceId as string;
+  const workspaceId = getPathParam(event, 'workspaceId');
   const userId = event.requestContext.authorizer.lambda.userId;
 
   let body: Record<string, unknown>;

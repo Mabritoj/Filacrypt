@@ -1,5 +1,6 @@
 import { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Logger } from 'logger';
+import { getUserId } from 'event-utils';
 import { getUserAndWorkspaces } from './lookup.js';
 
 export async function handler(
@@ -22,7 +23,7 @@ export async function handler(
     };
   }
 
-  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
+  const userId = getUserId(event);
 
   try {
     const result = await getUserAndWorkspaces(userId);

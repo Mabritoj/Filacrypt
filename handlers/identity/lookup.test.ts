@@ -279,6 +279,53 @@ describe('deleteUserAccount', () => {
     expect(ddbMock.commandCalls(UpdateItemCommand)).toHaveLength(0);
   });
 
+  test('retries a cascade batch delete that comes back with UnprocessedItems until it clears', async () => {
+    ddbMock.on(GetItemCommand).resolves({ Item: USER_ITEM });
+    ddbMock
+      .on(QueryCommand)
+      .resolvesOnce({ Items: [{ GSI1PK: { S: 'USER#user-1' }, GSI1SK: { S: 'WORKSPACE#ws-1' } }] })
+      .resolvesOnce({ Items: [{ PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'MEMBER#user-1' }, role: { S: 'owner' } }] })
+      .resolvesOnce({
+        Items: [
+          { PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'METADATA' } },
+          { PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'MEMBER#user-1' } },
+        ],
+      });
+    const unprocessedKey = { PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'MEMBER#user-1' } };
+    ddbMock
+      .on(BatchWriteItemCommand)
+      .resolvesOnce({
+        UnprocessedItems: { [config.tableName]: [{ DeleteRequest: { Key: unprocessedKey } }] },
+      })
+      .resolves({});
+    ddbMock.on(DeleteItemCommand).resolves({});
+
+    const result = await deleteUserAccount('user-1');
+
+    expect(result).toBe(true);
+    expect(ddbMock.commandCalls(BatchWriteItemCommand)).toHaveLength(2);
+  });
+
+  test('throws when a cascade batch delete keeps coming back with UnprocessedItems', async () => {
+    ddbMock.on(GetItemCommand).resolves({ Item: USER_ITEM });
+    ddbMock
+      .on(QueryCommand)
+      .resolvesOnce({ Items: [{ GSI1PK: { S: 'USER#user-1' }, GSI1SK: { S: 'WORKSPACE#ws-1' } }] })
+      .resolvesOnce({ Items: [{ PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'MEMBER#user-1' }, role: { S: 'owner' } }] })
+      .resolvesOnce({
+        Items: [
+          { PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'METADATA' } },
+          { PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'MEMBER#user-1' } },
+        ],
+      });
+    const unprocessedKey = { PK: { S: 'WORKSPACE#ws-1' }, SK: { S: 'MEMBER#user-1' } };
+    ddbMock.on(BatchWriteItemCommand).resolves({
+      UnprocessedItems: { [config.tableName]: [{ DeleteRequest: { Key: unprocessedKey } }] },
+    });
+
+    await expect(deleteUserAccount('user-1')).rejects.toThrow(/unprocessed/i);
+  });
+
   test('only removes the membership when the user is not the sole member and not the owner', async () => {
     ddbMock.on(GetItemCommand).resolves({ Item: USER_ITEM });
     ddbMock
