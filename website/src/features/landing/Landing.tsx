@@ -80,7 +80,8 @@ export function Landing() {
   }, [navigate]);
 
   return (
-    <div className={styles.page}>
+    // The marketing page is always dark, whatever the app theme.
+    <div className={styles.page} data-theme="dark">
       <div className={`app-container ${styles.container}`}>
         <header className={styles.nav}>
           <div className={styles.navBrand}>
@@ -221,8 +222,8 @@ function SpoolIllustration() {
     <svg width={300} height={300} viewBox="0 0 230 230" aria-hidden="true">
       <defs>
         <radialGradient id="lflange" cx="42%" cy="36%" r="78%">
-          <stop offset="0%" stopColor="#322e27" />
-          <stop offset="100%" stopColor="#181510" />
+          <stop offset="0%" stopColor="var(--spool-flange-from)" />
+          <stop offset="100%" stopColor="var(--spool-flange-to)" />
         </radialGradient>
       </defs>
       <circle
@@ -234,8 +235,8 @@ function SpoolIllustration() {
         strokeWidth={2}
       />
       <circle cx={115} cy={115} r={95} fill="none" stroke="rgba(0,0,0,.35)" strokeWidth={1.5} />
-      <circle cx={115} cy={115} r={64} fill="none" stroke="#120f09" strokeWidth={48} />
-      <circle cx={115} cy={115} r={79} fill="none" stroke="#cf9161" strokeWidth={30} />
+      <circle cx={115} cy={115} r={64} fill="none" stroke="var(--spool-core)" strokeWidth={48} />
+      <circle cx={115} cy={115} r={79} fill="none" stroke="var(--color-brand)" strokeWidth={30} />
       <g stroke="rgba(0,0,0,.22)" strokeWidth={1} fill="none">
         <circle cx={115} cy={115} r={70} />
         <circle cx={115} cy={115} r={78} />
@@ -253,11 +254,11 @@ function SpoolIllustration() {
         cx={115}
         cy={115}
         r={40}
-        fill="#241f19"
+        fill="var(--spool-hub)"
         stroke="rgba(255,255,255,.1)"
         strokeWidth={2}
       />
-      <g fill="#17130d">
+      <g fill="var(--spool-spindle)">
         <circle cx={115} cy={88} r={4.5} />
         <circle cx={138.5} cy={128.5} r={4.5} />
         <circle cx={91.5} cy={128.5} r={4.5} />
@@ -266,7 +267,7 @@ function SpoolIllustration() {
         cx={115}
         cy={115}
         r={16}
-        fill="#0d0c0b"
+        fill="var(--spool-core)"
         stroke="rgba(255,255,255,.08)"
         strokeWidth={1.5}
       />

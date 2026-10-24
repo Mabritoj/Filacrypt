@@ -1,10 +1,5 @@
 .page {
-  --brand: #cf9161;
-  --brand-hover: #e0a878;
-  --ink: #1a120b;
-  --muted: #9d968c;
-  --muted-2: #6f685e;
-
+  color: var(--color-text);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -12,10 +7,22 @@
   padding: 40px 20px;
   box-sizing: border-box;
   background:
-    radial-gradient(1100px 520px at 82% -6%, rgba(215, 155, 105, 0.27), transparent 55%),
-    radial-gradient(900px 600px at -10% 18%, rgba(190, 118, 58, 0.16), transparent 55%),
-    radial-gradient(1100px 520px at 50% 104%, rgba(215, 155, 105, 0.2), transparent 58%),
-    linear-gradient(#1b150c, #1e160d);
+    radial-gradient(
+      1100px 520px at 82% -6%,
+      color-mix(in srgb, var(--color-brand) 27%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      900px 600px at -10% 18%,
+      color-mix(in srgb, var(--color-brand) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      1100px 520px at 50% 104%,
+      color-mix(in srgb, var(--color-brand) 20%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(var(--color-hero-bg-from), var(--color-hero-bg-to));
 }
 
 .card {
@@ -23,15 +30,15 @@
   grid-template-columns: 1fr 380px;
   width: 100%;
   max-width: 900px;
-  border-radius: 22px;
+  border-radius: var(--radius-2xl);
   overflow: hidden;
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(207, 145, 97, 0.16);
+  box-shadow: var(--shadow-hero);
+  border: 1px solid color-mix(in srgb, var(--color-brand) 16%, transparent);
 }
 
 .brandPanel {
   min-width: 0;
-  background: linear-gradient(160deg, #221d15, #171309);
+  background: linear-gradient(160deg, var(--color-hero-surface-from), var(--color-hero-surface-to));
   padding: 44px;
   display: flex;
   flex-direction: column;
@@ -47,23 +54,19 @@
 .brandMark {
   width: 26px;
   height: 26px;
-  border-radius: 7px;
-  background: var(--brand);
+  border-radius: var(--radius-sm);
+  background: var(--color-brand);
   display: flex;
   align-items: center;
   justify-content: center;
-  font:
-    800 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--ink);
+  font: 800 var(--text-md) var(--font-sans);
+  color: var(--color-brand-ink);
 }
 
 .brandName {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   letter-spacing: -0.01em;
-  color: #ece8e2;
+  color: var(--color-text);
 }
 
 .illustration {
@@ -86,44 +89,36 @@
 }
 
 .illustrationTitle {
-  font:
-    700 19px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-2xl) var(--font-sans);
   letter-spacing: -0.01em;
-  color: #ece8e2;
+  color: var(--color-text);
 }
 
 .illustrationBody {
   margin: 8px 0 0;
-  font:
-    500 13px/1.6 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
+  font: 500 var(--text-md)/1.6 var(--font-sans);
+  color: var(--color-text-muted);
   max-width: 260px;
 }
 
 .formPanel {
   min-width: 0;
-  background: #161310;
+  background: var(--color-surface-alt);
   padding: 44px 38px;
   box-sizing: border-box;
 }
 
 .title {
   margin: 0 0 6px;
-  font:
-    700 24px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-3xl) var(--font-sans);
   letter-spacing: -0.02em;
-  color: #ece8e2;
+  color: var(--color-text);
 }
 
 .subtitle {
   margin: 0 0 26px;
-  font:
-    500 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
+  font: 500 var(--text-md) var(--font-sans);
+  color: var(--color-text-muted);
 }
 
 .field {
@@ -133,25 +128,21 @@
 
 .fieldLabel {
   display: block;
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-xs) var(--font-mono);
   letter-spacing: 0.05em;
-  color: var(--muted);
+  color: var(--color-text-muted);
   margin-bottom: 7px;
 }
 
 .input {
   width: 100%;
   box-sizing: border-box;
-  background: #121110;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 9px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
   padding: 11px 13px;
-  color: #ece8e2;
-  font:
-    500 14px 'Hanken Grotesk',
-    sans-serif;
+  color: var(--color-text);
+  font: 500 var(--text-base) var(--font-sans);
 }
 
 .submitButton {
@@ -164,24 +155,22 @@
   justify-content: center;
   gap: 8px;
   margin: 22px 0 4px;
-  font:
-    500 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
+  font: 500 var(--text-md) var(--font-sans);
+  color: var(--color-text-muted);
 }
 
 .resendButton {
   background: none;
   border: none;
-  color: var(--brand);
+  color: var(--color-brand);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: var(--text-md);
   cursor: pointer;
   padding: 0;
 }
 
 .resendButton:disabled {
-  color: var(--muted);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 
@@ -192,8 +181,8 @@
   margin-top: 16px;
   background: none;
   border: none;
-  color: var(--muted);
-  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
   cursor: pointer;
 }
 

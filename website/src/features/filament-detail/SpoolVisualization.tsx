@@ -1,5 +1,4 @@
 import { useId } from 'react';
-import { useThemeStore } from '../../stores/themeStore';
 import { formatLength, formatWeight, type LengthUnit, type WeightUnit } from '../../utils/units';
 import styles from './SpoolVisualization.module.css';
 
@@ -12,11 +11,6 @@ export interface SpoolVisualizationProps {
   lengthUnit?: LengthUnit;
 }
 
-const METAL_TONES = {
-  dark: { flangeFrom: '#322e27', flangeTo: '#181510', hub: '#241f19', spindle: '#17130d' },
-  light: { flangeFrom: '#e6e0d5', flangeTo: '#cbc3b6', hub: '#e2dccf', spindle: '#cfc7b8' },
-};
-
 export function SpoolVisualization({
   colorHex,
   remainingWeightG,
@@ -25,9 +19,7 @@ export function SpoolVisualization({
   weightUnit = 'g',
   lengthUnit = 'm',
 }: SpoolVisualizationProps) {
-  const theme = useThemeStore((state) => state.theme);
   const gradientId = useId();
-  const tones = METAL_TONES[theme];
 
   const pct = netWeightG > 0 ? Math.round((remainingWeightG / netWeightG) * 100) : 0;
   const rIn = 40;
@@ -43,8 +35,8 @@ export function SpoolVisualization({
       <svg width={230} height={230} viewBox="0 0 230 230" aria-hidden="true">
         <defs>
           <radialGradient id={gradientId} cx="42%" cy="36%" r="78%">
-            <stop offset="0%" stopColor={tones.flangeFrom} />
-            <stop offset="100%" stopColor={tones.flangeTo} />
+            <stop offset="0%" stopColor="var(--spool-flange-from)" />
+            <stop offset="100%" stopColor="var(--spool-flange-to)" />
           </radialGradient>
         </defs>
         <circle
@@ -56,7 +48,7 @@ export function SpoolVisualization({
           strokeWidth={2}
         />
         <circle cx={115} cy={115} r={95} fill="none" stroke="rgba(0,0,0,.35)" strokeWidth={1.5} />
-        <circle cx={115} cy={115} r={64} fill="none" stroke={tones.hub} strokeWidth={48} />
+        <circle cx={115} cy={115} r={64} fill="none" stroke="var(--spool-hub)" strokeWidth={48} />
         <circle
           cx={115}
           cy={115}
@@ -85,11 +77,11 @@ export function SpoolVisualization({
           cx={115}
           cy={115}
           r={40}
-          fill={tones.hub}
+          fill="var(--spool-hub)"
           stroke="rgba(0,0,0,.12)"
           strokeWidth={2}
         />
-        <g fill={tones.spindle}>
+        <g fill="var(--spool-spindle)">
           <circle cx={115} cy={88} r={4.5} />
           <circle cx={138.5} cy={128.5} r={4.5} />
           <circle cx={91.5} cy={128.5} r={4.5} />

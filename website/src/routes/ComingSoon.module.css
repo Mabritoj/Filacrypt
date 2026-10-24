@@ -6,30 +6,22 @@
   justify-content: center;
   gap: 12px;
   text-align: center;
-  background: #141009;
-  color: #ece8e2;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .eyebrow {
   margin: 0;
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-xs) var(--font-mono);
   letter-spacing: 0.08em;
-  color: #cf9161;
+  color: var(--color-brand);
 }
 
 .title {
   margin: 0;
-  font:
-    700 28px 'Hanken Grotesk',
-    system-ui,
-    sans-serif;
+  font: 700 var(--text-4xl) var(--font-sans);
 }
 
 .link {
-  font:
-    600 14px 'Hanken Grotesk',
-    system-ui,
-    sans-serif;
+  font: 600 var(--text-base) var(--font-sans);
 }
