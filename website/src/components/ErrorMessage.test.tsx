@@ -7,4 +7,9 @@ describe('ErrorMessage', () => {
     render(<ErrorMessage message="Something went wrong." />);
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
   });
+
+  it('is announced to assistive tech', () => {
+    render(<ErrorMessage message="Something went wrong." />);
+    expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong.');
+  });
 });
