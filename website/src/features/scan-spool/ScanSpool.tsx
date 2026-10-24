@@ -17,6 +17,7 @@ import type { OpenPrintTagPayload } from '../../utils/openPrintTag/types';
 import { ReviewForm, type ReviewFormValues } from './ReviewForm';
 import { payloadToReviewValues, payloadToSpoolExtras, payloadToTagStatus } from './tagToSpool';
 import styles from './ScanSpool.module.css';
+import { humanizeEnum } from '../../utils/format';
 
 /**
  * There is deliberately no separate "scanning" step: the reader card arms
@@ -46,10 +47,6 @@ function manualEntryDefaults(workspace: Workspace | undefined): ReviewFormValues
     bedTempC: 60,
     markFull: true,
   };
-}
-
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 /** Errors that mean this tag won't get better -- go back and let them retry. */
@@ -331,7 +328,7 @@ export function ScanSpool() {
                     <div className={styles.previewName}>{scannedTag.values.materialName}</div>
                     <div className={styles.previewBrand}>
                       {scannedTag.values.brand} · {scannedTag.values.materialType}{' '}
-                      {formatTag(scannedTag.values.finish)}
+                      {humanizeEnum(scannedTag.values.finish)}
                     </div>
                   </div>
                   <div className={styles.previewWeight}>

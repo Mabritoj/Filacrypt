@@ -1,16 +1,13 @@
 import type { Spool } from '../../api/types';
 import { formatWeight, type WeightUnit } from '../../utils/units';
 import styles from './SpoolCard.module.css';
+import { humanizeEnum } from '../../utils/format';
 
 export interface SpoolCardProps {
   spool: Spool;
   lowStockThresholdG: number;
   weightUnit?: WeightUnit;
   onClick: () => void;
-}
-
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function SpoolCard({
@@ -21,7 +18,7 @@ export function SpoolCard({
 }: SpoolCardProps) {
   const pct = Math.round((spool.remainingWeightG / spool.netWeightG) * 100);
   const isLow = spool.remainingWeightG < lowStockThresholdG;
-  const finish = spool.tags[0] ? formatTag(spool.tags[0]) : undefined;
+  const finish = spool.tags[0] ? humanizeEnum(spool.tags[0]) : undefined;
   const printTemp =
     spool.minNozzleTempC && spool.maxNozzleTempC
       ? `${spool.minNozzleTempC}–${spool.maxNozzleTempC}°C`

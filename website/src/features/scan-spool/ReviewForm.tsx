@@ -3,6 +3,7 @@ import { MATERIAL_TAGS, MATERIAL_TYPES } from '../../api/types';
 import type { MaterialTag, MaterialType } from '../../api/types';
 import { Button } from '../../components/Button';
 import styles from './ReviewForm.module.css';
+import { humanizeEnum } from '../../utils/format';
 
 export interface ReviewFormValues {
   brand: string;
@@ -24,10 +25,6 @@ export interface ReviewFormProps {
   isSubmitting: boolean;
   onCancel: () => void;
   onSubmit: (values: ReviewFormValues) => void;
-}
-
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function ReviewForm({ initialValues, isSubmitting, onCancel, onSubmit }: ReviewFormProps) {
@@ -105,7 +102,7 @@ export function ReviewForm({ initialValues, isSubmitting, onCancel, onSubmit }: 
           >
             {MATERIAL_TAGS.map((tag) => (
               <option key={tag} value={tag}>
-                {formatTag(tag)}
+                {humanizeEnum(tag)}
               </option>
             ))}
           </select>

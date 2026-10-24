@@ -23,6 +23,7 @@ import { DetailCard } from './DetailCard';
 import { SpoolVisualization } from './SpoolVisualization';
 import { UsageHistoryTable } from './UsageHistoryTable';
 import styles from './FilamentDetail.module.css';
+import { humanizeEnum } from '../../utils/format';
 
 const SPOOL_STATUSES: Spool['status'][] = ['in_use', 'stored', 'empty', 'archived'];
 
@@ -73,10 +74,6 @@ function diffSpool(original: Spool, draft: Spool): Partial<Spool> {
   return diff;
 }
 
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
 function formatDate(iso?: string): string {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('en-US', {
@@ -94,10 +91,6 @@ function formatRelativeTime(iso?: string): string {
   if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
   const days = Math.round(hours / 24);
   return `${days} day${days === 1 ? '' : 's'} ago`;
-}
-
-function formatStatus(status: string): string {
-  return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function FilamentDetail() {
@@ -219,7 +212,7 @@ export function FilamentDetail() {
     deleteSpool.mutate(currentSpool.id, { onSuccess: () => navigate('/inventory') });
   }
 
-  const finish = view.tags[0] ? formatTag(view.tags[0]) : undefined;
+  const finish = view.tags[0] ? humanizeEnum(view.tags[0]) : undefined;
   const pricePerKgCents =
     view.purchasePriceCents && view.netWeightG
       ? Math.round(view.purchasePriceCents / (view.netWeightG / 1000))
@@ -346,7 +339,7 @@ export function FilamentDetail() {
                 >
                   {MATERIAL_TAGS.map((tag) => (
                     <option key={tag} value={tag}>
-                      {formatTag(tag)}
+                      {humanizeEnum(tag)}
                     </option>
                   ))}
                 </select>
@@ -690,12 +683,12 @@ export function FilamentDetail() {
                 >
                   {SPOOL_STATUSES.map((status) => (
                     <option key={status} value={status}>
-                      {formatStatus(status)}
+                      {humanizeEnum(status)}
                     </option>
                   ))}
                 </select>
               ) : (
-                formatStatus(view.status)
+                humanizeEnum(view.status)
               ),
               emphasize: !editing && view.status === 'in_use',
             },

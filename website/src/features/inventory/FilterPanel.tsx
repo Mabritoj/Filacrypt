@@ -1,5 +1,6 @@
 import type { MaterialTag, MaterialType } from '../../api/types';
 import styles from './FilterPanel.module.css';
+import { humanizeEnum } from '../../utils/format';
 
 export interface FilterPanelProps {
   availableMaterialTypes: MaterialType[];
@@ -18,10 +19,6 @@ export interface FilterPanelProps {
   onToggleLowStockOnly: () => void;
   onReset: () => void;
   onClose: () => void;
-}
-
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function FilterPanel({
@@ -84,7 +81,7 @@ export function FilterPanel({
                 aria-pressed={tags.includes(tag)}
                 onClick={() => onToggleTag(tag)}
               >
-                {formatTag(tag)}
+                {humanizeEnum(tag)}
               </button>
             ))}
           </div>
