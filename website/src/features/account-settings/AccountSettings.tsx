@@ -17,12 +17,12 @@ import { ErrorMessage } from '../../components/ErrorMessage';
 import { Modal } from '../../components/Modal';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
-import { Tabs } from '../../components/Tabs';
+import { SegmentedControl } from '../../components/SegmentedControl';
+import { TabPanel, Tabs } from '../../components/Tabs';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { DeletionImpactModal } from './DeletionImpactModal';
 import { MembersSection } from './MembersSection';
 import { SettingsCard } from './SettingsCard';
-import { ToggleGroup } from './ToggleGroup';
 import styles from './AccountSettings.module.css';
 
 interface InventoryDefaultsForm {
@@ -149,6 +149,7 @@ export function AccountSettings() {
       <p className={styles.subtitle}>Manage your profile and printing preferences.</p>
 
       <Tabs
+        id="account-settings"
         tabs={[
           { id: 'general', label: 'General' },
           { id: 'members', label: 'Members' },
@@ -158,7 +159,7 @@ export function AccountSettings() {
       />
 
       {activeTab === 'general' && (
-        <>
+        <TabPanel tabsId="account-settings" tabId="general">
           <SettingsCard title="Profile">
             <div className={styles.avatarRow}>
               <div className={styles.avatar}>{user.name.charAt(0).toUpperCase()}</div>
@@ -187,8 +188,8 @@ export function AccountSettings() {
             description="How measurements and value appear throughout Filacrypt."
           >
             <div className={styles.grid}>
-              <ToggleGroup
-                label="WEIGHT UNIT"
+              <SegmentedControl
+                label="Weight unit"
                 value={preferences.weightUnit}
                 onChange={(weightUnit) => setPreferences({ ...preferences, weightUnit })}
                 options={[
@@ -196,8 +197,8 @@ export function AccountSettings() {
                   { value: 'kg', label: 'Kilograms' },
                 ]}
               />
-              <ToggleGroup
-                label="TEMPERATURE"
+              <SegmentedControl
+                label="Temperature"
                 value={preferences.temperatureUnit}
                 onChange={(temperatureUnit) => setPreferences({ ...preferences, temperatureUnit })}
                 options={[
@@ -205,8 +206,8 @@ export function AccountSettings() {
                   { value: 'F', label: '°F' },
                 ]}
               />
-              <ToggleGroup
-                label="LENGTH"
+              <SegmentedControl
+                label="Length"
                 value={preferences.lengthUnit}
                 onChange={(lengthUnit) => setPreferences({ ...preferences, lengthUnit })}
                 options={[
@@ -214,8 +215,8 @@ export function AccountSettings() {
                   { value: 'ft', label: 'Feet' },
                 ]}
               />
-              <ToggleGroup
-                label="CURRENCY"
+              <SegmentedControl
+                label="Currency"
                 value={preferences.currency}
                 onChange={(currency) => setPreferences({ ...preferences, currency })}
                 options={[
@@ -224,8 +225,8 @@ export function AccountSettings() {
                   { value: 'GBP', label: 'GBP £' },
                 ]}
               />
-              <ToggleGroup
-                label="THEME"
+              <SegmentedControl
+                label="Theme"
                 value={preferences.theme}
                 onChange={(theme) => setPreferences({ ...preferences, theme })}
                 options={[
@@ -233,8 +234,8 @@ export function AccountSettings() {
                   { value: 'light', label: 'Light' },
                 ]}
               />
-              <ToggleGroup
-                label="DEFAULT SPOOL ENTRY"
+              <SegmentedControl
+                label="Default spool entry"
                 value={preferences.defaultEntryMode}
                 onChange={(defaultEntryMode) =>
                   setPreferences({ ...preferences, defaultEntryMode })
@@ -387,14 +388,16 @@ export function AccountSettings() {
               </div>
             </Modal>
           )}
-        </>
+        </TabPanel>
       )}
 
       {activeTab === 'members' && (
-        <MembersSection
-          workspaceId={workspaceId ?? ''}
-          callerRole={workspaceQuery.data?.callerRole ?? 'member'}
-        />
+        <TabPanel tabsId="account-settings" tabId="members">
+          <MembersSection
+            workspaceId={workspaceId ?? ''}
+            callerRole={workspaceQuery.data?.callerRole ?? 'member'}
+          />
+        </TabPanel>
       )}
     </PageShell>
   );

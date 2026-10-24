@@ -7,6 +7,7 @@ import { useUpdateUserPreferences } from '../api/user';
 import { useWorkspace } from '../api/workspace';
 import { useWorkspaceId } from '../hooks/useWorkspaceId';
 import { IconButton } from './IconButton';
+import { SwitchIndicator } from './Switch';
 import { GearIcon, SwapIcon } from './icons';
 import styles from './ProfileMenu.module.css';
 
@@ -90,9 +91,7 @@ export function ProfileMenu({ name = 'Maker', email = 'you@filacrypt.com' }: Pro
               onClick={handleThemeToggle}
             >
               <span>Dark mode</span>
-              <span className={styles.switch} data-on={theme === 'dark'}>
-                <span className={styles.switchKnob} />
-              </span>
+              <SwitchIndicator on={theme === 'dark'} />
             </button>
           </div>
 

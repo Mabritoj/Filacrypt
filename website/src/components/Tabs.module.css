@@ -21,7 +21,7 @@
   margin-left: 18px;
 }
 
-.tab[data-active='true'] {
+.tab[aria-selected='true'] {
   color: var(--color-text);
   border-bottom-color: var(--color-brand);
 }

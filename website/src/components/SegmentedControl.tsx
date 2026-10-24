@@ -1,27 +1,52 @@
-import styles from './ToggleGroup.module.css';
+import { useId } from 'react';
+import { useRovingSelection } from '../hooks/useRovingSelection';
+import { cx } from '../utils/cx';
+import { Text } from './Text';
+import styles from './SegmentedControl.module.css';
 
-export interface ToggleGroupOption<T extends string> {
+export interface SegmentedControlOption<T extends string> {
   value: T;
   label: string;
 }
 
-export interface ToggleGroupProps<T extends string> {
+export interface SegmentedControlProps<T extends string> {
+  /** Sentence case -- it's displayed in caps by the label style. */
   label: string;
-  options: ToggleGroupOption<T>[];
+  options: SegmentedControlOption<T>[];
   value: T;
   onChange: (value: T) => void;
+  className?: string;
 }
 
-export function ToggleGroup<T extends string>({
+/**
+ * A row of mutually exclusive options -- a radio group styled as one control.
+ * Tab reaches the selected option; the arrow keys change the selection.
+ */
+export function SegmentedControl<T extends string>({
   label,
   options,
   value,
   onChange,
-}: ToggleGroupProps<T>) {
+  className,
+}: SegmentedControlProps<T>) {
+  const labelId = useId();
+  const { onKeyDown, itemProps } = useRovingSelection(
+    options.map((option) => option.value),
+    value,
+    onChange,
+  );
+
   return (
-    <div>
-      <div className={styles.label}>{label}</div>
-      <div className={styles.group} role="radiogroup" aria-label={label}>
+    <div className={cx(styles.root, className)}>
+      <Text id={labelId} variant="eyebrow" className={styles.label}>
+        {label}
+      </Text>
+      <div
+        className={styles.group}
+        role="radiogroup"
+        aria-labelledby={labelId}
+        onKeyDown={onKeyDown}
+      >
         {options.map((option) => (
           <button
             key={option.value}
@@ -29,8 +54,8 @@ export function ToggleGroup<T extends string>({
             role="radio"
             aria-checked={option.value === value}
             className={styles.option}
-            data-active={option.value === value}
             onClick={() => onChange(option.value)}
+            {...itemProps(option.value)}
           >
             {option.label}
           </button>

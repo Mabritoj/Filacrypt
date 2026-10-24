@@ -1,8 +1,12 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
 .label {
-  font: 600 var(--text-xs) var(--font-mono);
   letter-spacing: 0.05em;
-  color: var(--color-text-muted);
-  margin-bottom: 8px;
 }
 
 .group {
@@ -16,6 +20,7 @@
 
 .option {
   flex: 1;
+  white-space: nowrap;
   text-align: center;
   font: 600 var(--text-sm) var(--font-sans);
   padding: 7px 4px;
@@ -24,9 +29,16 @@
   color: var(--color-text-muted);
   background: transparent;
   border: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
 }
 
-.option[data-active='true'] {
+.option:hover {
+  color: var(--color-text);
+}
+
+.option[aria-checked='true'] {
   color: var(--color-brand-ink);
   background: var(--color-brand);
 }
