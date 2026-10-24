@@ -1,0 +1,37 @@
+/* With a unit, the box is the wrapper and the input inside it is bare. */
+.wrapper {
+  composes: control from './TextInput.module.css';
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wrapper:focus-within {
+  border-color: var(--color-brand);
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.wrapper:has([aria-invalid='true']) {
+  border-color: var(--color-destructive);
+}
+
+.bare {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.bare:focus-visible {
+  outline: none;
+}
+
+.unit {
+  flex: none;
+  font: 600 var(--text-sm) var(--font-sans);
+  color: var(--color-text-muted);
+}
