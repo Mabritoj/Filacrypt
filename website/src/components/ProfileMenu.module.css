@@ -58,22 +58,6 @@
   color: var(--color-text-muted);
 }
 
-.settingsButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-}
-
-.settingsButton:hover {
-  background: var(--color-chip);
-  color: var(--color-text);
-}
-
 .group {
   padding: 6px;
 }
@@ -126,25 +110,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font: 600 var(--text-md) var(--font-sans);
-  color: var(--color-text);
-}
-
-.switchWorkspaceButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-md);
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--color-text-muted);
-}
-
-.switchWorkspaceButton:hover {
-  background: var(--color-chip);
   color: var(--color-text);
 }
 

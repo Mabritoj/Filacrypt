@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { BrandMark } from '../../components/BrandMark';
 import styles from './Landing.module.css';
 
 interface Step {
@@ -85,7 +86,7 @@ export function Landing() {
       <div className={`app-container ${styles.container}`}>
         <header className={styles.nav}>
           <div className={styles.navBrand}>
-            <div className={styles.navMark}>F</div>
+            <BrandMark />
             <span className={styles.navName}>Filacrypt</span>
           </div>
           <nav className={styles.navLinks}>
@@ -205,7 +206,7 @@ export function Landing() {
 
         <footer className={styles.footer}>
           <div className={styles.footerBrand}>
-            <div className={styles.footerMark}>F</div>
+            <BrandMark size="sm" />
             <span className={styles.footerName}>Filacrypt · filacrypt.com</span>
           </div>
           <a className={styles.footerLink} href="#how">

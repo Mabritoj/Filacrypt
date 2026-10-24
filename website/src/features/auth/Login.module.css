@@ -51,18 +51,6 @@
   gap: 10px;
 }
 
-.brandMark {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-sm);
-  background: var(--color-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font: 800 var(--text-md) var(--font-sans);
-  color: var(--color-brand-ink);
-}
-
 .brandName {
   font: 700 var(--text-lg) var(--font-sans);
   letter-spacing: -0.01em;

@@ -88,7 +88,7 @@ export function DeletionImpactModal({
         <Button variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="danger" disabled={!allResolved} onClick={() => onResolved(choices)}>
+        <Button variant="destructive" disabled={!allResolved} onClick={() => onResolved(choices)}>
           Continue
         </Button>
       </div>

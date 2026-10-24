@@ -168,7 +168,7 @@ export function MembersSection({ workspaceId, callerRole }: MembersSectionProps)
             <Button variant="ghost" onClick={() => setRemoving(null)}>
               Cancel
             </Button>
-            <Button variant="danger" onClick={confirmRemove} disabled={removeMember.isPending}>
+            <Button variant="destructive" onClick={confirmRemove} disabled={removeMember.isPending}>
               {removeMember.isPending ? 'Removing…' : 'Remove'}
             </Button>
           </div>

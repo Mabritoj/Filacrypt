@@ -5,6 +5,10 @@
   gap: 20px;
 }
 
+.icon {
+  color: var(--color-brand);
+}
+
 .message {
   margin: 0;
 }

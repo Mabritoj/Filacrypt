@@ -10,6 +10,8 @@ import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { IconButton } from '../../components/IconButton';
+import { MoreIcon, NfcIcon } from '../../components/icons';
 import { Modal } from '../../components/Modal';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
@@ -246,15 +248,13 @@ export function FilamentDetail() {
   ) : (
     <>
       <div className={styles.optionsWrap} ref={optionsRef}>
-        <button
-          type="button"
-          className={styles.optionsButton}
-          aria-label="Spool options"
+        <IconButton
+          label="Spool options"
+          variant="outline"
+          icon={<MoreIcon size={18} />}
           aria-expanded={optionsOpen}
           onClick={() => setOptionsOpen((value) => !value)}
-        >
-          ⋮
-        </button>
+        />
         {optionsOpen && (
           <div className={styles.optionsMenu} role="menu">
             <button
@@ -308,7 +308,7 @@ export function FilamentDetail() {
             <Button variant="secondary" onClick={() => setConfirmingDelete(false)}>
               Cancel
             </Button>
-            <Button variant="danger" onClick={confirmDelete} disabled={deleteSpool.isPending}>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleteSpool.isPending}>
               {deleteSpool.isPending ? 'Deleting…' : 'Delete'}
             </Button>
           </div>
@@ -457,20 +457,7 @@ export function FilamentDetail() {
         <div className={styles.tagBand}>
           <div className={styles.tagHeader}>
             <div className={styles.tagIcon} aria-hidden="true">
-              <svg
-                width={22}
-                height={22}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--color-brand)"
-                strokeWidth={2}
-                strokeLinecap="round"
-              >
-                <path d="M5 8a10 10 0 0 1 0 8" />
-                <path d="M9 5a15 15 0 0 1 0 14" />
-                <path d="M13 3a20 20 0 0 1 0 18" />
-                <circle cx={19} cy={12} r={1.4} fill="var(--color-brand)" stroke="none" />
-              </svg>
+              <NfcIcon size={22} />
             </div>
             <div>
               <div className={styles.tagTitleRow}>

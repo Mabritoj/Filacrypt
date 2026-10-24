@@ -8,6 +8,7 @@ import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { NfcIcon } from '../../components/icons';
 import { PageShell } from '../../components/PageShell';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
@@ -273,27 +274,7 @@ export function ScanSpool() {
                 title="Tap, then hold the spool to your phone"
                 aria-label="Scan a spool"
               >
-                <svg width={52} height={52} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M5 8a10 10 0 0 1 0 8"
-                    stroke="var(--color-brand)"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M9 5a15 15 0 0 1 0 14"
-                    stroke="var(--color-brand)"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M13 3a20 20 0 0 1 0 18"
-                    stroke="var(--color-brand)"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                  />
-                  <circle cx={19} cy={12} r={1.5} fill="var(--color-brand)" />
-                </svg>
+                <NfcIcon size={52} />
               </button>
             </div>
             <h1 className={styles.title}>Scan a spool</h1>
@@ -332,39 +313,7 @@ export function ScanSpool() {
               <div className={styles.manualBanner}>
                 <span className={styles.detectedTitle}>Manual entry</span>
                 {nfc.isSupported && (
-                  <Button
-                    variant="secondary"
-                    onClick={switchToNfc}
-                    icon={
-                      <svg
-                        width={14}
-                        height={14}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M5 8a10 10 0 0 1 0 8"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M9 5a15 15 0 0 1 0 14"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M13 3a20 20 0 0 1 0 18"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                        />
-                        <circle cx={19} cy={12} r={1.5} fill="currentColor" />
-                      </svg>
-                    }
-                  >
+                  <Button variant="secondary" onClick={switchToNfc} icon={<NfcIcon size={14} />}>
                     Switch to NFC
                   </Button>
                 )}

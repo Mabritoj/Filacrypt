@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signIn, confirmSignIn } from 'aws-amplify/auth';
 import { CodeInput } from './CodeInput';
+import { BrandMark } from '../../components/BrandMark';
 import { Button } from '../../components/Button';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import styles from './Login.module.css';
@@ -107,7 +108,7 @@ export function Login() {
       <div className={styles.card}>
         <div className={styles.brandPanel}>
           <Link to="/" className={styles.brandLink}>
-            <div className={styles.brandMark}>F</div>
+            <BrandMark />
             <span className={styles.brandName}>Filacrypt</span>
           </Link>
 

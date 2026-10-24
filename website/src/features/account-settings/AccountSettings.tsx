@@ -332,7 +332,7 @@ export function AccountSettings() {
               </div>
             </div>
             <Button
-              variant="danger"
+              variant="destructive"
               onClick={() => {
                 setDeleteConfirmEmail('');
                 if (deletionImpact.data && deletionImpact.data.length > 0) {
@@ -378,7 +378,7 @@ export function AccountSettings() {
                   Cancel
                 </Button>
                 <Button
-                  variant="danger"
+                  variant="destructive"
                   onClick={handleDeleteConfirm}
                   disabled={!canConfirmDelete || deleteAccount.isPending}
                 >
