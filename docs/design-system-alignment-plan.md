@@ -472,11 +472,20 @@ becomes a link).
 
 ### Phase 5: Documentation and lock-in (small)
 
-- [ ] Update CLAUDE.md: token scales, "use `components/` primitives before writing a local control",
+- [x] Update CLAUDE.md: token scales, "use `components/` primitives before writing a local control",
       the `style` custom-property exception, and themed subtrees via `data-theme`.
-- [ ] Optional, needs a dependency discussion per CLAUDE.md: Storybook or Ladle for a visual catalog. Without
-      one, add a dev-only `/__design` route listing every primitive in both themes, which also works for
-      manual phone/iPad checks.
+  - CLAUDE.md now has a **Design System** section covering:
+    - which primitive to use for what;
+    - the two polymorphism patterns (behavior union vs. tag-only `as`), and that anything that navigates
+      must be a link;
+    - the className rule (layout and margins only);
+    - sentence-case labels, and where the formatters live.
+  - Also in CLAUDE.md:
+    - "Do not use inline styles" gains the custom-property exception.
+    - The Testing section gains notes on the dialog shim and on negative assertions that pass vacuously
+      after a button-to-link change.
+- [x] Visual catalog: no new dependency. The dev-only `/__design` route (added in Phase 2a) shows every
+      primitive in both themes, including the form controls and overlays.
 
 ## 5. Risks and decisions needed
 
