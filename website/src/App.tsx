@@ -29,6 +29,12 @@ const AccountSettings = lazy(() =>
   })),
 );
 
+// Dev-only primitives catalog. The DEV guard is a compile-time constant, so
+// production builds drop both the route and this chunk.
+const DesignCatalog = import.meta.env.DEV
+  ? lazy(() => import('./routes/DesignCatalog').then((m) => ({ default: m.DesignCatalog })))
+  : null;
+
 const queryClient = new QueryClient();
 
 export function App() {
@@ -65,6 +71,7 @@ export function App() {
               <Route path="/scan" element={<ScanSpool />} />
               <Route path="/account" element={<AccountSettings />} />
             </Route>
+            {DesignCatalog && <Route path="/__design" element={<DesignCatalog />} />}
             <Route path="*" element={<ComingSoon />} />
           </Routes>
         </Suspense>

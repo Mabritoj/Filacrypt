@@ -333,8 +333,28 @@ npm run test`. UI phases also need a browser check at 375px, 768px and desktop, 
 
 ### Phase 2: Core primitives (large, split into 2a/2b if needed)
 
-- 2a: `Button` (union, size, loading, `destructive`), `IconButton`, `icons/`, `BrandMark`, `Text`/`Label`,
-  `Card`, `Badge`, `Stat`, `ProgressBar`, `Alert`. Add `polymorphic.ts` and a `cx()` helper in `utils/`.
+- [x] 2a: `Button` (union, size, loading, `destructive`), `IconButton`, `icons/`, `BrandMark`, `Text`/`Label`,
+      `Card`, `Badge`, `Stat`, `ProgressBar`, `Alert`. Add `polymorphic.ts` and a `cx()` helper in `utils/`.
+  - The `to`/`href`/button union lives in `ActionElement.tsx` (`ActionProps<Own, ButtonOnly>`). Button and
+    IconButton both build on it, so `disabled`/`loading` only type-check on real buttons. `@ts-expect-error`
+    tests pin the invalid combinations (`to`+`href`, `loading` on a link, a missing IconButton `label`).
+  - `Label` is a `Text` variant (`label`, plus `eyebrow`) rather than a separate component. Roles live in
+    `styles/typography.module.css` and can be reached through `composes`. Tone is separate from role.
+  - `Badge` has two variants: `tag` (mono caps: PLA, Low) and `status` (pill + dot: Healthy).
+    `Chip`, the toggle, stays on the Phase 4 Inventory list.
+  - `BrandMark` is the "F" mark only. The wordmark text differs per placement and stays with the caller. The
+    AppHeader brand link gained `aria-label="Filacrypt home"`, because on phones with a breadcrumb the visible
+    wordmark is hidden and the link was announced as just "F".
+  - Adopted now, where it removed exact duplicates: the 4 brand marks, 7 inline SVG icons (Breadcrumb,
+    ProfileMenu ×2, LoadingSpool, Chat ×2, Scan ×2, Detail), and 4 hand-styled icon buttons (ProfileMenu ×2,
+    chat close, Detail options). `ErrorMessage` now renders an `Alert`, so errors are announced
+    (`role="alert"`). Card, Badge, Stat, ProgressBar and `Button to=…` reach the features in Phase 4.
+  - Visible changes: secondary/destructive buttons are 2px shorter, now matching primary, and all buttons
+    have hover states. ProfileMenu icon buttons are 26px instead of 24px. The Detail options trigger draws an
+    SVG instead of the "⋮" character.
+  - Pulled forward from Phase 5: a dev-only `/__design` route (`routes/DesignCatalog.tsx`) shows every primitive in
+    both themes side by side. The `import.meta.env.DEV` guard keeps it out of production builds (verified:
+    no chunk in `dist/`).
 - 2b: `Field`, `TextInput`, `NumberInput`, `Select`, `ColorInput`, `Checkbox`, `Switch`,
   `SegmentedControl` (moved from account-settings), `Tabs` keyboard support.
 - Each gets a smoke test plus behavior tests: keyboard handling, `aria-*` wiring, and union variants rendering the
