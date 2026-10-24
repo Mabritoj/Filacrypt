@@ -27,6 +27,7 @@
   --color-destructive-bg: rgba(224, 104, 95, 0.1);
   --color-accent-tint-bg: #1a1512;
   --color-accent-tint-border: rgba(207, 145, 97, 0.28);
+  --color-focus-ring: #cf9161;
 }
 
 :root[data-theme='light'] {
@@ -51,10 +52,23 @@
   --color-destructive-bg: rgba(192, 57, 43, 0.1);
   --color-accent-tint-bg: #fbf4ec;
   --color-accent-tint-border: rgba(176, 106, 55, 0.28);
+  --color-focus-ring: #b06a37;
 }
 
 html {
   scrollbar-gutter: stable;
+}
+
+/*
+  One keyboard focus indicator for the whole app. Don't suppress it with
+  `outline: none` in a module -- for an input that sits borderless inside a
+  styled wrapper (search box, unit-suffix field), put the ring on the wrapper
+  with `:focus-within` and opt the inner input out with
+  `.inner:focus-visible { outline: none; }` (see InventoryHome .searchBox).
+*/
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 body {

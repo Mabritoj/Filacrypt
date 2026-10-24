@@ -82,7 +82,6 @@
   font:
     600 13px 'Hanken Grotesk',
     sans-serif;
-  outline: none;
 }
 
 .editTitleInput {
@@ -111,7 +110,6 @@
   font:
     600 13px 'Hanken Grotesk',
     sans-serif;
-  outline: none;
 }
 
 .editColorSwatch {

@@ -99,11 +99,20 @@
   min-width: 0;
   background: none;
   border: none;
-  outline: none;
   font:
     500 13px 'Hanken Grotesk',
     sans-serif;
   color: var(--color-text);
+}
+
+/* The ring belongs on the visible box, not the borderless input inside it. */
+.searchBox:focus-within {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.searchInput:focus-visible {
+  outline: none;
 }
 
 .filterWrap {

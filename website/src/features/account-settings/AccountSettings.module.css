@@ -70,7 +70,6 @@
   font:
     500 14px 'Hanken Grotesk',
     sans-serif;
-  outline: none;
 }
 
 .emailRow {
@@ -93,7 +92,6 @@
   font:
     500 14px 'Hanken Grotesk',
     sans-serif;
-  outline: none;
 }
 
 .verifiedBadge {
@@ -177,6 +175,15 @@
   font:
     500 14px 'Hanken Grotesk',
     sans-serif;
+}
+
+/* The ring belongs on the visible box, not the borderless input inside it. */
+.unitRow:focus-within {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.unitInput:focus-visible {
   outline: none;
 }
 
