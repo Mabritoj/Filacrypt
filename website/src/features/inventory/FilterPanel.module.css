@@ -1,16 +1,5 @@
 .panel {
-  position: absolute;
-  top: 52px;
-  right: 0;
-  z-index: var(--z-popover);
-  width: 344px;
-  max-width: calc(100vw - 40px);
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-popover);
   padding: 18px;
-  box-sizing: border-box;
 }
 
 .header {
@@ -133,18 +122,4 @@
   border: none;
   color: var(--color-brand-ink);
   cursor: pointer;
-}
-
-@media (max-width: 640px) {
-  .panel {
-    position: fixed;
-    inset: 0;
-    z-index: var(--z-modal);
-    width: auto;
-    max-width: none;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    overflow-y: auto;
-  }
 }

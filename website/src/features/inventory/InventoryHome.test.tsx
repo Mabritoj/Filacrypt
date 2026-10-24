@@ -94,7 +94,7 @@ describe('InventoryHome', () => {
     fireEvent.click(screen.getByRole('button', { name: /filters/i }));
     expect(screen.getByText('Material type')).toBeInTheDocument();
 
-    fireEvent.mouseDown(screen.getByRole('heading', { name: 'Inventory' }));
+    fireEvent.pointerDown(screen.getByRole('heading', { name: 'Inventory' }));
     expect(screen.queryByText('Material type')).not.toBeInTheDocument();
   });
 

@@ -107,8 +107,8 @@
   outline: none;
 }
 
-.filterWrap {
-  position: relative;
+.filterPopover {
+  background: var(--color-surface-alt);
 }
 
 .filterButton {

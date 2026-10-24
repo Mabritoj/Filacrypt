@@ -7,7 +7,7 @@ import { AppHeader } from '../../components/AppHeader';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
-import { useDismissablePanel } from '../../hooks/useDismissablePanel';
+import { Popover } from '../../components/Popover';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { formatWeight } from '../../utils/units';
 import { canFilament } from '../../utils/permissions';
@@ -28,7 +28,6 @@ export function InventoryHome() {
   const [search, setSearch] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const filterRef = useDismissablePanel<HTMLDivElement>(filterOpen, () => setFilterOpen(false));
 
   const spoolsData = spoolsQuery.data;
   const spools = useMemo(() => spoolsData ?? [], [spoolsData]);
@@ -138,38 +137,40 @@ export function InventoryHome() {
             aria-label="Search spools"
           />
         </div>
-        <div className={styles.filterWrap} ref={filterRef}>
-          <button
-            type="button"
-            className={styles.filterButton}
-            onClick={() => setFilterOpen((value) => !value)}
-          >
-            Filters
-            {activeFilterCount > 0 && (
-              <span className={styles.filterCount}>{activeFilterCount}</span>
-            )}
-          </button>
-          {filterOpen && (
-            <FilterPanel
-              availableMaterialTypes={availableMaterialTypes}
-              availableTags={availableTags}
-              availableColors={availableColors}
-              availableBrands={availableBrands}
-              materialTypes={filters.materialTypes}
-              tags={filters.tags}
-              colors={filters.colors}
-              brand={filters.brand}
-              lowStockOnly={filters.lowStockOnly}
-              onToggleMaterialType={toggleMaterialType}
-              onToggleTag={toggleTag}
-              onToggleColor={toggleColor}
-              onSetBrand={setBrand}
-              onToggleLowStockOnly={toggleLowStockOnly}
-              onReset={resetFilters}
-              onClose={() => setFilterOpen(false)}
-            />
+        <Popover
+          open={filterOpen}
+          onOpenChange={setFilterOpen}
+          label="Filters"
+          width={344}
+          className={styles.filterPopover}
+          trigger={(triggerProps) => (
+            <button {...triggerProps} type="button" className={styles.filterButton}>
+              Filters
+              {activeFilterCount > 0 && (
+                <span className={styles.filterCount}>{activeFilterCount}</span>
+              )}
+            </button>
           )}
-        </div>
+        >
+          <FilterPanel
+            availableMaterialTypes={availableMaterialTypes}
+            availableTags={availableTags}
+            availableColors={availableColors}
+            availableBrands={availableBrands}
+            materialTypes={filters.materialTypes}
+            tags={filters.tags}
+            colors={filters.colors}
+            brand={filters.brand}
+            lowStockOnly={filters.lowStockOnly}
+            onToggleMaterialType={toggleMaterialType}
+            onToggleTag={toggleTag}
+            onToggleColor={toggleColor}
+            onSetBrand={setBrand}
+            onToggleLowStockOnly={toggleLowStockOnly}
+            onReset={resetFilters}
+            onClose={() => setFilterOpen(false)}
+          />
+        </Popover>
       </div>
 
       {filteredSpools.length === 0 ? (
