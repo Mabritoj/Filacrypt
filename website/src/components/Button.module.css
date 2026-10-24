@@ -33,6 +33,12 @@
   font-size: var(--text-sm);
 }
 
+/* Marketing CTAs and end-of-flow actions. */
+.lg {
+  padding: 12px 21px;
+  font-size: var(--text-base);
+}
+
 /* variants -- each sets color explicitly, including on hover, because a
    Button rendered as a link would otherwise pick up the global `a` color */
 
@@ -74,6 +80,10 @@
 
 .ghost.md {
   padding-inline: 15px;
+}
+
+.ghost.sm {
+  padding-inline: 8px;
 }
 
 .destructive,

@@ -6,7 +6,7 @@ import styles from './Button.module.css';
 import spinStyles from './spoolSpin.module.css';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
-export type ButtonSize = 'sm' | 'md';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonOwnProps {
   variant?: ButtonVariant;
