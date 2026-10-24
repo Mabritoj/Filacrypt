@@ -69,7 +69,7 @@ describe('AccountSettings', () => {
     expect(await screen.findByText(mockUser.name)).toBeInTheDocument();
     expect(screen.getByText(mockUser.username)).toBeInTheDocument();
     expect(screen.getByText(mockUser.email)).toBeInTheDocument();
-    expect(screen.getByText('✓ VERIFIED')).toBeInTheDocument();
+    expect(screen.getByText('✓ Verified')).toBeInTheDocument();
     expect(screen.queryByDisplayValue(mockUser.name)).not.toBeInTheDocument();
 
     expect(screen.getByRole('radio', { name: 'Grams' })).toHaveAttribute('aria-checked', 'true');

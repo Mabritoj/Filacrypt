@@ -1,14 +1,5 @@
-.title {
-  margin: 0 0 4px;
-  font: 700 var(--text-4xl) var(--font-sans);
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-}
-
 .subtitle {
-  margin: 0 0 28px;
-  font: 500 var(--text-base) var(--font-sans);
-  color: var(--color-text-muted);
+  margin: 4px 0 28px;
 }
 
 .avatarRow {
@@ -36,137 +27,39 @@
   gap: 16px;
 }
 
-.field {
-  display: block;
+.readOnly {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
 }
 
-.fieldWide {
+.wide {
   grid-column: 1 / -1;
 }
 
-.fieldLabel {
-  font: 600 var(--text-xs) var(--font-mono);
+.readOnlyLabel {
   letter-spacing: 0.05em;
-  color: var(--color-text-muted);
 }
 
-.emailRow {
-  margin-top: 7px;
+/* Looks like a disabled TextInput, since these can't be edited here. */
+.readOnlyValue {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  padding: 11px 13px;
-}
-
-.emailInput {
-  flex: 1;
   min-width: 0;
-  background: none;
-  border: none;
-  color: var(--color-text);
-  font: 500 var(--text-base) var(--font-sans);
-}
-
-.verifiedBadge {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font: 700 var(--text-2xs) var(--font-sans);
-  color: var(--color-success);
-  background: var(--color-success-bg);
-  padding: 3px 7px;
-  border-radius: var(--radius-sm);
-}
-
-.securityRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--color-border);
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.securityRowLast {
-  border-bottom: none;
-  padding-bottom: 4px;
-}
-
-.securityLabel {
-  font: 600 var(--text-base) var(--font-sans);
-  color: var(--color-text);
-}
-
-.securityMeta {
-  font: 500 var(--text-sm) var(--font-sans);
-  color: var(--color-text-muted);
-  margin-top: 2px;
-}
-
-.enabledBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font: 600 var(--text-sm) var(--font-sans);
-  color: var(--color-success);
-}
-
-.enabledDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-success);
-}
-
-.unitRow {
-  margin-top: 7px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  padding: 11px 13px;
+  padding: 10px 12px;
+  font: 500 var(--text-base) var(--font-sans);
+  color: var(--color-text-muted);
 }
 
-.unitInput {
-  flex: 1;
+.value {
   min-width: 0;
-  background: none;
-  border: none;
+  overflow-wrap: anywhere;
   color: var(--color-text);
-  font: 500 var(--text-base) var(--font-sans);
-}
-
-/* The ring belongs on the visible box, not the borderless input inside it. */
-.unitRow:focus-within {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
-}
-
-.unitInput:focus-visible {
-  outline: none;
-}
-
-.unitLabel {
-  flex: none;
-  font: 600 var(--text-sm) var(--font-sans);
-  color: var(--color-text-muted);
-}
-
-.disabledField {
-  margin-top: 7px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  padding: 11px 13px;
-  font: 500 var(--text-base) var(--font-sans);
-  color: var(--color-text-muted);
 }
 
 .saveBar {
@@ -178,10 +71,6 @@
 }
 
 .dangerCard {
-  border: 1px solid var(--color-destructive-bg);
-  background: color-mix(in srgb, var(--color-destructive) 5%, transparent);
-  border-radius: var(--radius-xl);
-  padding: 20px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -189,14 +78,7 @@
   flex-wrap: wrap;
 }
 
-.dangerTitle {
-  font: 700 var(--text-base) var(--font-sans);
-  color: var(--color-destructive);
-}
-
 .dangerMeta {
-  font: 500 var(--text-sm) var(--font-sans);
-  color: var(--color-text-muted);
   margin-top: 3px;
 }
 

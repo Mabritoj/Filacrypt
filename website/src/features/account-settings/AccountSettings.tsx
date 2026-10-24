@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'aws-amplify/auth';
 import {
@@ -14,12 +14,16 @@ import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { Badge } from '../../components/Badge';
+import { Card } from '../../components/Card';
 import { Field } from '../../components/Field';
+import { NumberInput } from '../../components/NumberInput';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { TabPanel, Tabs } from '../../components/Tabs';
+import { Text } from '../../components/Text';
 import { TextInput } from '../../components/TextInput';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { DeletionImpactModal } from './DeletionImpactModal';
@@ -147,8 +151,10 @@ export function AccountSettings() {
         }
       />
 
-      <h1 className={styles.title}>Account settings</h1>
-      <p className={styles.subtitle}>Manage your profile and printing preferences.</p>
+      <Text variant="h1">Account settings</Text>
+      <Text tone="muted" className={styles.subtitle}>
+        Manage your profile and printing preferences.
+      </Text>
 
       <Tabs
         id="account-settings"
@@ -167,21 +173,16 @@ export function AccountSettings() {
               <div className={styles.avatar}>{user.name.charAt(0).toUpperCase()}</div>
             </div>
             <div className={styles.grid}>
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Name</span>
-                <div className={styles.disabledField}>{user.name}</div>
-              </div>
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Username</span>
-                <div className={styles.disabledField}>{user.username}</div>
-              </div>
-              <div className={`${styles.field} ${styles.fieldWide}`}>
-                <span className={styles.fieldLabel}>Email</span>
-                <div className={styles.emailRow}>
-                  <span>{user.email}</span>
-                  {user.emailVerified && <span className={styles.verifiedBadge}>✓ VERIFIED</span>}
-                </div>
-              </div>
+              <ReadOnlyField label="Name">{user.name}</ReadOnlyField>
+              <ReadOnlyField label="Username">{user.username}</ReadOnlyField>
+              <ReadOnlyField label="Email" wide>
+                <span className={styles.value}>{user.email}</span>
+                {user.emailVerified && (
+                  <Badge tone="success" size="sm">
+                    ✓ Verified
+                  </Badge>
+                )}
+              </ReadOnlyField>
             </div>
           </SettingsCard>
 
@@ -255,58 +256,43 @@ export function AccountSettings() {
             description="Pre-filled when adding spools and used for alerts."
           >
             <div className={styles.grid}>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Low-stock alert below</span>
-                <div className={styles.unitRow}>
-                  <input
-                    type="number"
-                    className={styles.unitInput}
-                    value={inventoryDefaults.lowStockThresholdG}
-                    onChange={(event) =>
-                      setInventoryDefaults({
-                        ...inventoryDefaults,
-                        lowStockThresholdG: Number(event.target.value),
-                      })
-                    }
-                  />
-                  <span className={styles.unitLabel}>grams</span>
-                </div>
-              </label>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Default diameter</span>
-                <div className={styles.unitRow}>
-                  <input
-                    type="number"
-                    step={0.05}
-                    className={styles.unitInput}
-                    value={inventoryDefaults.defaultDiameterMm}
-                    onChange={(event) =>
-                      setInventoryDefaults({
-                        ...inventoryDefaults,
-                        defaultDiameterMm: Number(event.target.value),
-                      })
-                    }
-                  />
-                  <span className={styles.unitLabel}>mm</span>
-                </div>
-              </label>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Default empty spool weight</span>
-                <div className={styles.unitRow}>
-                  <input
-                    type="number"
-                    className={styles.unitInput}
-                    value={inventoryDefaults.defaultEmptySpoolWeightG}
-                    onChange={(event) =>
-                      setInventoryDefaults({
-                        ...inventoryDefaults,
-                        defaultEmptySpoolWeightG: Number(event.target.value),
-                      })
-                    }
-                  />
-                  <span className={styles.unitLabel}>grams</span>
-                </div>
-              </label>
+              <Field label="Low-stock alert below">
+                <NumberInput
+                  unit="grams"
+                  value={inventoryDefaults.lowStockThresholdG}
+                  onChange={(event) =>
+                    setInventoryDefaults({
+                      ...inventoryDefaults,
+                      lowStockThresholdG: Number(event.target.value),
+                    })
+                  }
+                />
+              </Field>
+              <Field label="Default diameter">
+                <NumberInput
+                  unit="mm"
+                  step={0.05}
+                  value={inventoryDefaults.defaultDiameterMm}
+                  onChange={(event) =>
+                    setInventoryDefaults({
+                      ...inventoryDefaults,
+                      defaultDiameterMm: Number(event.target.value),
+                    })
+                  }
+                />
+              </Field>
+              <Field label="Default empty spool weight">
+                <NumberInput
+                  unit="grams"
+                  value={inventoryDefaults.defaultEmptySpoolWeightG}
+                  onChange={(event) =>
+                    setInventoryDefaults({
+                      ...inventoryDefaults,
+                      defaultEmptySpoolWeightG: Number(event.target.value),
+                    })
+                  }
+                />
+              </Field>
             </div>
           </SettingsCard>
 
@@ -322,17 +308,19 @@ export function AccountSettings() {
             <Button variant="ghost" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button onClick={handleSave} loading={isSaving}>
               {isSaving ? 'Saving…' : justSaved ? 'Saved' : 'Save changes'}
             </Button>
           </div>
 
-          <div className={styles.dangerCard}>
+          <Card as="section" tone="destructive" padding="lg" className={styles.dangerCard}>
             <div>
-              <div className={styles.dangerTitle}>Delete account</div>
-              <div className={styles.dangerMeta}>
+              <Text variant="title" as="h2" tone="destructive">
+                Delete account
+              </Text>
+              <Text variant="meta" as="p" className={styles.dangerMeta}>
                 Permanently removes your account and all data associated with it.
-              </div>
+              </Text>
             </div>
             <Button
               variant="destructive"
@@ -348,7 +336,7 @@ export function AccountSettings() {
             >
               Delete account
             </Button>
-          </div>
+          </Card>
 
           {showDeletionImpact && deletionImpact.data && deletionImpact.data.length > 0 && (
             <DeletionImpactModal
@@ -397,5 +385,24 @@ export function AccountSettings() {
         </TabPanel>
       )}
     </PageShell>
+  );
+}
+
+interface ReadOnlyFieldProps {
+  label: string;
+  /** Span both grid columns. */
+  wide?: boolean;
+  children: ReactNode;
+}
+
+/** A labelled value styled like a disabled input -- profile details aren't editable here. */
+function ReadOnlyField({ label, wide, children }: ReadOnlyFieldProps) {
+  return (
+    <div className={wide ? `${styles.readOnly} ${styles.wide}` : styles.readOnly}>
+      <Text variant="eyebrow" className={styles.readOnlyLabel}>
+        {label}
+      </Text>
+      <div className={styles.readOnlyValue}>{children}</div>
+    </div>
   );
 }

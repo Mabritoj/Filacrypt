@@ -19,3 +19,8 @@
   padding: 0.4rem 0;
   color: var(--color-text-muted);
 }
+
+.select {
+  width: auto;
+  flex: 1 1 160px;
+}

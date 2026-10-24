@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { Select } from '../../components/Select';
 import type { DeletionImpactWorkspace, WorkspaceResolution } from '../../api/user';
 import styles from './DeletionImpactModal.module.css';
 
@@ -61,7 +62,9 @@ export function DeletionImpactModal({
                 checked={choice?.action === 'reassign'}
               />
               Reassign to
-              <select
+              <Select
+                size="sm"
+                className={styles.select}
                 disabled={choice?.action !== 'reassign'}
                 value={choice?.action === 'reassign' ? choice.newOwnerId : ''}
                 onChange={(event) => setReassign(workspace.workspaceId, event.target.value)}
@@ -74,7 +77,7 @@ export function DeletionImpactModal({
                     {member.name} ({member.role})
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
 
             <label className={styles.option}>
