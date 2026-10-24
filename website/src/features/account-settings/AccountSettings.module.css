@@ -1,17 +1,13 @@
 .title {
   margin: 0 0 4px;
-  font:
-    700 28px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-4xl) var(--font-sans);
   letter-spacing: -0.02em;
   color: var(--color-text);
 }
 
 .subtitle {
   margin: 0 0 28px;
-  font:
-    500 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-base) var(--font-sans);
   color: var(--color-text-muted);
 }
 
@@ -26,13 +22,11 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-brand), #8a5227);
+  background: linear-gradient(135deg, var(--color-brand), var(--color-brand-deep));
   display: flex;
   align-items: center;
   justify-content: center;
-  font:
-    700 22px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-3xl) var(--font-sans);
   color: var(--color-brand-ink);
 }
 
@@ -51,9 +45,7 @@
 }
 
 .fieldLabel {
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-xs) var(--font-mono);
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
 }
@@ -64,12 +56,10 @@
   box-sizing: border-box;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   padding: 11px 13px;
   color: var(--color-text);
-  font:
-    500 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-base) var(--font-sans);
 }
 
 .emailRow {
@@ -79,7 +69,7 @@
   gap: 8px;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   padding: 11px 13px;
 }
 
@@ -89,9 +79,7 @@
   background: none;
   border: none;
   color: var(--color-text);
-  font:
-    500 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-base) var(--font-sans);
 }
 
 .verifiedBadge {
@@ -99,13 +87,11 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font:
-    700 10px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-2xs) var(--font-sans);
   color: var(--color-success);
   background: var(--color-success-bg);
   padding: 3px 7px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .securityRow {
@@ -124,16 +110,12 @@
 }
 
 .securityLabel {
-  font:
-    600 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-base) var(--font-sans);
   color: var(--color-text);
 }
 
 .securityMeta {
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
   margin-top: 2px;
 }
@@ -142,9 +124,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   color: var(--color-success);
 }
 
@@ -162,7 +142,7 @@
   gap: 8px;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   padding: 11px 13px;
 }
 
@@ -172,9 +152,7 @@
   background: none;
   border: none;
   color: var(--color-text);
-  font:
-    500 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-base) var(--font-sans);
 }
 
 /* The ring belongs on the visible box, not the borderless input inside it. */
@@ -189,9 +167,7 @@
 
 .unitLabel {
   flex: none;
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
 }
 
@@ -199,11 +175,9 @@
   margin-top: 7px;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   padding: 11px 13px;
-  font:
-    500 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-base) var(--font-sans);
   color: var(--color-text-muted);
 }
 
@@ -218,7 +192,7 @@
 .dangerCard {
   border: 1px solid var(--color-destructive-bg);
   background: color-mix(in srgb, var(--color-destructive) 5%, transparent);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   padding: 20px 22px;
   display: flex;
   align-items: center;
@@ -228,16 +202,12 @@
 }
 
 .dangerTitle {
-  font:
-    700 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-base) var(--font-sans);
   color: var(--color-destructive);
 }
 
 .dangerMeta {
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
   margin-top: 3px;
 }

@@ -9,9 +9,7 @@
 
 .title {
   margin: 0;
-  font:
-    700 26px/1 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-4xl)/1 var(--font-sans);
   letter-spacing: -0.02em;
   color: var(--color-text);
 }
@@ -30,37 +28,33 @@
 .statTile {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
 }
 
 .statLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-2xs) var(--font-mono);
   letter-spacing: 0.09em;
   color: var(--color-text-muted);
 }
 
 .statLabel[data-danger='true'] {
-  color: var(--color-danger);
+  color: var(--color-warning);
 }
 
 .statValue {
   margin-top: 8px;
-  font:
-    700 24px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-3xl) var(--font-sans);
   letter-spacing: -0.02em;
   color: var(--color-text);
 }
 
 .statValue[data-danger='true'] {
-  color: var(--color-danger);
+  color: var(--color-warning);
 }
 
 .statUnit {
-  font-size: 14px;
+  font-size: var(--text-base);
   color: var(--color-text-muted);
   font-weight: 600;
 }
@@ -82,7 +76,7 @@
   gap: 9px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   padding: 9px 13px;
 }
 
@@ -99,9 +93,7 @@
   min-width: 0;
   background: none;
   border: none;
-  font:
-    500 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-md) var(--font-sans);
   color: var(--color-text);
 }
 
@@ -123,11 +115,9 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   padding: 9px 14px;
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text);
@@ -135,21 +125,17 @@
 }
 
 .filterCount {
-  font:
-    700 10px 'JetBrains Mono',
-    monospace;
+  font: 700 var(--text-2xs) var(--font-mono);
   background: var(--color-brand);
   color: var(--color-brand-ink);
-  border-radius: 99px;
+  border-radius: var(--radius-full);
   padding: 1px 6px;
 }
 
 .empty {
   padding: 40px 0;
   text-align: center;
-  font:
-    500 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-base) var(--font-sans);
   color: var(--color-text-muted);
 }
 
@@ -169,9 +155,7 @@
 }
 
 .pageSummary {
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
 }
 
@@ -181,15 +165,13 @@
 }
 
 .pageButton {
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);

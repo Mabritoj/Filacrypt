@@ -10,9 +10,7 @@
 
 .label {
   display: block;
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-2xs) var(--font-mono);
   letter-spacing: 0.07em;
   color: var(--color-text-muted);
   margin-bottom: 6px;
@@ -23,12 +21,10 @@
   box-sizing: border-box;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   padding: 10px 12px;
   color: var(--color-text);
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
 }
 
 .colorInputs {
@@ -43,24 +39,24 @@
   height: 40px;
   padding: 0;
   border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: none;
   cursor: pointer;
 }
 
 .colorSwatchInput::-webkit-color-swatch-wrapper {
   padding: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .colorSwatchInput::-webkit-color-swatch {
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .colorSwatchInput::-moz-color-swatch {
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .rangeInputs {
@@ -79,9 +75,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 16px;
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
   cursor: pointer;
 }

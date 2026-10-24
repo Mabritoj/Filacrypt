@@ -1,14 +1,12 @@
 .section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   padding: 22px;
 }
 
 .heading {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   color: var(--color-text);
   margin: 0 0 18px;
 }
@@ -29,7 +27,7 @@
   gap: 0.75rem;
   padding: 0.75rem;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   min-width: 0;
 }
 
@@ -46,7 +44,7 @@
 }
 
 .email {
-  font-size: 0.85rem;
+  font-size: var(--text-md);
   color: var(--color-text-muted);
   overflow-wrap: anywhere;
 }
@@ -61,7 +59,7 @@
 .roleSelect {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.35rem 0.5rem;
 }
 
@@ -77,13 +75,13 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.85rem;
+  font-size: var(--text-md);
   color: var(--color-text-muted);
   text-transform: capitalize;
 }
 
 .permissionsSummary {
-  font-size: 0.85rem;
+  font-size: var(--text-md);
   color: var(--color-text-muted);
   flex: 1 1 200px;
   min-width: 0;
@@ -107,14 +105,14 @@
 }
 
 .fieldLabel {
-  font-size: 0.85rem;
+  font-size: var(--text-md);
   color: var(--color-text-muted);
 }
 
 .input {
   padding: 0.5rem 0.7rem;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-text);
   min-width: 0;

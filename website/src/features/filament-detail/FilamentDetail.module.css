@@ -13,12 +13,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
   cursor: pointer;
   color: var(--color-text);
-  font-size: 16px;
+  font-size: var(--text-xl);
   line-height: 1;
 }
 
@@ -26,12 +26,12 @@
   position: absolute;
   top: 42px;
   right: 0;
-  z-index: 50;
+  z-index: var(--z-popover);
   width: 180px;
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  border-radius: 11px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popover);
   overflow: hidden;
   padding: 6px;
 }
@@ -41,13 +41,11 @@
   width: 100%;
   box-sizing: border-box;
   text-align: left;
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
   color: var(--color-text);
   background: none;
   border: none;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   padding: 9px 10px;
   cursor: pointer;
 }
@@ -76,18 +74,14 @@
   box-sizing: border-box;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 7px 9px;
   color: var(--color-text);
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
 }
 
 .editTitleInput {
-  font:
-    700 22px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-3xl) var(--font-sans);
   padding: 8px 10px;
 }
 
@@ -104,12 +98,10 @@
   box-sizing: border-box;
   background: var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 7px 9px;
   color: var(--color-text);
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
 }
 
 .editColorSwatch {
@@ -118,24 +110,24 @@
   height: 44px;
   padding: 0;
   border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: none;
   cursor: pointer;
 }
 
 .editColorSwatch::-webkit-color-swatch-wrapper {
   padding: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .editColorSwatch::-webkit-color-swatch {
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .editColorSwatch::-moz-color-swatch {
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .editRangeInputs {
@@ -151,9 +143,7 @@
 }
 
 .remainingEditLabel {
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
   margin-bottom: 10px;
 }
@@ -169,16 +159,12 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 10px;
-  font:
-    500 11px 'JetBrains Mono',
-    monospace;
+  font: 500 var(--text-xs) var(--font-mono);
   color: var(--color-text-muted);
 }
 
 .remainingEditValue {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   color: var(--color-brand);
 }
 
@@ -196,16 +182,14 @@
 .identityCard {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   padding: 24px;
   display: flex;
   flex-direction: column;
 }
 
 .brandLabel {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
   letter-spacing: 0.02em;
   color: var(--color-text-muted);
   margin-bottom: 7px;
@@ -213,9 +197,7 @@
 
 .title {
   margin: 0;
-  font:
-    700 34px/1.03 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-display-1)/1.03 var(--font-sans);
   letter-spacing: -0.02em;
   color: var(--color-text);
 }
@@ -233,14 +215,12 @@
 }
 
 .badge {
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-xs) var(--font-mono);
   letter-spacing: 0.05em;
   color: var(--color-text-muted-2);
   padding: 3px 9px;
   border: 1px solid var(--color-border-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .miniStats {
@@ -255,23 +235,19 @@
   min-width: 90px;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 11px;
+  border-radius: var(--radius-lg);
   padding: 13px 15px;
 }
 
 .miniStatLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-2xs) var(--font-mono);
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
 }
 
 .miniStatValue {
   margin-top: 6px;
-  font:
-    700 18px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-2xl) var(--font-sans);
   color: var(--color-text);
 }
 
@@ -282,7 +258,7 @@
 .tagBand {
   background: var(--color-accent-tint-bg);
   border: 1px solid var(--color-accent-tint-border);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   padding: 20px 22px;
   margin-bottom: 20px;
 }
@@ -297,7 +273,7 @@
 .tagIcon {
   width: 44px;
   height: 44px;
-  border-radius: 11px;
+  border-radius: var(--radius-lg);
   background: var(--color-chip);
   display: flex;
   align-items: center;
@@ -312,9 +288,7 @@
 }
 
 .tagTitle {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   color: var(--color-text);
 }
 
@@ -322,18 +296,16 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font:
-    600 11px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-xs) var(--font-sans);
   color: var(--color-success);
   background: var(--color-success-bg);
   padding: 3px 9px;
-  border-radius: 99px;
+  border-radius: var(--radius-full);
 }
 
 .healthBadge[data-healthy='false'] {
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
 }
 
 .healthDot {
@@ -344,9 +316,7 @@
 }
 
 .tagStandard {
-  font:
-    500 12px 'JetBrains Mono',
-    monospace;
+  font: 500 var(--text-sm) var(--font-mono);
   color: var(--color-text-muted);
   margin-top: 4px;
 }
@@ -359,17 +329,13 @@
 }
 
 .tagStatLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-2xs) var(--font-mono);
   letter-spacing: 0.07em;
   color: var(--color-text-muted);
 }
 
 .tagStatValue {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
   margin-top: 5px;
   color: var(--color-text);
 }
@@ -377,7 +343,7 @@
 .memoryTrack {
   height: 5px;
   background: var(--color-border);
-  border-radius: 99px;
+  border-radius: var(--radius-full);
   margin-top: 6px;
   overflow: hidden;
 }
@@ -385,7 +351,7 @@
 .memoryFill {
   height: 100%;
   background: var(--color-brand);
-  border-radius: 99px;
+  border-radius: var(--radius-full);
 }
 
 .detailGrid {

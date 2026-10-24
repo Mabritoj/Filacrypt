@@ -2,13 +2,13 @@
   position: absolute;
   top: 52px;
   right: 0;
-  z-index: 30;
+  z-index: var(--z-popover);
   width: 344px;
   max-width: calc(100vw - 40px);
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border-strong);
-  border-radius: 13px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popover);
   padding: 18px;
   box-sizing: border-box;
 }
@@ -21,9 +21,7 @@
 }
 
 .title {
-  font:
-    700 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-base) var(--font-sans);
   color: var(--color-text);
 }
 
@@ -31,17 +29,13 @@
   border: none;
   background: none;
   cursor: pointer;
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
   padding: 0;
 }
 
 .sectionLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-2xs) var(--font-mono);
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
   margin-bottom: 9px;
@@ -55,11 +49,9 @@
 }
 
 .chip {
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   padding: 6px 11px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--color-chip);
   border: 1px solid var(--color-border);
   color: var(--color-text-muted-2);
@@ -97,11 +89,9 @@
   box-sizing: border-box;
   background: var(--color-chip);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 9px 12px;
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text);
   margin-bottom: 16px;
 }
@@ -110,9 +100,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted-2);
   margin-bottom: 18px;
   cursor: pointer;
@@ -126,11 +114,9 @@
 .reset {
   flex: 1;
   text-align: center;
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   padding: 10px;
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--color-chip);
   border: 1px solid var(--color-border);
   color: var(--color-text-muted-2);
@@ -140,11 +126,9 @@
 .apply {
   flex: 2;
   text-align: center;
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-sm) var(--font-sans);
   padding: 10px;
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--color-brand);
   border: none;
   color: var(--color-brand-ink);
@@ -155,7 +139,7 @@
   .panel {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--z-modal);
     width: auto;
     max-width: none;
     border: none;
