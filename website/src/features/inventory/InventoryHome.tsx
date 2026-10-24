@@ -141,7 +141,7 @@ export function InventoryHome() {
           width={344}
           className={styles.filterPopover}
           trigger={(triggerProps) => (
-            <Button {...triggerProps} variant="secondary" className={styles.filterButton}>
+            <Button {...triggerProps} variant="secondary">
               Filters
               {activeFilterCount > 0 && (
                 <span className={styles.filterCount}>{activeFilterCount}</span>

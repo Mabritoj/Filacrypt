@@ -70,10 +70,6 @@
   background: var(--color-surface-alt);
 }
 
-.filterButton {
-  padding-block: 9px;
-}
-
 .filterCount {
   font: 700 var(--text-2xs) var(--font-mono);
   background: var(--color-brand);
@@ -129,5 +125,12 @@
 
   .grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Same rule as TextInput: under 16px, iOS zooms the page into the field. */
+@media (pointer: coarse) {
+  .searchInput {
+    font-size: 16px;
   }
 }
