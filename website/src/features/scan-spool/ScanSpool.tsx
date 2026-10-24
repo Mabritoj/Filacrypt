@@ -377,10 +377,12 @@ export function ScanSpool() {
               tracked.
             </Text>
             <div className={styles.finalActions}>
-              <Button to="/inventory" variant="secondary">
+              <Button to="/inventory" variant="secondary" size="lg">
                 View inventory
               </Button>
-              <Button onClick={reset}>Scan another</Button>
+              <Button size="lg" onClick={reset}>
+                Scan another
+              </Button>
             </div>
           </Card>
         )}

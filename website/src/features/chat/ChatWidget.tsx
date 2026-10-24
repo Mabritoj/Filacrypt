@@ -3,8 +3,12 @@ import { useSpools } from '../../api/spools';
 import { usePreferences } from '../../api/user';
 import { useWorkspace } from '../../api/workspace';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
+import { Alert } from '../../components/Alert';
+import { Button } from '../../components/Button';
 import { IconButton } from '../../components/IconButton';
 import { CloseIcon, SpoolIcon } from '../../components/icons';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import { SpoolCard } from '../inventory/SpoolCard';
 import { useChatStream } from './useChatStream';
 import styles from './ChatWidget.module.css';
@@ -51,7 +55,9 @@ export function ChatWidget() {
       {isOpen && (
         <div className={styles.panel}>
           <div className={styles.header}>
-            <span>Inventory assistant</span>
+            <Text variant="title" as="h2">
+              Inventory assistant
+            </Text>
             <IconButton
               label="Close chat"
               size="sm"
@@ -89,20 +95,20 @@ export function ChatWidget() {
               </div>
             ))}
 
-            {error && <p className={styles.error}>{error}</p>}
+            {error && <Alert tone="error">{error}</Alert>}
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
-            <input
+            <TextInput
               className={styles.input}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               placeholder="Ask about your spools…"
               aria-label="Ask a question"
             />
-            <button type="submit" className={styles.send} disabled={isStreaming || !draft.trim()}>
-              {isStreaming ? '…' : 'Send'}
-            </button>
+            <Button type="submit" loading={isStreaming} disabled={!draft.trim()}>
+              Send
+            </Button>
           </form>
         </div>
       )}

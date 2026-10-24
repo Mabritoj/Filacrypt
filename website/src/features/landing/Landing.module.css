@@ -60,19 +60,6 @@
   color: var(--color-text);
 }
 
-.navCta {
-  font: 600 var(--text-md) var(--font-sans);
-  color: var(--color-brand-ink);
-  background: var(--color-brand);
-  border-radius: var(--radius-md);
-  padding: 9px 16px;
-}
-
-.navCta:hover {
-  color: var(--color-brand-ink);
-  background: var(--color-brand-hover);
-}
-
 /* hero */
 
 .hero {
@@ -126,32 +113,6 @@
   align-items: center;
   gap: 12px;
   margin-top: 32px;
-}
-
-.btnPrimary {
-  font: 600 var(--text-base) var(--font-sans);
-  color: var(--color-brand-ink);
-  background: var(--color-brand);
-  border-radius: var(--radius-md);
-  padding: 13px 22px;
-}
-
-.btnPrimary:hover {
-  color: var(--color-brand-ink);
-  background: var(--color-brand-hover);
-}
-
-.btnSecondary {
-  font: 600 var(--text-base) var(--font-sans);
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  padding: 13px 22px;
-}
-
-.btnSecondary:hover {
-  color: var(--color-text);
 }
 
 .heroNote {
@@ -217,9 +178,6 @@
 /* shared section chrome */
 
 .eyebrow {
-  font: 600 var(--text-xs) var(--font-mono);
-  letter-spacing: 0.08em;
-  color: var(--color-brand);
   margin-bottom: 10px;
 }
 
@@ -374,10 +332,6 @@
   max-width: 440px;
   font: 500 var(--text-xl) var(--font-sans);
   color: var(--color-text-muted-2);
-}
-
-.finalCtaButton {
-  display: inline-block;
 }
 
 /* footer */

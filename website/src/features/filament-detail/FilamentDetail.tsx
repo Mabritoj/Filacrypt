@@ -9,6 +9,7 @@ import type { Spool } from '../../api/types';
 import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
+import { EmptyState } from '../../components/EmptyState';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { IconButton } from '../../components/IconButton';
 import { MoreIcon, NfcIcon } from '../../components/icons';
@@ -115,7 +116,7 @@ export function FilamentDetail() {
     return (
       <PageShell centered>
         <ErrorMessage message="Something went wrong loading this spool." />
-        <Button to="/inventory" variant="secondary" className={styles.backLink}>
+        <Button to="/inventory" variant="secondary">
           Back to inventory
         </Button>
       </PageShell>
@@ -125,10 +126,17 @@ export function FilamentDetail() {
   if (!spool) {
     return (
       <PageShell centered>
-        <Text tone="muted">Spool not found.</Text>
-        <Button to="/inventory" variant="secondary" className={styles.backLink}>
-          Back to inventory
-        </Button>
+        <EmptyState
+          title="Spool not found."
+          titleAs="h1"
+          action={
+            <Button to="/inventory" variant="secondary">
+              Back to inventory
+            </Button>
+          }
+        >
+          It may have been deleted, or the link is wrong.
+        </EmptyState>
       </PageShell>
     );
   }

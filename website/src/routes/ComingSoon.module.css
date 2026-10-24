@@ -1,27 +1,7 @@
 .page {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  text-align: center;
   background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.eyebrow {
-  margin: 0;
-  font: 600 var(--text-xs) var(--font-mono);
-  letter-spacing: 0.08em;
-  color: var(--color-brand);
-}
-
-.title {
-  margin: 0;
-  font: 700 var(--text-4xl) var(--font-sans);
-}
-
-.link {
-  font: 600 var(--text-base) var(--font-sans);
 }

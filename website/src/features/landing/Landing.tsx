@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { BrandMark } from '../../components/BrandMark';
+import { Button } from '../../components/Button';
+import { Text } from '../../components/Text';
 import styles from './Landing.module.css';
 
 interface Step {
@@ -102,9 +104,7 @@ export function Landing() {
             <Link className={styles.navSignIn} to="/inventory">
               Sign in
             </Link>
-            <Link className={styles.navCta} to="/inventory">
-              Get started
-            </Link>
+            <Button to="/inventory">Get started</Button>
           </nav>
         </header>
 
@@ -124,12 +124,12 @@ export function Landing() {
               and remembers every setting. No spreadsheets, no guessing.
             </p>
             <div className={styles.heroActions}>
-              <Link className={styles.btnPrimary} to="/inventory">
+              <Button to="/inventory" size="lg">
                 Start your inventory
-              </Link>
-              <a className={styles.btnSecondary} href="#how">
+              </Button>
+              <Button href="#how" variant="secondary" size="lg">
                 See how it works
-              </a>
+              </Button>
             </div>
             <div className={styles.heroNote}>Works with any NFC-tagged spool</div>
           </div>
@@ -150,7 +150,9 @@ export function Landing() {
         </section>
 
         <section id="how" className={styles.howSection}>
-          <div className={styles.eyebrow}>HOW IT WORKS</div>
+          <Text variant="eyebrow" tone="brand" as="p" className={styles.eyebrow}>
+            How it works
+          </Text>
           <h2 className={styles.sectionTitle}>Three taps from roll to record.</h2>
           <div className={styles.stepsGrid}>
             {steps.map((step) => (
@@ -164,7 +166,9 @@ export function Landing() {
         </section>
 
         <section id="features" className={styles.featuresSection}>
-          <div className={styles.eyebrow}>FEATURES</div>
+          <Text variant="eyebrow" tone="brand" as="p" className={styles.eyebrow}>
+            Features
+          </Text>
           <h2 className={styles.sectionTitle}>Built for the way you actually print.</h2>
           <div className={styles.featuresGrid}>
             {features.map((feature) => (
@@ -178,7 +182,9 @@ export function Landing() {
 
         <section id="standard" className={styles.standardBand}>
           <div>
-            <div className={styles.eyebrow}>OPEN STANDARD</div>
+            <Text variant="eyebrow" tone="brand" as="p" className={styles.eyebrow}>
+              Open standard
+            </Text>
             <h2 className={styles.standardTitle}>Powered by OpenPrintTag.</h2>
             <p className={styles.standardBody}>
               Filacrypt reads the open OpenPrintTag standard, so brand, material, color,
@@ -199,9 +205,9 @@ export function Landing() {
         <section className={styles.finalCta}>
           <h2 className={styles.finalCtaTitle}>Know exactly what&apos;s on your shelf.</h2>
           <p className={styles.finalCtaBody}>Start tracking your filament in minutes.</p>
-          <Link className={`${styles.btnPrimary} ${styles.finalCtaButton}`} to="/inventory">
+          <Button to="/inventory" size="lg">
             Get started
-          </Link>
+          </Button>
         </section>
 
         <footer className={styles.footer}>

@@ -6,6 +6,10 @@ import { CodeInput } from './CodeInput';
 import { BrandMark } from '../../components/BrandMark';
 import { Button } from '../../components/Button';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { Field } from '../../components/Field';
+import { ChevronLeftIcon } from '../../components/icons';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import styles from './Login.module.css';
 
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -194,31 +198,34 @@ export function Login() {
         <div className={styles.formPanel}>
           {step === 'email' ? (
             <form onSubmit={handleEmailSubmit}>
-              <h1 className={styles.title}>Welcome back</h1>
-              <p className={styles.subtitle}>
+              <Text variant="h1" className={styles.title}>
+                Welcome back
+              </Text>
+              <Text variant="bodySm" tone="muted" className={styles.subtitle}>
                 No password to remember — we&apos;ll email you a one-time code.
-              </p>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Email</span>
-                <input
-                  className={styles.input}
+              </Text>
+              <Field label="Email" className={styles.field}>
+                <TextInput
                   type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
                 />
-              </label>
+              </Field>
               {error && <ErrorMessage message={error} />}
-              <Button type="submit" className={styles.submitButton} disabled={submitting}>
+              <Button type="submit" className={styles.submitButton} loading={submitting}>
                 {submitting ? 'Sending…' : 'Send code'}
               </Button>
             </form>
           ) : (
             <div>
-              <h1 className={styles.title}>Enter your code</h1>
-              <p className={styles.subtitle}>
+              <Text variant="h1" className={styles.title}>
+                Enter your code
+              </Text>
+              <Text variant="bodySm" tone="muted" className={styles.subtitle}>
                 We sent an 8-digit code to {email}. It expires shortly.
-              </p>
+              </Text>
               {error && <ErrorMessage message={error} />}
               {/* Cognito's sign-in email OTP is fixed at 8 digits (unlike its
                   6-digit sign-up OTP) -- not configurable. */}
@@ -231,8 +238,9 @@ export function Login() {
               />
               <div className={styles.resendRow}>
                 <span>Didn&apos;t get it?</span>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className={styles.resendButton}
                   onClick={handleResend}
                   disabled={secondsLeft > 0}
@@ -240,11 +248,18 @@ export function Login() {
                   {secondsLeft > 0
                     ? `Resend in 0:${String(secondsLeft).padStart(2, '0')}`
                     : 'Resend code'}
-                </button>
+                </Button>
               </div>
-              <button type="button" className={styles.backLink} onClick={handleUseDifferentEmail}>
-                ← Use a different email
-              </button>
+              <div className={styles.backRow}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<ChevronLeftIcon size={14} />}
+                  onClick={handleUseDifferentEmail}
+                >
+                  Use a different email
+                </Button>
+              </div>
             </div>
           )}
         </div>

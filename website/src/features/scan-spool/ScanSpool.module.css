@@ -59,7 +59,8 @@
   max-width: 380px;
 }
 
-.manualLink {
+/* Scoped to outrank Button's own text-decoration regardless of CSS order. */
+.card .manualLink {
   margin-top: 16px;
   text-decoration: underline;
   text-underline-offset: 3px;
