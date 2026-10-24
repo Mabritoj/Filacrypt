@@ -1,11 +1,12 @@
-import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect, lazy, Suspense, type ReactNode } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Landing } from './features/landing/Landing';
 import { Login } from './features/auth/Login';
 import { ComingSoon } from './routes/ComingSoon';
 import { RequireAuth } from './components/RequireAuth';
 import { AuthenticatedLayout } from './routes/AuthenticatedLayout';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { PageShell } from './components/PageShell';
 import { LoadingSpool } from './components/LoadingSpool';
 import { useThemeStore } from './stores/themeStore';
@@ -37,6 +38,12 @@ const DesignCatalog = import.meta.env.DEV
 
 const queryClient = new QueryClient();
 
+/** Keyed on the path, so navigating away from a crashed page clears the error. */
+function RouteErrorBoundary({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
+}
+
 export function App() {
   const theme = useThemeStore((state) => state.theme);
 
@@ -47,34 +54,36 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Suspense
-          fallback={
-            <PageShell centered>
-              <LoadingSpool message="Loading…" />
-            </PageShell>
-          }
-        >
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/setup"
-              element={
-                <RequireAuth>
-                  <Setup />
-                </RequireAuth>
-              }
-            />
-            <Route element={<AuthenticatedLayout />}>
-              <Route path="/inventory" element={<InventoryHome />} />
-              <Route path="/inventory/:id" element={<FilamentDetail />} />
-              <Route path="/scan" element={<ScanSpool />} />
-              <Route path="/account" element={<AccountSettings />} />
-            </Route>
-            {DesignCatalog && <Route path="/__design" element={<DesignCatalog />} />}
-            <Route path="*" element={<ComingSoon />} />
-          </Routes>
-        </Suspense>
+        <RouteErrorBoundary>
+          <Suspense
+            fallback={
+              <PageShell centered>
+                <LoadingSpool message="Loading…" />
+              </PageShell>
+            }
+          >
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/setup"
+                element={
+                  <RequireAuth>
+                    <Setup />
+                  </RequireAuth>
+                }
+              />
+              <Route element={<AuthenticatedLayout />}>
+                <Route path="/inventory" element={<InventoryHome />} />
+                <Route path="/inventory/:id" element={<FilamentDetail />} />
+                <Route path="/scan" element={<ScanSpool />} />
+                <Route path="/account" element={<AccountSettings />} />
+              </Route>
+              {DesignCatalog && <Route path="/__design" element={<DesignCatalog />} />}
+              <Route path="*" element={<ComingSoon />} />
+            </Routes>
+          </Suspense>
+        </RouteErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   );
