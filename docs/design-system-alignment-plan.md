@@ -121,8 +121,8 @@ A three-tier primitive/semantic/component token system would be overkill for an 
   --text-2xl: 20px; /* stat values, section heads (absorbs 18/19) */
   --text-3xl: 24px; /* absorbs 22 */
   --text-4xl: 28px; /* page h1 — one size everywhere (absorbs 26) */
-  --text-display-1: 34px; /* detail hero, absorbs 30/32 */
-  --text-display-2: 42px; /* absorbs 38 */
+  --text-display-1: 32px; /* detail hero, absorbs 30/34 */
+  --text-display-2: 40px; /* absorbs 38/42 */
   --text-display-3: 54px; /* landing hero only */
   --weight-medium: 500;
   --weight-semibold: 600;
@@ -309,14 +309,27 @@ npm run test`. UI phases also need a browser check at 375px, 768px and desktop, 
 
 ### Phase 1: Tokens (medium, mostly mechanical, visible change ≤2px)
 
-- [ ] Create `src/styles/tokens.css` and `typography.module.css` as in 3.1. Scope themes to `[data-theme]`.
-- [ ] Rename `--color-danger` → `--color-warning`. Add the focus/overlay/spool/marketing tokens.
-- [ ] Codemod every module: font shorthands → `var(--font-*)`/`var(--text-*)`, radius and spacing → scale,
-      shadows and z-index → tokens. Snap the off-scale values per the mapping comments.
-- [ ] Landing/Login: delete the private palettes and render `data-theme="dark"` on the page root. Delete the
-      theme-mutation `useEffect` in `Login.tsx`.
-- [ ] Remove `useThemeStore` from `SpoolVisualization` in favor of spool tokens.
-- **Done when** the token test's allowlist is empty except the documented `style` custom-property exception.
+- [x] Create `src/styles/tokens.css` (imported by `index.css`) with the scales in 3.1. Themes are keyed on
+      `[data-theme]`. The display sizes became 32/40px instead of 34/42px, so every snap stays within 2px.
+- [x] Rename `--color-danger` → `--color-warning`. The chat error text moved to `--color-destructive`, since
+      it's an error rather than a warning. Add the focus, overlay, brand-deep, knob, text-subtle, spool and
+      marketing tokens.
+- [x] Codemod every stylesheet: 153 font shorthands → `var(--text-*) var(--font-*)`, 19 `font-size`s, 96 radii,
+      plus all shadows and z-index values → tokens. Setup's `font-size: 1rem` input stays as is: below 16px, iOS
+      zooms the page on focus. Phase 2's `TextInput` should use 16px on touch for every input.
+- [x] Landing/Login: private palettes deleted; `data-theme="dark"` on the page root; Login's theme-mutation
+      `useEffect` removed; SVG hex → spool tokens. ComingSoon now follows the app theme instead of being hard-coded
+      dark. Login's background glow now uses the shared brand tint, so it is slightly dimmer than before.
+- [x] `SpoolVisualization` reads spool tokens; `useThemeStore` and `METAL_TONES` are gone.
+- [x] The guardrail allowlist is empty. The test now covers every `.css` file (including `index.css`), with
+      `styles/tokens.css` as the only exception.
+- Deferred, deliberately:
+  - **Spacing codemod.** The `--space-*` scale exists, but snapping ~400 padding/margin/gap declarations now would
+    churn every module that Phases 2 and 4 rewrite anyway. Spacing moves onto the scale as each component is rebuilt.
+  - **`typography.module.css`.** Nothing would use it until `Text`/`Label` exist, so it ships with them in Phase 2a.
+- Verified with before/after screenshots of 12 views (signed-in pages via a faked Cognito session and the
+  `api/mock` fixtures) at 375/768/1440px in both themes. There was no horizontal overflow, and changes were
+  ≤2px apart from the Login glow.
 
 ### Phase 2: Core primitives (large, split into 2a/2b if needed)
 

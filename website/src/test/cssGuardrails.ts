@@ -1,5 +1,5 @@
 /**
- * Static checks that keep CSS modules on the design tokens in index.css.
+ * Static checks that keep stylesheets on the design tokens in styles/tokens.css.
  * Pure string analysis -- no CSS parser dependency -- which is enough for the
  * flat, nesting-free CSS this codebase writes.
  */

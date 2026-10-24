@@ -40,8 +40,12 @@ New readable entity (e.g. adding `Printer` fetching): add a fixture to `website/
 
 ```tsx
 // Good
-export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
-  return <button className={styles[variant]} onClick={onClick}>{label}</button>;
+export function Button({ label, onClick, variant = "primary" }: ButtonProps) {
+  return (
+    <button className={styles[variant]} onClick={onClick}>
+      {label}
+    </button>
+  );
 }
 ```
 
@@ -76,10 +80,11 @@ export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
 
 ## Layout & Theming
 
-- Every page's outer container must render the global `app-container` class (defined in `website/src/index.css`, width from the `--content-max-width` CSS var) alongside its own CSS-module class — e.g. `className={\`app-container ${styles.container}\`}`. Never declare a page-local `max-width` on the container. This is a real-bug fix: Landing, Inventory Home, and Filament Detail were each built from a separate Claude Design mockup and ended up with three different widths (1120/1140/1080px), which made the header visibly shift sideways when navigating between pages.
+- Every page's outer container must render the global `app-container` class (defined in `website/src/index.css`, width from the `--content-max-width` token in `website/src/styles/tokens.css`) alongside its own CSS-module class — e.g. `className={\`app-container ${styles.container}\`}`. Never declare a page-local `max-width` on the container. This is a real-bug fix: Landing, Inventory Home, and Filament Detail were each built from a separate Claude Design mockup and ended up with three different widths (1120/1140/1080px), which made the header visibly shift sideways when navigating between pages.
 - Authenticated app pages (everything except `Landing`) use `website/src/components/AppHeader.tsx` for their top bar (brand mark/name + optional `breadcrumb` + optional `actions` + `ProfileMenu`) instead of building their own header — keeps the logo's size and position identical across pages. `Landing` keeps its own marketing nav (different links, logged-out) but matches the same brand-mark sizing.
 - **Claude Design mockups are not pixel-consistent with each other** — each screen is generated independently, so container widths, header sizing, and spacing all drift slightly between screens even though they look identical at a glance. When implementing a new page from a mockup, treat its layout chrome (container width, header, spacing) as reference only; use the shared conventions above rather than the mockup's literal values.
-- Theme: `useThemeStore` (`website/src/stores/themeStore.ts`) holds `'dark' | 'light'`; `App.tsx` syncs it to `document.documentElement`'s `data-theme` attribute on change. All CSS must read colors via the `var(--color-*)` custom properties defined per-theme in `website/src/index.css` (e.g. `var(--color-surface)`, `var(--color-text-muted)`) — never hardcode a hex color in a CSS module, or it won't respond to the theme toggle.
+- Theme: `useThemeStore` (`website/src/stores/themeStore.ts`) holds `'dark' | 'light'`; `App.tsx` syncs it to `document.documentElement`'s `data-theme` attribute on change. All design values live in `website/src/styles/tokens.css`: colors as `var(--color-*)` redefined per theme (e.g. `var(--color-surface)`, `var(--color-text-muted)`), plus theme-independent scales — `--font-sans`/`--font-mono`, `--text-*` sizes, `--radius-*`, `--shadow-*`, `--z-*`, `--space-*`. Never hardcode a hex/rgb color, a font name, or `outline: none` in a stylesheet — `src/test/cssGuardrails.test.ts` fails the build on all three. Use `--color-warning` for needs-attention states (low stock) and `--color-destructive` for errors and irreversible actions.
+- Themes are keyed on `[data-theme]`, not just `:root`, so a subtree can opt in: the always-dark Landing and Login render `data-theme="dark"` on their page root (and set `color: var(--color-text)`, since `color` doesn't re-resolve on its own). Never force a look by mutating the global theme store.
 - `html { scrollbar-gutter: stable }` is intentional — without it, centered content shifts a few px between pages that do/don't have a vertical scrollbar. Don't remove it.
 
 ## Workflow
