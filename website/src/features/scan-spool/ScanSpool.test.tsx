@@ -185,8 +185,8 @@ describe('ScanSpool', () => {
       renderScanSpoolRaw('nfc');
       await screen.findByText('Manual entry');
 
-      expect(screen.getByLabelText('Diameter (mm)')).toHaveValue(2.85);
-      expect(screen.getByLabelText('Empty spool weight (g)')).toHaveValue(240);
+      expect(screen.getByLabelText('Diameter')).toHaveValue(2.85);
+      expect(screen.getByLabelText('Empty spool weight')).toHaveValue(240);
     });
 
     it('renders "Add Spool" in the breadcrumb', async () => {

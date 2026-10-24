@@ -4,12 +4,8 @@
 }
 
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
   padding: 48px 40px;
   text-align: center;
-  box-sizing: border-box;
 }
 
 .reader {
@@ -58,29 +54,15 @@
   }
 }
 
-.title {
-  margin: 0;
-  font: 700 var(--text-4xl) var(--font-sans);
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-}
-
 .subtitle {
   margin: 12px auto 0;
   max-width: 380px;
-  font: 500 var(--text-base)/1.5 var(--font-sans);
-  color: var(--color-text-muted);
 }
 
 .manualLink {
-  margin-top: 24px;
-  font: 600 var(--text-md) var(--font-sans);
-  color: var(--color-text);
-  background: none;
-  border: none;
+  margin-top: 16px;
   text-decoration: underline;
   text-underline-offset: 3px;
-  cursor: pointer;
 }
 
 .readerStatus {
@@ -106,19 +88,11 @@
 .scanError {
   margin: 18px auto 0;
   max-width: 380px;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: var(--color-destructive-bg);
-  border: 1px solid var(--color-destructive);
-  font: 500 var(--text-md) var(--font-sans);
-  color: var(--color-destructive);
+  text-align: left;
   overflow-wrap: anywhere;
 }
 
 .detectedCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
   overflow: hidden;
 }
 
@@ -190,6 +164,7 @@
   height: 46px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-strong);
+  background: var(--swatch);
   flex: none;
 }
 
@@ -210,12 +185,6 @@
   text-align: right;
 }
 
-.previewWeightLabel {
-  font: 600 var(--text-2xs) var(--font-mono);
-  letter-spacing: 0.07em;
-  color: var(--color-text-muted);
-}
-
 .previewWeightValue {
   font: 700 var(--text-lg) var(--font-sans);
   color: var(--color-text);
@@ -223,9 +192,6 @@
 }
 
 .reviewLabel {
-  font: 600 var(--text-2xs) var(--font-mono);
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
   margin-bottom: 12px;
 }
 
@@ -247,25 +213,6 @@
   gap: 10px;
   justify-content: center;
   margin-top: 26px;
-}
-
-.viewInventoryButton {
-  font: 600 var(--text-base) var(--font-sans);
-  color: var(--color-text);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  padding: 13px 20px;
-}
-
-.scanAnotherButton {
-  font: 600 var(--text-base) var(--font-sans);
-  color: var(--color-brand-ink);
-  background: var(--color-brand);
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 13px 20px;
-  cursor: pointer;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { MATERIAL_TAGS, MATERIAL_TYPES } from '../../api/types';
 import type { MaterialTag, MaterialType } from '../../api/types';
 import { Button } from '../../components/Button';
+import { Checkbox } from '../../components/Checkbox';
+import { ColorInput } from '../../components/ColorInput';
+import { Field } from '../../components/Field';
+import { NumberInput } from '../../components/NumberInput';
+import { Select } from '../../components/Select';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import styles from './ReviewForm.module.css';
 import { humanizeEnum } from '../../utils/format';
 
@@ -42,47 +49,25 @@ export function ReviewForm({ initialValues, isSubmitting, onCancel, onSubmit }: 
       }}
     >
       <div className={styles.grid}>
-        <label className={styles.field}>
-          <span className={styles.label}>Brand</span>
-          <input
-            className={styles.input}
+        <Field label="Brand">
+          <TextInput
             value={values.brand}
             onChange={(event) => update('brand', event.target.value)}
             required
           />
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Spool name</span>
-          <input
-            className={styles.input}
+        </Field>
+        <Field label="Spool name">
+          <TextInput
             value={values.materialName}
             onChange={(event) => update('materialName', event.target.value)}
             required
           />
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Color</span>
-          <div className={styles.colorInputs}>
-            <input
-              type="color"
-              aria-label="Color"
-              className={styles.colorSwatchInput}
-              value={values.colorHex}
-              onChange={(event) => update('colorHex', event.target.value)}
-            />
-            <input
-              type="text"
-              aria-label="Color hex code"
-              className={styles.input}
-              value={values.colorHex}
-              onChange={(event) => update('colorHex', event.target.value)}
-            />
-          </div>
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Material</span>
-          <select
-            className={styles.input}
+        </Field>
+        <Field label="Color">
+          <ColorInput value={values.colorHex} onChange={(hex) => update('colorHex', hex)} />
+        </Field>
+        <Field label="Material">
+          <Select
             value={values.materialType}
             onChange={(event) => update('materialType', event.target.value as MaterialType)}
           >
@@ -91,12 +76,10 @@ export function ReviewForm({ initialValues, isSubmitting, onCancel, onSubmit }: 
                 {type}
               </option>
             ))}
-          </select>
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Finish</span>
-          <select
-            className={styles.input}
+          </Select>
+        </Field>
+        <Field label="Finish">
+          <Select
             value={values.finish}
             onChange={(event) => update('finish', event.target.value as MaterialTag)}
           >
@@ -105,13 +88,11 @@ export function ReviewForm({ initialValues, isSubmitting, onCancel, onSubmit }: 
                 {humanizeEnum(tag)}
               </option>
             ))}
-          </select>
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Net weight (g)</span>
-          <input
-            type="number"
-            className={styles.input}
+          </Select>
+        </Field>
+        <Field label="Net weight">
+          <NumberInput
+            unit="g"
             value={values.netWeightG}
             min={0}
             // "any" rather than a round step: real tags report measured
@@ -121,24 +102,20 @@ export function ReviewForm({ initialValues, isSubmitting, onCancel, onSubmit }: 
             onChange={(event) => update('netWeightG', Number(event.target.value))}
             required
           />
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Diameter (mm)</span>
-          <input
-            type="number"
-            className={styles.input}
+        </Field>
+        <Field label="Diameter">
+          <NumberInput
+            unit="mm"
             value={values.filamentDiameterMm}
             min={0}
             step={0.05}
             onChange={(event) => update('filamentDiameterMm', Number(event.target.value))}
             required
           />
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Empty spool weight (g)</span>
-          <input
-            type="number"
-            className={styles.input}
+        </Field>
+        <Field label="Empty spool weight">
+          <NumberInput
+            unit="g"
             value={values.emptyContainerWeightG}
             min={0}
             // See net weight above -- a real tag reported 277 g, which a step
@@ -147,52 +124,52 @@ export function ReviewForm({ initialValues, isSubmitting, onCancel, onSubmit }: 
             onChange={(event) => update('emptyContainerWeightG', Number(event.target.value))}
             required
           />
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Nozzle temp (°C)</span>
+        </Field>
+        {/* Two inputs, so a fieldset/legend names the pair instead of a Field. */}
+        <fieldset className={styles.range}>
+          <Text as="legend" variant="eyebrow" className={styles.legend}>
+            Nozzle temp
+          </Text>
           <div className={styles.rangeInputs}>
-            <input
-              type="number"
-              className={styles.input}
+            <NumberInput
+              unit="°C"
               aria-label="Minimum nozzle temperature"
               value={values.minNozzleTempC}
               onChange={(event) => update('minNozzleTempC', Number(event.target.value))}
             />
-            <span className={styles.rangeSep}>–</span>
-            <input
-              type="number"
-              className={styles.input}
+            <span className={styles.rangeSep} aria-hidden="true">
+              –
+            </span>
+            <NumberInput
+              unit="°C"
               aria-label="Maximum nozzle temperature"
               value={values.maxNozzleTempC}
               onChange={(event) => update('maxNozzleTempC', Number(event.target.value))}
             />
           </div>
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Bed temp (°C)</span>
-          <input
-            type="number"
-            className={styles.input}
+        </fieldset>
+        <Field label="Bed temp">
+          <NumberInput
+            unit="°C"
             value={values.bedTempC}
             onChange={(event) => update('bedTempC', Number(event.target.value))}
           />
-        </label>
+        </Field>
       </div>
 
-      <label className={styles.checkboxRow}>
-        <input
-          type="checkbox"
-          checked={values.markFull}
-          onChange={(event) => update('markFull', event.target.checked)}
-        />
+      <Checkbox
+        className={styles.markFull}
+        checked={values.markFull}
+        onChange={(event) => update('markFull', event.target.checked)}
+      >
         Mark full — remaining = net weight ({values.netWeightG} g)
-      </label>
+      </Checkbox>
 
       <div className={styles.actions}>
         <Button variant="secondary" className={styles.cancelButton} onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+        <Button type="submit" className={styles.submitButton} loading={isSubmitting}>
           {isSubmitting ? 'Adding…' : 'Add to inventory'}
         </Button>
       </div>
