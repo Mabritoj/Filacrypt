@@ -129,14 +129,14 @@ function Overlays() {
           onConfirm={() => setConfirming(false)}
           onCancel={() => setConfirming(false)}
         >
-          <p>This can&apos;t be undone. Escape and backdrop clicks are ignored.</p>
+          <p>This can&apos;t be undone. Escape cancels; a backdrop click doesn&apos;t.</p>
         </ConfirmDialog>
       )}
       <Button variant="secondary" onClick={() => setInfoOpen(true)}>
-        Open dismissible modal
+        Open modal
       </Button>
       {infoOpen && (
-        <Modal title="About tags" dismissible onCancel={() => setInfoOpen(false)}>
+        <Modal title="About tags" closeOnBackdropClick onCancel={() => setInfoOpen(false)}>
           <p>Escape or a backdrop click closes this one.</p>
         </Modal>
       )}

@@ -15,16 +15,21 @@ export interface ModalProps {
   /** Actions row under the body, right-aligned -- usually Buttons. */
   footer?: ReactNode;
   /**
-   * Called when the dialog asks to close: always when the browser closes it
-   * natively, and on Escape or a backdrop click if `dismissible`.
+   * Called when the dialog asks to close: on Escape (unless `closeOnEscape`
+   * is off), on a backdrop click (if `closeOnBackdropClick`), and whenever the
+   * browser closes it natively.
    */
   onCancel: () => void;
   /**
-   * Let Escape and backdrop clicks close it. Off by default: confirmations
-   * close only through their own buttons, so a stray tap on a phone or iPad
-   * can't dismiss one mid-decision.
+   * Escape closes it -- the standard dialog key, and always deliberate.
+   * Turn off while closing would be wrong, e.g. mid-request.
    */
-  dismissible?: boolean;
+  closeOnEscape?: boolean;
+  /**
+   * A click/tap outside closes it. Off by default: on a phone or iPad a stray
+   * tap is easy, and it shouldn't throw away a decision in progress.
+   */
+  closeOnBackdropClick?: boolean;
   size?: 'sm' | 'md';
 }
 
@@ -39,7 +44,8 @@ export function Modal({
   children,
   footer,
   onCancel,
-  dismissible = false,
+  closeOnEscape = true,
+  closeOnBackdropClick = false,
   size = 'sm',
 }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -79,11 +85,11 @@ export function Modal({
     // Escape. Prevent the native close either way; if allowed, close through
     // the parent so the dialog unmounts like every other way of closing.
     event.preventDefault();
-    if (dismissible) onCancel();
+    if (closeOnEscape) onCancel();
   }
 
   function handleClick(event: MouseEvent<HTMLDialogElement>) {
-    if (dismissible && event.target === event.currentTarget) onCancel();
+    if (closeOnBackdropClick && event.target === event.currentTarget) onCancel();
   }
 
   return (

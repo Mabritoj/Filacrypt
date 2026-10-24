@@ -388,10 +388,12 @@ npm run test`. UI phases also need a browser check at 375px, 768px and desktop, 
   - `Modal` is open while mounted. It opens with `showModal()`: top layer (no z-index), page inert, focus kept
     inside, focus returned to the opener on close, a `useId` title, a `footer` slot and sizes `sm`/`md`.
     `html:has(dialog:modal)` stops the page scrolling behind it.
-  - Kept the existing, test-pinned behavior: Escape and backdrop clicks do not close a dialog by default.
-    `dismissible` opts in, and nothing uses it yet. One limit: Chrome lets a repeated Escape close a dialog
-    when there has been no user activation in between, whatever the page does. `Modal` reports that native
-    close through `onCancel`, so app state never shows a dialog the browser has already closed.
+  - Dismissal, as decided after Phase 3: **Escape closes** dialogs by default (`closeOnEscape`, the
+    standard dialog key and always deliberate). ConfirmDialog turns it off only while its action is in
+    flight, when Cancel is disabled too. **Backdrop clicks still don't close them** (`closeOnBackdropClick`,
+    off by default). That keeps the test-pinned guard against stray taps on phones and iPads. One limit:
+    Chrome can force a close natively. `Modal` reports any native close through `onCancel`, so app state
+    never shows a dialog the browser has already closed.
   - A bug that only a real browser showed: `close` fires asynchronously, so under StrictMode's double-run
     effects the first cleanup's `close` arrived after the reopen and was treated as a cancel. The dialog
     vanished on open in dev. Fixed by ignoring `close` events that find the dialog open. The jsdom shim
@@ -413,8 +415,10 @@ npm run test`. UI phases also need a browser check at 375px, 768px and desktop, 
     Escape or an inside close.
 - Verified in real Chromium against the `/__design` overlay demos and the real pages:
   - The confirm dialog is `:modal`, focus starts inside, Tab stays inside, and the page doesn't scroll.
-    Backdrop clicks, Escape and a second Escape are ignored, and focus returns to the opener on close.
-  - The dismissible modal closes on Escape and on backdrop clicks.
+    Backdrop clicks are ignored, Escape cancels, and focus returns to the opener. On the real Detail page,
+    the whole keyboard flow (options menu → Delete spool → Escape) keeps the spool and refocuses the options
+    button.
+  - A Modal with `closeOnBackdropClick` closes on a backdrop click.
   - Menu keyboard behavior works as listed above.
   - On an iPhone viewport, the bottom sheet hugs the viewport bottom at full width, and tapping the backdrop
     closes it.

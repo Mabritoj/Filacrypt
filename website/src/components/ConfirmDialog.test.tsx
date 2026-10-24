@@ -50,4 +50,23 @@ describe('ConfirmDialog', () => {
     renderDialog({ error: 'Network error' });
     expect(screen.getByRole('alert')).toHaveTextContent('Network error');
   });
+
+  it('cancels on Escape', () => {
+    const { onCancel, onConfirm } = renderDialog();
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }));
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it('ignores Escape while the action is in flight', () => {
+    const { onCancel } = renderDialog({ pending: true });
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }));
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  it('ignores backdrop clicks', () => {
+    const { onCancel } = renderDialog();
+    fireEvent.click(screen.getByRole('dialog'));
+    expect(onCancel).not.toHaveBeenCalled();
+  });
 });

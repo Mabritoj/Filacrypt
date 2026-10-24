@@ -304,6 +304,20 @@ describe('FilamentDetail', () => {
     expect(screen.getByRole('heading', { name: 'Delete this spool?' })).toBeInTheDocument();
   });
 
+  it('Escape cancels the delete confirmation and keeps the spool', async () => {
+    renderAtSpool('spool-galaxy-black');
+    await screen.findByRole('heading', { name: 'Galaxy Black' });
+
+    openOptionsMenu();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete spool' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete this spool?' });
+    // Escape reaches a <dialog> as a cancelable `cancel` event.
+    fireEvent(dialog, new Event('cancel', { cancelable: true }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Galaxy Black' })).toBeInTheDocument();
+  });
+
   it('Cancel in the delete dialog keeps the spool', async () => {
     renderAtSpool('spool-galaxy-black');
     await screen.findByRole('heading', { name: 'Galaxy Black' });

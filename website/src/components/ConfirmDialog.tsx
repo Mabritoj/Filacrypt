@@ -24,7 +24,11 @@ export interface ConfirmDialogProps {
   size?: 'sm' | 'md';
 }
 
-/** "Are you sure?" -- a Modal with Cancel + Confirm. Closes only through its buttons. */
+/**
+ * "Are you sure?" -- a Modal with Cancel + Confirm. Escape cancels (except
+ * while the action is in flight, when Cancel is disabled too); a click on the
+ * backdrop does not, so a stray tap can't dismiss it.
+ */
 export function ConfirmDialog({
   title,
   children,
@@ -43,6 +47,7 @@ export function ConfirmDialog({
     <Modal
       title={title}
       onCancel={onCancel}
+      closeOnEscape={!pending}
       size={size}
       footer={
         <>

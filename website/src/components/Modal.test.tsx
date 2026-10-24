@@ -29,7 +29,22 @@ describe('Modal', () => {
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
   });
 
-  describe('by default (not dismissible)', () => {
+  describe('by default', () => {
+    it('closes on Escape', () => {
+      const onCancel = vi.fn();
+      render(
+        <Modal title="Delete this spool?" onCancel={onCancel}>
+          <p>Body</p>
+        </Modal>,
+      );
+
+      const event = cancelEvent();
+      fireEvent(screen.getByRole('dialog'), event);
+      // The native close is always prevented; closing goes through the parent.
+      expect(event.defaultPrevented).toBe(true);
+      expect(onCancel).toHaveBeenCalledOnce();
+    });
+
     it('ignores backdrop clicks', () => {
       const onCancel = vi.fn();
       render(
@@ -42,38 +57,27 @@ describe('Modal', () => {
       fireEvent.click(screen.getByRole('dialog'));
       expect(onCancel).not.toHaveBeenCalled();
     });
-
-    it('blocks Escape', () => {
-      const onCancel = vi.fn();
-      render(
-        <Modal title="Delete this spool?" onCancel={onCancel}>
-          <p>Body</p>
-        </Modal>,
-      );
-
-      const event = cancelEvent();
-      fireEvent(screen.getByRole('dialog'), event);
-      expect(event.defaultPrevented).toBe(true);
-      expect(onCancel).not.toHaveBeenCalled();
-    });
-
-    it('ignores clicks inside the content', () => {
-      const onCancel = vi.fn();
-      render(
-        <Modal title="Title" onCancel={onCancel} dismissible>
-          <p>Body</p>
-        </Modal>,
-      );
-      fireEvent.click(screen.getByText('Body'));
-      expect(onCancel).not.toHaveBeenCalled();
-    });
   });
 
-  describe('when dismissible', () => {
+  it('can block Escape', () => {
+    const onCancel = vi.fn();
+    render(
+      <Modal title="Saving" onCancel={onCancel} closeOnEscape={false}>
+        <p>Body</p>
+      </Modal>,
+    );
+
+    const event = cancelEvent();
+    fireEvent(screen.getByRole('dialog'), event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  describe('with closeOnBackdropClick', () => {
     it('closes on a backdrop click', () => {
       const onCancel = vi.fn();
       render(
-        <Modal title="Filters" onCancel={onCancel} dismissible>
+        <Modal title="About tags" onCancel={onCancel} closeOnBackdropClick>
           <p>Body</p>
         </Modal>,
       );
@@ -81,15 +85,15 @@ describe('Modal', () => {
       expect(onCancel).toHaveBeenCalledOnce();
     });
 
-    it('closes on Escape', () => {
+    it('ignores clicks inside the content', () => {
       const onCancel = vi.fn();
       render(
-        <Modal title="Filters" onCancel={onCancel} dismissible>
+        <Modal title="About tags" onCancel={onCancel} closeOnBackdropClick>
           <p>Body</p>
         </Modal>,
       );
-      fireEvent(screen.getByRole('dialog'), cancelEvent());
-      expect(onCancel).toHaveBeenCalledOnce();
+      fireEvent.click(screen.getByText('Body'));
+      expect(onCancel).not.toHaveBeenCalled();
     });
   });
 
