@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { signOut } from 'aws-amplify/auth';
-import { useDismissablePanel } from '../hooks/useDismissablePanel';
 import { useThemeStore } from '../stores/themeStore';
 import { useUpdateUserPreferences } from '../api/user';
 import { useWorkspace } from '../api/workspace';
 import { useWorkspaceId } from '../hooks/useWorkspaceId';
 import { IconButton } from './IconButton';
+import { Menu, MenuGroup, MenuItem } from './Menu';
 import { SwitchIndicator } from './Switch';
 import { GearIcon, SwapIcon } from './icons';
 import styles from './ProfileMenu.module.css';
@@ -18,11 +17,9 @@ export interface ProfileMenuProps {
 
 export function ProfileMenu({ name = 'Maker', email = 'you@filacrypt.com' }: ProfileMenuProps) {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
   const updatePreferences = useUpdateUserPreferences();
-  const rootRef = useDismissablePanel<HTMLDivElement>(open, () => setOpen(false));
 
   const workspaceId = useWorkspaceId();
   const { data: workspace } = useWorkspace(workspaceId ?? '');
@@ -33,22 +30,33 @@ export function ProfileMenu({ name = 'Maker', email = 'you@filacrypt.com' }: Pro
     updatePreferences.mutate({ theme: newTheme });
   };
 
+  const handleSignOut = () => {
+    signOut()
+      .then(() => navigate('/'))
+      .catch((err: unknown) => {
+        console.error('signOut failed', err);
+      });
+  };
+
   const initial = name.charAt(0).toUpperCase();
 
   return (
-    <div className={styles.root} ref={rootRef}>
-      <button
-        type="button"
-        className={styles.avatar}
-        onClick={() => setOpen((value) => !value)}
-        aria-label="Open profile menu"
-        aria-expanded={open}
-      >
-        {initial}
-      </button>
-
-      {open && (
-        <div className={styles.panel} role="menu">
+    <Menu
+      label="Profile"
+      className={styles.panel}
+      trigger={(triggerProps) => (
+        <button
+          {...triggerProps}
+          type="button"
+          className={styles.avatar}
+          aria-label="Open profile menu"
+        >
+          {initial}
+        </button>
+      )}
+    >
+      {({ close }) => (
+        <>
           <div className={styles.header}>
             <div className={styles.name}>{name}</div>
             <div className={styles.emailRow}>
@@ -58,13 +66,14 @@ export function ProfileMenu({ name = 'Maker', email = 'you@filacrypt.com' }: Pro
                 label="Account settings"
                 size="sm"
                 icon={<GearIcon size={14} />}
-                onClick={() => setOpen(false)}
+                tabIndex={-1}
+                onClick={close}
               />
             </div>
           </div>
 
           {workspace && (
-            <div className={styles.group}>
+            <MenuGroup>
               <div className={styles.workspaceRow}>
                 <span className={styles.workspaceName} data-testid="workspace-name">
                   {workspace.name}
@@ -73,47 +82,28 @@ export function ProfileMenu({ name = 'Maker', email = 'you@filacrypt.com' }: Pro
                   label="Switch workspace"
                   size="sm"
                   icon={<SwapIcon size={14} />}
+                  tabIndex={-1}
                   onClick={() => {}}
                 />
               </div>
-            </div>
+            </MenuGroup>
           )}
 
-          <div className={styles.group}>
-            <Link to="/scan" className={styles.item} role="menuitem" onClick={() => setOpen(false)}>
-              Add Spool
-            </Link>
-            <button
-              type="button"
-              className={styles.item}
-              role="menuitemcheckbox"
-              aria-checked={theme === 'dark'}
-              onClick={handleThemeToggle}
-            >
+          <MenuGroup>
+            <MenuItem to="/scan">Add Spool</MenuItem>
+            <MenuItem checked={theme === 'dark'} onClick={handleThemeToggle}>
               <span>Dark mode</span>
               <SwitchIndicator on={theme === 'dark'} />
-            </button>
-          </div>
+            </MenuItem>
+          </MenuGroup>
 
-          <div className={styles.group}>
-            <button
-              type="button"
-              className={`${styles.item} ${styles.danger}`}
-              role="menuitem"
-              onClick={() => {
-                setOpen(false);
-                signOut()
-                  .then(() => navigate('/'))
-                  .catch((err: unknown) => {
-                    console.error('signOut failed', err);
-                  });
-              }}
-            >
+          <MenuGroup>
+            <MenuItem tone="destructive" onClick={handleSignOut}>
               Sign out
-            </button>
-          </div>
-        </div>
+            </MenuItem>
+          </MenuGroup>
+        </>
       )}
-    </div>
+    </Menu>
   );
 }

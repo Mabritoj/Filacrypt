@@ -12,10 +12,10 @@ import { Button } from '../../components/Button';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { IconButton } from '../../components/IconButton';
 import { MoreIcon, NfcIcon } from '../../components/icons';
-import { Modal } from '../../components/Modal';
+import { Menu, MenuGroup, MenuItem } from '../../components/Menu';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
-import { useDismissablePanel } from '../../hooks/useDismissablePanel';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { formatCurrency, formatLength, formatTemperature, formatWeight } from '../../utils/units';
 import { canFilament } from '../../utils/permissions';
@@ -111,8 +111,6 @@ export function FilamentDetail() {
   const deleteSpool = useDeleteSpool(workspaceId ?? '');
   const workspaceQuery = useWorkspace(workspaceId ?? '');
 
-  const [optionsOpen, setOptionsOpen] = useState(false);
-  const optionsRef = useDismissablePanel<HTMLDivElement>(optionsOpen, () => setOptionsOpen(false));
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Spool | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -204,7 +202,6 @@ export function FilamentDetail() {
   function startEditing() {
     setDraft(currentSpool);
     setEditing(true);
-    setOptionsOpen(false);
   }
 
   function cancelEditing() {
@@ -247,50 +244,27 @@ export function FilamentDetail() {
     </>
   ) : (
     <>
-      <div className={styles.optionsWrap} ref={optionsRef}>
-        <IconButton
-          label="Spool options"
-          variant="outline"
-          icon={<MoreIcon size={18} />}
-          aria-expanded={optionsOpen}
-          onClick={() => setOptionsOpen((value) => !value)}
-        />
-        {optionsOpen && (
-          <div className={styles.optionsMenu} role="menu">
-            <button
-              type="button"
-              className={styles.optionsItem}
-              role="menuitem"
-              onClick={() => setOptionsOpen(false)}
-            >
-              Reorder spool
-            </button>
-            {canEditSpool && (
-              <button
-                type="button"
-                className={styles.optionsItem}
-                role="menuitem"
-                onClick={startEditing}
-              >
-                Edit spool
-              </button>
-            )}
-            {canDeleteSpool && (
-              <button
-                type="button"
-                className={`${styles.optionsItem} ${styles.destructive}`}
-                role="menuitem"
-                onClick={() => {
-                  setConfirmingDelete(true);
-                  setOptionsOpen(false);
-                }}
-              >
-                Delete spool
-              </button>
-            )}
-          </div>
+      <Menu
+        label="Spool options"
+        trigger={(triggerProps) => (
+          <IconButton
+            {...triggerProps}
+            label="Spool options"
+            variant="outline"
+            icon={<MoreIcon size={18} />}
+          />
         )}
-      </div>
+      >
+        <MenuGroup>
+          <MenuItem>Reorder spool</MenuItem>
+          {canEditSpool && <MenuItem onClick={startEditing}>Edit spool</MenuItem>}
+          {canDeleteSpool && (
+            <MenuItem tone="destructive" onClick={() => setConfirmingDelete(true)}>
+              Delete spool
+            </MenuItem>
+          )}
+        </MenuGroup>
+      </Menu>
     </>
   );
 
@@ -301,18 +275,17 @@ export function FilamentDetail() {
       {updateSpool.isError && <ErrorMessage message={updateSpool.error.message} />}
 
       {confirmingDelete && (
-        <Modal title="Delete this spool?" onCancel={() => setConfirmingDelete(false)}>
+        <ConfirmDialog
+          title="Delete this spool?"
+          confirmLabel="Delete"
+          pendingLabel="Deleting…"
+          pending={deleteSpool.isPending}
+          error={deleteSpool.error?.message}
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmingDelete(false)}
+        >
           <p>This can&apos;t be undone.</p>
-          {deleteSpool.isError && <ErrorMessage message={deleteSpool.error.message} />}
-          <div className={styles.modalActions}>
-            <Button variant="secondary" onClick={() => setConfirmingDelete(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={deleteSpool.isPending}>
-              {deleteSpool.isPending ? 'Deleting…' : 'Delete'}
-            </Button>
-          </div>
-        </Modal>
+        </ConfirmDialog>
       )}
 
       <div className={styles.hero}>

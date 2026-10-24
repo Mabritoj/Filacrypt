@@ -299,7 +299,8 @@ describe('FilamentDetail', () => {
     fireEvent.click(screen.getByRole('menuitem', { name: 'Delete spool' }));
 
     expect(screen.getByRole('heading', { name: 'Delete this spool?' })).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId('modal-backdrop'));
+    // The <dialog> element itself receives clicks on its backdrop.
+    fireEvent.click(screen.getByRole('dialog', { name: 'Delete this spool?' }));
     expect(screen.getByRole('heading', { name: 'Delete this spool?' })).toBeInTheDocument();
   });
 

@@ -3,57 +3,6 @@
   text-align: center;
 }
 
-.optionsWrap {
-  position: relative;
-}
-
-.optionsMenu {
-  position: absolute;
-  top: 42px;
-  right: 0;
-  z-index: var(--z-popover);
-  width: 180px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-popover);
-  overflow: hidden;
-  padding: 6px;
-}
-
-.optionsItem {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  text-align: left;
-  font: 600 var(--text-md) var(--font-sans);
-  color: var(--color-text);
-  background: none;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 9px 10px;
-  cursor: pointer;
-}
-
-.optionsItem:hover {
-  background: var(--color-chip);
-}
-
-.destructive {
-  color: var(--color-destructive);
-}
-
-.destructive:hover {
-  background: var(--color-destructive-bg);
-}
-
-.modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
-}
-
 .editInput {
   width: 100%;
   box-sizing: border-box;
