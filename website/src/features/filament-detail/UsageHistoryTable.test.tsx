@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { renderWithProviders } from '../../test/helpers';
 import { UsageHistoryTable } from './UsageHistoryTable';
 import { mockUsageEvents } from '../../api/mock/usageEvents';
@@ -17,5 +17,21 @@ describe('UsageHistoryTable', () => {
   it('shows an empty state with no events', () => {
     renderWithProviders(<UsageHistoryTable events={[]} />);
     expect(screen.getByText('No print jobs logged for this spool yet.')).toBeInTheDocument();
+  });
+
+  it('exposes the history as a table to assistive tech', () => {
+    renderWithProviders(
+      <UsageHistoryTable
+        events={mockUsageEvents.filter((event) => event.spoolId === 'spool-galaxy-black')}
+      />,
+    );
+
+    const table = screen.getByRole('table', { name: 'Usage history' });
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((header) => header.textContent),
+    ).toEqual(['Date', 'Print job', 'Filament', 'Duration']);
+    expect(within(table).getByRole('cell', { name: 'Benchy calibration ×4' })).toBeInTheDocument();
   });
 });

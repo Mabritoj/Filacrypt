@@ -1,67 +1,11 @@
 .backLink {
-  display: block;
-  text-align: center;
+  margin-top: 16px;
 }
 
-.editInput {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  padding: 7px 9px;
-  color: var(--color-text);
-  font: 600 var(--text-md) var(--font-sans);
-}
-
-.editTitleInput {
-  font: 700 var(--text-3xl) var(--font-sans);
+.identityCard .editTitleInput {
+  font-size: var(--text-3xl);
+  font-weight: 700;
   padding: 8px 10px;
-}
-
-.editColorGroup {
-  display: flex;
-  align-items: center;
-  flex: none;
-  gap: 8px;
-}
-
-.editColorHexInput {
-  width: 100px;
-  flex: none;
-  box-sizing: border-box;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  padding: 7px 9px;
-  color: var(--color-text);
-  font: 600 var(--text-md) var(--font-sans);
-}
-
-.editColorSwatch {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  background: none;
-  cursor: pointer;
-}
-
-.editColorSwatch::-webkit-color-swatch-wrapper {
-  padding: 0;
-  border-radius: var(--radius-md);
-}
-
-.editColorSwatch::-webkit-color-swatch {
-  border: none;
-  border-radius: var(--radius-md);
-}
-
-.editColorSwatch::-moz-color-swatch {
-  border: none;
-  border-radius: var(--radius-md);
 }
 
 .editRangeInputs {
@@ -77,8 +21,6 @@
 }
 
 .remainingEditLabel {
-  font: 600 var(--text-sm) var(--font-sans);
-  color: var(--color-text-muted);
   margin-bottom: 10px;
 }
 
@@ -114,26 +56,13 @@
 }
 
 .identityCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: 24px;
   display: flex;
   flex-direction: column;
 }
 
 .brandLabel {
-  font: 600 var(--text-md) var(--font-sans);
-  letter-spacing: 0.02em;
-  color: var(--color-text-muted);
   margin-bottom: 7px;
-}
-
-.title {
-  margin: 0;
-  font: 700 var(--text-display-1)/1.03 var(--font-sans);
-  letter-spacing: -0.02em;
-  color: var(--color-text);
+  letter-spacing: 0.02em;
 }
 
 .badges {
@@ -148,15 +77,6 @@
   min-width: 0;
 }
 
-.badge {
-  font: 600 var(--text-xs) var(--font-mono);
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted-2);
-  padding: 3px 9px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-}
-
 .miniStats {
   display: flex;
   gap: 10px;
@@ -167,22 +87,7 @@
 .miniStat {
   flex: 1;
   min-width: 90px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
   padding: 13px 15px;
-}
-
-.miniStatLabel {
-  font: 600 var(--text-2xs) var(--font-mono);
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
-}
-
-.miniStatValue {
-  margin-top: 6px;
-  font: 700 var(--text-2xl) var(--font-sans);
-  color: var(--color-text);
 }
 
 .spacer {
@@ -190,10 +95,6 @@
 }
 
 .tagBand {
-  background: var(--color-accent-tint-bg);
-  border: 1px solid var(--color-accent-tint-border);
-  border-radius: var(--radius-xl);
-  padding: 20px 22px;
   margin-bottom: 20px;
 }
 
@@ -222,38 +123,9 @@
   gap: 9px;
 }
 
-.tagTitle {
-  font: 700 var(--text-lg) var(--font-sans);
-  color: var(--color-text);
-}
-
-.healthBadge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font: 600 var(--text-xs) var(--font-sans);
-  color: var(--color-success);
-  background: var(--color-success-bg);
-  padding: 3px 9px;
-  border-radius: var(--radius-full);
-}
-
-.healthBadge[data-healthy='false'] {
-  color: var(--color-warning);
-  background: var(--color-warning-bg);
-}
-
-.healthDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
 .tagStandard {
-  font: 500 var(--text-sm) var(--font-mono);
-  color: var(--color-text-muted);
   margin-top: 4px;
+  font-family: var(--font-mono);
 }
 
 .tagStats {
@@ -263,30 +135,8 @@
   margin-top: 18px;
 }
 
-.tagStatLabel {
-  font: 600 var(--text-2xs) var(--font-mono);
-  letter-spacing: 0.07em;
-  color: var(--color-text-muted);
-}
-
-.tagStatValue {
-  font: 600 var(--text-md) var(--font-sans);
-  margin-top: 5px;
-  color: var(--color-text);
-}
-
-.memoryTrack {
-  height: 5px;
-  background: var(--color-border);
-  border-radius: var(--radius-full);
+.memoryBar {
   margin-top: 6px;
-  overflow: hidden;
-}
-
-.memoryFill {
-  height: 100%;
-  background: var(--color-brand);
-  border-radius: var(--radius-full);
 }
 
 .detailGrid {

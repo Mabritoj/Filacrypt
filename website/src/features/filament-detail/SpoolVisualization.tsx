@@ -1,5 +1,7 @@
 import { useId } from 'react';
 import { formatLength, formatWeight, type LengthUnit, type WeightUnit } from '../../utils/units';
+import { Card } from '../../components/Card';
+import { Text } from '../../components/Text';
 import styles from './SpoolVisualization.module.css';
 
 export interface SpoolVisualizationProps {
@@ -31,7 +33,7 @@ export function SpoolVisualization({
     totalLengthMm && netWeightG > 0 ? (remainingWeightG / netWeightG) * totalLengthMm : undefined;
 
   return (
-    <div className={styles.card}>
+    <Card padding="lg" className={styles.card}>
       <svg width={230} height={230} viewBox="0 0 230 230" aria-hidden="true">
         <defs>
           <radialGradient id={gradientId} cx="42%" cy="36%" r="78%">
@@ -98,21 +100,27 @@ export function SpoolVisualization({
 
       <div className={styles.pctRow}>
         <span className={styles.pctValue}>{pct}%</span>
-        <span className={styles.pctLabel}>REMAINING</span>
+        <Text variant="label" className={styles.pctLabel}>
+          Remaining
+        </Text>
       </div>
 
       <div className={styles.stats}>
         <div className={styles.stat}>
           <div className={styles.statValue}>{formatWeight(remainingWeightG, weightUnit)}</div>
-          <div className={styles.statLabel}>WEIGHT</div>
+          <Text variant="label" as="div" className={styles.statLabel}>
+            Weight
+          </Text>
         </div>
         {remainingLengthMm !== undefined && (
           <div className={`${styles.stat} ${styles.statBordered}`}>
             <div className={styles.statValue}>{formatLength(remainingLengthMm, lengthUnit)}</div>
-            <div className={styles.statLabel}>LENGTH</div>
+            <Text variant="label" as="div" className={styles.statLabel}>
+              Length
+            </Text>
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
