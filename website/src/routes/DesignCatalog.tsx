@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Checkbox } from '../components/Checkbox';
 import { ColorInput } from '../components/ColorInput';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Field } from '../components/Field';
 import { IconButton } from '../components/IconButton';
 import {
@@ -18,7 +19,10 @@ import {
   SpoolIcon,
   SwapIcon,
 } from '../components/icons';
+import { Menu, MenuGroup, MenuItem } from '../components/Menu';
+import { Modal } from '../components/Modal';
 import { NumberInput } from '../components/NumberInput';
+import { Popover } from '../components/Popover';
 import { ProgressBar } from '../components/ProgressBar';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Select } from '../components/Select';
@@ -107,6 +111,81 @@ function FormControls({ idPrefix }: { idPrefix: string }) {
   );
 }
 
+function Overlays() {
+  const [confirming, setConfirming] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [dark, setDark] = useState(true);
+
+  return (
+    <div className={styles.row}>
+      <Button variant="destructive" onClick={() => setConfirming(true)}>
+        Open confirm
+      </Button>
+      {confirming && (
+        <ConfirmDialog
+          title="Delete this spool?"
+          confirmLabel="Delete"
+          onConfirm={() => setConfirming(false)}
+          onCancel={() => setConfirming(false)}
+        >
+          <p>This can&apos;t be undone. Escape and backdrop clicks are ignored.</p>
+        </ConfirmDialog>
+      )}
+      <Button variant="secondary" onClick={() => setInfoOpen(true)}>
+        Open dismissible modal
+      </Button>
+      {infoOpen && (
+        <Modal title="About tags" dismissible onCancel={() => setInfoOpen(false)}>
+          <p>Escape or a backdrop click closes this one.</p>
+        </Modal>
+      )}
+      <Menu
+        label="Spool options"
+        align="start"
+        trigger={(triggerProps) => (
+          <IconButton
+            {...triggerProps}
+            label="Spool options"
+            variant="outline"
+            icon={<MoreIcon size={18} />}
+          />
+        )}
+      >
+        <MenuGroup>
+          <MenuItem>Edit spool</MenuItem>
+          <MenuItem to="/inventory">Inventory</MenuItem>
+          <MenuItem checked={dark} onClick={() => setDark((value) => !value)}>
+            Dark mode
+          </MenuItem>
+        </MenuGroup>
+        <MenuGroup>
+          <MenuItem tone="destructive">Delete spool</MenuItem>
+        </MenuGroup>
+      </Menu>
+      <Popover
+        open={popoverOpen}
+        onOpenChange={setPopoverOpen}
+        label="Filters"
+        align="start"
+        trigger={(triggerProps) => (
+          <Button {...triggerProps} variant="secondary">
+            Filters
+          </Button>
+        )}
+      >
+        <div className={styles.popoverBody}>
+          <Text variant="title" as="p">
+            Filters
+          </Text>
+          <Checkbox defaultChecked>Only show low stock</Checkbox>
+          <Button onClick={() => setPopoverOpen(false)}>Apply filters</Button>
+        </div>
+      </Popover>
+    </div>
+  );
+}
+
 function Catalog({ idPrefix }: { idPrefix: string }) {
   return (
     <>
@@ -184,6 +263,10 @@ function Catalog({ idPrefix }: { idPrefix: string }) {
 
       <Section title="Form controls">
         <FormControls idPrefix={idPrefix} />
+      </Section>
+
+      <Section title="Overlays">
+        <Overlays />
       </Section>
 
       <Section title="Badge">

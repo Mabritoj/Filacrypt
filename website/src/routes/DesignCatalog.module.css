@@ -45,6 +45,13 @@
   margin-bottom: 12px;
 }
 
+.popoverBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+}
+
 .brandTone {
   display: inline-flex;
   color: var(--color-brand);

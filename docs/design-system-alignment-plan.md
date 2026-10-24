@@ -57,8 +57,10 @@ What already exists in `components/`: `Button`, `Modal`, `Tabs`, `ErrorMessage`,
 
 Defects in the components that do exist:
 
-- **`Modal`**: destructures `onCancel` but never calls it, so Esc and backdrop click do nothing. No
-  focus is moved into it or trapped, and focus isn't restored on close. `aria-labelledby="modal-title"` is
+- **`Modal`**: destructures `onCancel` but never calls it, so Escape and backdrop clicks do nothing.
+  _Correction (Phase 3): that part is deliberate, not a bug. Tests pin it, including
+  "shows a delete confirmation dialog that is not dismissed by clicking outside"._ The real gaps:
+  focus isn't moved into the dialog, kept there, or restored on close. `aria-labelledby="modal-title"` is
   a hardcoded id. It isn't portaled, so its stacking depends on where it's rendered. Every caller
   re-implements the footer (`.modalActions` ×4 with `gap: 10px` vs `0.6rem`, `margin-top: 18px` vs `1rem`).
   Callers also disagree on whether Cancel is `ghost` or `secondary`.
@@ -95,6 +97,7 @@ Recommended approach (details in 3.3):
 - `RequireAuth` and `RequireProfile` both contain the same `fetchAuthSession` effect. Extract a
   `useAuthSession()` hook.
 - `useDismissablePanel` listens for `mousedown`. `pointerdown` is the better event for touch on iPad.
+  _(Done in Phase 3.)_
 - Baseline was **not green** (fixed in Phase 0). `client.test.ts` and `members.test.tsx` used `test`/`expect`
   without importing them, so `tsc` failed. 6 tests depended on `VITE_API_URL`/`VITE_CHAT_URL` from a
   developer's local `.env`, which fresh clones and CI don't have. Vitest now pins both values in `vite.config.ts`.
@@ -380,10 +383,43 @@ npm run test`. UI phases also need a browser check at 375px, 768px and desktop, 
 
 ### Phase 3: Overlays (medium, highest behavior risk)
 
-- [ ] `Modal` on `<dialog>`, then `ConfirmDialog`. Migrate the 4 call sites (spool delete, account delete,
+- [x] `Modal` on `<dialog>`, then `ConfirmDialog`. Migrate the 4 call sites (spool delete, account delete,
       member remove, deletion impact).
-- [ ] `Menu` (roving focus, Esc, return focus to trigger). Migrate `ProfileMenu` and the Detail options menu.
-- [ ] `Popover` with mobile sheet. Migrate `FilterPanel`. Switch `useDismissablePanel` to `pointerdown`.
+  - `Modal` is open while mounted. It opens with `showModal()`: top layer (no z-index), page inert, focus kept
+    inside, focus returned to the opener on close, a `useId` title, a `footer` slot and sizes `sm`/`md`.
+    `html:has(dialog:modal)` stops the page scrolling behind it.
+  - Kept the existing, test-pinned behavior: Escape and backdrop clicks do not close a dialog by default.
+    `dismissible` opts in, and nothing uses it yet. One limit: Chrome lets a repeated Escape close a dialog
+    when there has been no user activation in between, whatever the page does. `Modal` reports that native
+    close through `onCancel`, so app state never shows a dialog the browser has already closed.
+  - A bug that only a real browser showed: `close` fires asynchronously, so under StrictMode's double-run
+    effects the first cleanup's `close` arrived after the reopen and was treated as a cancel. The dialog
+    vanished on open in dev. Fixed by ignoring `close` events that find the dialog open. The jsdom shim
+    (`test/dialogShim.ts`; jsdom has no `showModal`) now fires `close` asynchronously like browsers, and a
+    StrictMode regression test fails without the fix.
+  - `ConfirmDialog` = Modal + Cancel (`secondary`, everywhere now) + confirm (`loading` while pending,
+    `confirmDisabled`, `error`). It replaced all four hand-built footers, and the account-delete
+    type-to-confirm box now uses `Field`/`TextInput`.
+- [x] `Menu` (roving focus, Esc, return focus to trigger). Migrate `ProfileMenu` and the Detail options menu.
+  - `Menu`/`MenuGroup`/`MenuItem`: arrows, Home/End, ArrowDown/ArrowUp on the trigger, Escape returns focus,
+    Tab closes and continues from the trigger, outside presses close. Items close the menu, except checkbox
+    items (`checked` → `menuitemcheckbox`). `MenuItem` takes the same `to`/`href` union as Button.
+  - ProfileMenu's gear link and switch-workspace button stay a link and a button, as its tests pin ("no
+    longer lists Account settings as its own menu item"). The arrow keys stop on every focusable element in
+    the panel, not just `menuitem`s, so both stay reachable by keyboard.
+- [x] `Popover` with mobile sheet. Migrate `FilterPanel`. Switch `useDismissablePanel` to `pointerdown`.
+  - Non-modal `role="dialog"` anchored to its trigger. At ≤640px it becomes a bottom sheet over a backdrop,
+    replacing FilterPanel's full-screen takeover. Focus goes into it on open and back to the trigger on
+    Escape or an inside close.
+- Verified in real Chromium against the `/__design` overlay demos and the real pages:
+  - The confirm dialog is `:modal`, focus starts inside, Tab stays inside, and the page doesn't scroll.
+    Backdrop clicks, Escape and a second Escape are ignored, and focus returns to the opener on close.
+  - The dismissible modal closes on Escape and on backdrop clicks.
+  - Menu keyboard behavior works as listed above.
+  - On an iPhone viewport, the bottom sheet hugs the viewport bottom at full width, and tapping the backdrop
+    closes it.
+  - Before/after screenshots changed only the filter panel (sheet), the profile menu (2px higher) and the
+    delete dialog (gains a shadow).
 
 ### Phase 4: Feature migration (large, one PR per feature)
 
