@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSpools } from '../../api/spools';
 import { usePreferences } from '../../api/user';
 import { useWorkspace } from '../../api/workspace';
@@ -12,7 +11,6 @@ import styles from './ChatWidget.module.css';
 import spinStyles from '../../components/spoolSpin.module.css';
 
 export function ChatWidget() {
-  const navigate = useNavigate();
   const workspaceId = useWorkspaceId() ?? '';
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState('');
@@ -84,7 +82,6 @@ export function ChatWidget() {
                           spool={spool}
                           lowStockThresholdG={lowStockThresholdG}
                           weightUnit={preferences.weightUnit}
-                          onClick={() => navigate(`/inventory/${spool.id}`)}
                         />
                       ))}
                   </div>

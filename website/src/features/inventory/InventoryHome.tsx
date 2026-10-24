@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSpools } from '../../api/spools';
 import { usePreferences } from '../../api/user';
 import { useWorkspace } from '../../api/workspace';
@@ -12,6 +11,10 @@ import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { formatWeight } from '../../utils/units';
 import { canFilament } from '../../utils/permissions';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { Pagination } from '../../components/Pagination';
+import { Stat } from '../../components/Stat';
+import { Text } from '../../components/Text';
 import { FilterPanel } from './FilterPanel';
 import { SpoolCard } from './SpoolCard';
 import { useSpoolFilters } from './useSpoolFilters';
@@ -20,7 +23,6 @@ import styles from './InventoryHome.module.css';
 const PAGE_SIZE = 6;
 
 export function InventoryHome() {
-  const navigate = useNavigate();
   const workspaceId = useWorkspaceId();
   const preferences = usePreferences();
   const spoolsQuery = useSpools(workspaceId ?? '');
@@ -96,34 +98,29 @@ export function InventoryHome() {
       <AppHeader />
 
       <div className={styles.titleRow}>
-        <h1 className={styles.title}>Inventory</h1>
+        <Text variant="h1">Inventory</Text>
         {canAddSpool && (
-          <Button className={styles.scanButton} onClick={() => navigate('/scan')}>
+          <Button to="/scan" className={styles.scanButton}>
             + Scan / Add spool
           </Button>
         )}
       </div>
 
       <div className={styles.statGrid}>
-        <div className={styles.statTile}>
-          <div className={styles.statLabel}>Filament remaining</div>
-          <div className={styles.statValue}>
-            {totalRemainingValue}
-            <span className={styles.statUnit}> {totalRemainingUnit}</span>
-          </div>
-        </div>
-        <div className={styles.statTile}>
-          <div className={styles.statLabel}>Brands</div>
-          <div className={styles.statValue}>{brandCount}</div>
-        </div>
-        <div className={styles.statTile}>
-          <div className={styles.statLabel} data-danger="true">
-            Low stock
-          </div>
-          <div className={styles.statValue} data-danger="true">
-            {lowStockCount}
-          </div>
-        </div>
+        <Card padding="sm">
+          <Stat
+            size="lg"
+            label="Filament remaining"
+            value={totalRemainingValue}
+            unit={totalRemainingUnit}
+          />
+        </Card>
+        <Card padding="sm">
+          <Stat size="lg" label="Brands" value={brandCount} />
+        </Card>
+        <Card padding="sm">
+          <Stat size="lg" label="Low stock" value={lowStockCount} tone="warning" />
+        </Card>
       </div>
 
       <div className={styles.controls}>
@@ -144,12 +141,12 @@ export function InventoryHome() {
           width={344}
           className={styles.filterPopover}
           trigger={(triggerProps) => (
-            <button {...triggerProps} type="button" className={styles.filterButton}>
+            <Button {...triggerProps} variant="secondary" className={styles.filterButton}>
               Filters
               {activeFilterCount > 0 && (
                 <span className={styles.filterCount}>{activeFilterCount}</span>
               )}
-            </button>
+            </Button>
           )}
         >
           <FilterPanel
@@ -174,7 +171,9 @@ export function InventoryHome() {
       </div>
 
       {filteredSpools.length === 0 ? (
-        <p className={styles.empty}>No spools match your search or filters.</p>
+        <Text tone="muted" className={styles.empty}>
+          No spools match your search or filters.
+        </Text>
       ) : (
         <div className={styles.grid}>
           {paginatedSpools.map((spool) => (
@@ -183,32 +182,22 @@ export function InventoryHome() {
               spool={spool}
               lowStockThresholdG={lowStockThresholdG}
               weightUnit={preferences.weightUnit}
-              onClick={() => navigate(`/inventory/${spool.id}`)}
             />
           ))}
         </div>
       )}
 
       <div className={styles.pagination}>
-        <span className={styles.pageSummary}>
+        <Text variant="meta" as="span">
           Showing {filteredSpools.length === 0 ? 0 : pageStart + 1}–
           {Math.min(pageStart + PAGE_SIZE, filteredSpools.length)} of {filteredSpools.length}
-        </span>
-        {totalPages > 1 && (
-          <div className={styles.pageButtons}>
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
-              <button
-                key={pageNumber}
-                type="button"
-                className={styles.pageButton}
-                data-active={pageNumber === currentPage}
-                onClick={() => setPage(pageNumber)}
-              >
-                {pageNumber}
-              </button>
-            ))}
-          </div>
-        )}
+        </Text>
+        <Pagination
+          page={currentPage}
+          pageCount={totalPages}
+          onPageChange={setPage}
+          label="Inventory pages"
+        />
       </div>
     </PageShell>
   );
