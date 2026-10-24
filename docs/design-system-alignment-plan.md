@@ -95,11 +95,9 @@ Recommended approach (details in 3.3):
 - `RequireAuth` and `RequireProfile` both contain the same `fetchAuthSession` effect. Extract a
   `useAuthSession()` hook.
 - `useDismissablePanel` listens for `mousedown`. `pointerdown` is the better event for touch on iPad.
-- Baseline is **not green**: `npm run typecheck` fails in `src/api/client.test.ts` and
-  `src/api/members.test.tsx` (`test`/`expect` not found, so the Vitest globals types aren't visible
-  to `tsc` there), and 6 tests fail (`client.test.ts` ×1, `useChatStream.test.ts` ×5). I didn't
-  diagnose the cause. I suspect a missing `VITE_API_URL` in this container (moderate confidence). Fix
-  these first so the phases below have a working gate.
+- Baseline was **not green** (fixed in Phase 0). `client.test.ts` and `members.test.tsx` used `test`/`expect`
+  without importing them, so `tsc` failed. 6 tests depended on `VITE_API_URL`/`VITE_CHAT_URL` from a
+  developer's local `.env`, which fresh clones and CI don't have. Vitest now pins both values in `vite.config.ts`.
 
 ## 3. Target architecture
 
@@ -299,12 +297,15 @@ npm run test`. UI phases also need a browser check at 375px, 768px and desktop, 
 
 ### Phase 0: Baseline and guardrails (small)
 
-- [ ] Fix the typecheck errors in `client.test.ts`/`members.test.tsx` and the 6 failing tests (diagnose
-      first, fix in scope).
-- [ ] Add `src/styles/tokens.test.ts`: a Vitest test that globs `src/**/*.module.css` and fails on hex/`rgb(`
-      literals, raw `'Hanken Grotesk'`/`'JetBrains Mono'`, and `outline: none`. Start with an allowlist of
-      today's offenders and shrink it every phase until it's empty. No new dependency (stylelint would be one).
-- [ ] Global `:focus-visible` ring. On its own this fixes the accessibility gap.
+- [x] Fix the typecheck errors in `client.test.ts`/`members.test.tsx` and the 6 failing tests (missing
+      imports; tests now pin `VITE_*` URLs through `test.env` instead of reading the local `.env`).
+- [x] Add `src/test/cssGuardrails.test.ts` (implemented in `src/test/cssGuardrails.ts`). It scans every `*.module.css`
+      and fails on hex/`rgb()`/`hsl()` literals, raw `'Hanken Grotesk'`/`'JetBrains Mono'`, and `outline: none|0`
+      with no replacement ring. `KNOWN_VIOLATIONS` is an exact-match ratchet: counts can only go down, and each
+      phase lowers them. Baseline: 73 color literals and 154 font literals across 25 of 30 modules. No new dependency.
+- [x] Global `:focus-visible` ring (`--color-focus-ring`, brand color per theme). All 9 `outline: none` rules
+      are removed. Borderless inputs inside a styled box (`.searchBox`, `.unitRow`) carry the ring on the wrapper
+      via `:focus-within`.
 
 ### Phase 1: Tokens (medium, mostly mechanical, visible change ≤2px)
 
