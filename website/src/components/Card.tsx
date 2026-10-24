@@ -7,6 +7,7 @@ export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 export type CardTone = 'default' | 'sunken' | 'accent' | 'destructive';
 
 interface CardOwnProps {
+  /** `none` adds no padding at all -- set your own via className. */
   padding?: CardPadding;
   /**
    * `sunken` sits a step below the surface (a stat inside a card), `accent`

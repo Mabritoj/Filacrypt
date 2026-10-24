@@ -6,11 +6,8 @@
   border-radius: var(--radius-lg);
 }
 
-/* padding (larger cards also round more) */
-
-.none {
-  padding: 0;
-}
+/* padding (larger cards also round more). `none` has no rule on purpose: it
+   leaves padding to the caller's className without a specificity tie. */
 
 .sm {
   padding: 14px 16px;
