@@ -437,6 +437,39 @@ classes), return uppercase JSX strings to sentence case, and replace local `form
 `utils/format.ts`. Expect test updates where tests query uppercase text or the old roles (SpoolCard
 becomes a link).
 
+- [x] Done for every page, one commit per page.
+  - **Setup, Account settings, Members:** Field, NumberInput units, Badge, Card-based SettingsCard and
+    member rows, Select, Checkbox.
+  - **Inventory:** SpoolCard is a real link (`Card as={Link}`) with Badge tags, a ProgressBar and a `dl`
+    of specs; Stat tiles; a `Button to="/scan"`; new `Chip` and `Pagination` primitives.
+  - **Scan + ReviewForm:** all inputs on Field. Units move into the boxes, so "Diameter (mm)" becomes
+    "Diameter" with an "mm" suffix. The nozzle range is a `fieldset`.
+  - **Filament detail:** small edit controls, Badge, Stat, ProgressBar (no more inline width), a `dl`
+    for DetailCard, and ARIA table roles on the usage history.
+  - **Chat, Login, Landing, ComingSoon:** shared buttons and inputs; the Landing CTAs are `Button` links.
+  - New along the way: `Button` size `lg`, `EmptyState` (ComingSoon and Detail's "Spool not found"), and
+    `humanizeEnum`, `formatDate`, `formatRelativeTime`, `formatDuration` in `utils/format.ts`. Those
+    replace 5 copies of `formatTag`/`formatStatus` and 2 of `formatDate`.
+  - Rule followed throughout: a class passed to a primitive sets layout or margins only. It never
+    overrides padding, radius, color or display, because those tie in specificity and the result would
+    depend on CSS load order. The four ties I created along the way were removed or scoped
+    (`.parent .child`).
+  - The iPhone zoom fix now reaches every form. Under iPhone 13 emulation, every text control on
+    Login, Setup, Inventory (plus filters), Scan, Account, Members, Detail edit mode and Chat renders at
+    16px. The inventory search box got the same rule, since it keeps its own icon wrapper.
+  - Tests caught by the migration: SpoolCard's "calls onClick" test became "links to the spool". The
+    add-spool permission test was querying a `button` and would have passed vacuously once the control
+    became a link; it now queries the link, and I confirmed it fails when the permission check is broken.
+  - Visible differences, all reviewed in before/after screenshots:
+    - Account settings is about 40px shorter, because its inputs now use the standard height.
+    - The Scan form is a little taller on phones (14px inputs instead of this form's own 13px).
+    - Detail edit mode is more compact.
+    - Field labels everywhere use the shared caps style.
+    - A spool card's progress bar turns warning-toned when the spool is low.
+    - ComingSoon's "Back to Filacrypt" is a button.
+  - Not migrated, deliberately: CodeInput's digit boxes, the Scan reader animation, and the Landing
+    marketing typography (hero, section titles) stay page-specific. They're already on tokens.
+
 ### Phase 5: Documentation and lock-in (small)
 
 - [ ] Update CLAUDE.md: token scales, "use `components/` primitives before writing a local control",
