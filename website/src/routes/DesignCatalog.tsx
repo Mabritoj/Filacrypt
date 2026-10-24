@@ -1,10 +1,13 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Badge } from '../components/Badge';
 import { BrandMark } from '../components/BrandMark';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
+import { Checkbox } from '../components/Checkbox';
+import { ColorInput } from '../components/ColorInput';
+import { Field } from '../components/Field';
 import { IconButton } from '../components/IconButton';
 import {
   ChevronLeftIcon,
@@ -15,9 +18,15 @@ import {
   SpoolIcon,
   SwapIcon,
 } from '../components/icons';
+import { NumberInput } from '../components/NumberInput';
 import { ProgressBar } from '../components/ProgressBar';
+import { SegmentedControl } from '../components/SegmentedControl';
+import { Select } from '../components/Select';
 import { Stat } from '../components/Stat';
+import { Switch } from '../components/Switch';
+import { TabPanel, Tabs } from '../components/Tabs';
 import { Text } from '../components/Text';
+import { TextInput } from '../components/TextInput';
 import styles from './DesignCatalog.module.css';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -31,7 +40,74 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Catalog() {
+function FormControls({ idPrefix }: { idPrefix: string }) {
+  const [unit, setUnit] = useState<'g' | 'kg'>('g');
+  const [color, setColor] = useState('#cf9161');
+  const [lowOnly, setLowOnly] = useState(false);
+  const [emails, setEmails] = useState(true);
+  const [tab, setTab] = useState('general');
+
+  return (
+    <>
+      <div className={styles.grid}>
+        <Field label="Name" hint="Shown to your workspace">
+          <TextInput placeholder="Morgan Reyes" />
+        </Field>
+        <Field label="Username" error="That username is taken">
+          <TextInput defaultValue="morgan" />
+        </Field>
+        <Field label="Low-stock alert below">
+          <NumberInput unit="grams" defaultValue={150} />
+        </Field>
+        <Field label="Status">
+          <Select defaultValue="in_use">
+            <option value="in_use">In use</option>
+            <option value="stored">Stored</option>
+          </Select>
+        </Field>
+        <Field label="Color">
+          <ColorInput value={color} onChange={setColor} />
+        </Field>
+        <Field label="Bed temp (small)">
+          <NumberInput size="sm" defaultValue={60} />
+        </Field>
+      </div>
+      <div className={styles.row}>
+        <SegmentedControl
+          label="Weight unit"
+          value={unit}
+          onChange={setUnit}
+          options={[
+            { value: 'g', label: 'Grams' },
+            { value: 'kg', label: 'Kilograms' },
+          ]}
+        />
+      </div>
+      <div className={styles.row}>
+        <Checkbox checked={lowOnly} onChange={(event) => setLowOnly(event.target.checked)}>
+          Only show low stock
+        </Checkbox>
+        <Switch checked={emails} onChange={(event) => setEmails(event.target.checked)}>
+          Low-stock emails
+        </Switch>
+      </div>
+      <Tabs
+        id={`${idPrefix}-tabs`}
+        tabs={[
+          { id: 'general', label: 'General' },
+          { id: 'members', label: 'Members' },
+        ]}
+        activeId={tab}
+        onChange={setTab}
+      />
+      <TabPanel tabsId={`${idPrefix}-tabs`} tabId={tab}>
+        <Text variant="bodySm">Panel for {tab}. Arrow keys switch tabs.</Text>
+      </TabPanel>
+    </>
+  );
+}
+
+function Catalog({ idPrefix }: { idPrefix: string }) {
   return (
     <>
       <Section title="Text">
@@ -104,6 +180,10 @@ function Catalog() {
           <BrandMark />
           <BrandMark size="sm" />
         </div>
+      </Section>
+
+      <Section title="Form controls">
+        <FormControls idPrefix={idPrefix} />
       </Section>
 
       <Section title="Badge">
@@ -196,7 +276,7 @@ export function DesignCatalog() {
           <Text variant="h1" className={styles.themeTitle}>
             {theme} theme
           </Text>
-          <Catalog />
+          <Catalog idPrefix={theme} />
         </div>
       ))}
     </div>

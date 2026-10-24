@@ -355,8 +355,26 @@ npm run test`. UI phases also need a browser check at 375px, 768px and desktop, 
   - Pulled forward from Phase 5: a dev-only `/__design` route (`routes/DesignCatalog.tsx`) shows every primitive in
     both themes side by side. The `import.meta.env.DEV` guard keeps it out of production builds (verified:
     no chunk in `dist/`).
-- 2b: `Field`, `TextInput`, `NumberInput`, `Select`, `ColorInput`, `Checkbox`, `Switch`,
-  `SegmentedControl` (moved from account-settings), `Tabs` keyboard support.
+- [x] 2b: `Field`, `TextInput`, `NumberInput`, `Select`, `ColorInput`, `Checkbox`, `Switch`,
+      `SegmentedControl` (moved from account-settings), `Tabs` keyboard support.
+  - `Field` gives its control the id, `aria-describedby` (hint or error) and `aria-invalid` through context
+    (`fieldContext.ts`), so it's used as `<Field label="Email"><TextInput /></Field>`. Explicit props on the
+    control still win, and describedby ids are merged.
+  - All text-like controls share one style (`TextInput.module.css`, which Select and NumberInput reach through
+    `composes`). On `pointer: coarse` devices they render at 16px, which stops iOS from zooming the page into a
+    focused input. I checked this with iPhone emulation: 14px on desktop, 16px on touch. Inputs reach the
+    features in Phase 4.
+  - `NumberInput` takes an optional `unit` suffix inside the box, replacing AccountSettings' `.unitRow`.
+    `ColorInput` keeps the picker and the hex text box in sync.
+  - `Switch` is a native checkbox with `role="switch"`. `SwitchIndicator` is the graphic alone, for rows that
+    already carry the state (ProfileMenu's `menuitemcheckbox`). ProfileMenu uses it now, and its duplicate
+    switch CSS is deleted.
+  - Arrow-key support for both groups comes from one hook, `hooks/useRovingSelection.ts`: roving tabindex,
+    arrows/Home/End, wrapping, and a horizontal-only mode for tabs. `SegmentedControl` (formerly
+    `features/account-settings/ToggleGroup`) is a labelled radiogroup. `Tabs` takes an optional `id`, and a new
+    `TabPanel` links each panel to its tab through `aria-controls`/`aria-labelledby`. AccountSettings uses both,
+    with its group labels back in sentence case.
+  - Not built: `Textarea`. Nothing in the app uses one yet.
 - Each gets a smoke test plus behavior tests: keyboard handling, `aria-*` wiring, and union variants rendering the
   right element (`getByRole('link')` vs `getByRole('button')`).
 
