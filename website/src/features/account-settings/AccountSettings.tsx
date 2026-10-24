@@ -13,12 +13,14 @@ import type { UserPreferences } from '../../api/types';
 import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { Field } from '../../components/Field';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { Modal } from '../../components/Modal';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { TabPanel, Tabs } from '../../components/Tabs';
+import { TextInput } from '../../components/TextInput';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { DeletionImpactModal } from './DeletionImpactModal';
 import { MembersSection } from './MembersSection';
@@ -361,32 +363,27 @@ export function AccountSettings() {
           )}
 
           {confirmingDelete && (
-            <Modal title="Delete your account?" onCancel={() => setConfirmingDelete(false)}>
+            <ConfirmDialog
+              title="Delete your account?"
+              confirmLabel="Delete"
+              pendingLabel="Deleting…"
+              pending={deleteAccount.isPending}
+              confirmDisabled={!canConfirmDelete}
+              error={deleteAccount.error?.message}
+              onConfirm={handleDeleteConfirm}
+              onCancel={() => setConfirmingDelete(false)}
+            >
               <p>
                 This can&apos;t be undone. Type <strong>{user.email}</strong> to confirm.
               </p>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Confirm email address</span>
-                <input
-                  className={styles.input}
+              <Field label="Confirm email address">
+                <TextInput
                   value={deleteConfirmEmail}
                   onChange={(event) => setDeleteConfirmEmail(event.target.value)}
+                  autoComplete="off"
                 />
-              </label>
-              {deleteAccount.isError && <ErrorMessage message={deleteAccount.error.message} />}
-              <div className={styles.modalActions}>
-                <Button variant="ghost" onClick={() => setConfirmingDelete(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDeleteConfirm}
-                  disabled={!canConfirmDelete || deleteAccount.isPending}
-                >
-                  {deleteAccount.isPending ? 'Deleting…' : 'Delete'}
-                </Button>
-              </div>
-            </Modal>
+              </Field>
+            </ConfirmDialog>
           )}
         </TabPanel>
       )}

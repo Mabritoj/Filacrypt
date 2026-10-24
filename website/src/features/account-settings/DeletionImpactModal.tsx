@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Button } from '../../components/Button';
-import { Modal } from '../../components/Modal';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import type { DeletionImpactWorkspace, WorkspaceResolution } from '../../api/user';
 import styles from './DeletionImpactModal.module.css';
 
@@ -33,7 +32,14 @@ export function DeletionImpactModal({
   }
 
   return (
-    <Modal title="Before you go — resolve ownership" onCancel={onCancel}>
+    <ConfirmDialog
+      title="Before you go — resolve ownership"
+      confirmLabel="Continue"
+      confirmDisabled={!allResolved}
+      onConfirm={() => onResolved(choices)}
+      onCancel={onCancel}
+      size="md"
+    >
       <p>You own the following workspaces with other members. Choose what happens to each one.</p>
 
       {workspaces.map((workspace) => {
@@ -83,15 +89,6 @@ export function DeletionImpactModal({
           </fieldset>
         );
       })}
-
-      <div className={styles.modalActions}>
-        <Button variant="ghost" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button variant="destructive" disabled={!allResolved} onClick={() => onResolved(choices)}>
-          Continue
-        </Button>
-      </div>
-    </Modal>
+    </ConfirmDialog>
   );
 }

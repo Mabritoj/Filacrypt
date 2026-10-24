@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '../../components/Button';
-import { Modal } from '../../components/Modal';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import {
   useMembers,
@@ -161,18 +161,17 @@ export function MembersSection({ workspaceId, callerRole }: MembersSectionProps)
       {updatePermissions.isError && <ErrorMessage message={updatePermissions.error.message} />}
 
       {removing && (
-        <Modal title={`Remove ${removing.name}?`} onCancel={() => setRemoving(null)}>
+        <ConfirmDialog
+          title={`Remove ${removing.name}?`}
+          confirmLabel="Remove"
+          pendingLabel="Removing…"
+          pending={removeMember.isPending}
+          error={removeMember.error?.message}
+          onConfirm={confirmRemove}
+          onCancel={() => setRemoving(null)}
+        >
           <p>They will lose access to this workspace immediately.</p>
-          {removeMember.isError && <ErrorMessage message={removeMember.error.message} />}
-          <div className={styles.modalActions}>
-            <Button variant="ghost" onClick={() => setRemoving(null)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmRemove} disabled={removeMember.isPending}>
-              {removeMember.isPending ? 'Removing…' : 'Remove'}
-            </Button>
-          </div>
-        </Modal>
+        </ConfirmDialog>
       )}
     </section>
   );

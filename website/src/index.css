@@ -4,6 +4,12 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* A modal <dialog> makes the page inert but not unscrollable -- stop the page
+   behind it scrolling under a finger (scrollbar-gutter keeps the width). */
+html:has(dialog:modal) {
+  overflow: hidden;
+}
+
 /*
   One keyboard focus indicator for the whole app. Don't suppress it with
   `outline: none` in a module -- for an input that sits borderless inside a
