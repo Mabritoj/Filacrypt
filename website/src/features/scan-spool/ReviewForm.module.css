@@ -1,67 +1,21 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px 12px;
 }
 
-.field {
-  display: block;
-}
-
-.label {
-  display: block;
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.07em;
-  color: var(--color-text-muted);
-  margin-bottom: 6px;
-}
-
-.input {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
-  padding: 10px 12px;
-  color: var(--color-text);
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  outline: none;
-}
-
-.colorInputs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.colorSwatchInput {
-  flex: none;
-  width: 40px;
-  height: 40px;
+.range {
+  min-width: 0;
+  margin: 0;
   padding: 0;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
-  background: none;
-  cursor: pointer;
+  border: none;
 }
 
-.colorSwatchInput::-webkit-color-swatch-wrapper {
+/* Matches Field's label: a legend can't sit in a flex gap, so space it here. */
+.legend {
+  margin-bottom: 7px;
   padding: 0;
-  border-radius: 8px;
-}
-
-.colorSwatchInput::-webkit-color-swatch {
-  border: none;
-  border-radius: 8px;
-}
-
-.colorSwatchInput::-moz-color-swatch {
-  border: none;
-  border-radius: 8px;
+  letter-spacing: 0.05em;
 }
 
 .rangeInputs {
@@ -71,20 +25,12 @@
 }
 
 .rangeSep {
-  color: var(--color-text-muted);
   flex: none;
+  color: var(--color-text-muted);
 }
 
-.checkboxRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.markFull {
   margin-top: 16px;
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text-muted);
-  cursor: pointer;
 }
 
 .actions {

@@ -4,12 +4,8 @@
 }
 
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
   padding: 48px 40px;
   text-align: center;
-  box-sizing: border-box;
 }
 
 .reader {
@@ -40,6 +36,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--color-brand);
   cursor: pointer;
 }
 
@@ -57,35 +54,16 @@
   }
 }
 
-.title {
-  margin: 0;
-  font:
-    700 26px 'Hanken Grotesk',
-    sans-serif;
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-}
-
 .subtitle {
   margin: 12px auto 0;
   max-width: 380px;
-  font:
-    500 14px/1.5 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text-muted);
 }
 
-.manualLink {
-  margin-top: 24px;
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text);
-  background: none;
-  border: none;
+/* Scoped to outrank Button's own text-decoration regardless of CSS order. */
+.card .manualLink {
+  margin-top: 16px;
   text-decoration: underline;
   text-underline-offset: 3px;
-  cursor: pointer;
 }
 
 .readerStatus {
@@ -93,9 +71,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font:
-    500 11px 'JetBrains Mono',
-    monospace;
+  font: 500 var(--text-xs) var(--font-mono);
   color: var(--color-text-muted);
 }
 
@@ -113,21 +89,11 @@
 .scanError {
   margin: 18px auto 0;
   max-width: 380px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--color-destructive-bg);
-  border: 1px solid var(--color-destructive);
-  font:
-    500 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-destructive);
+  text-align: left;
   overflow-wrap: anywhere;
 }
 
 .detectedCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
   overflow: hidden;
 }
 
@@ -155,16 +121,12 @@
 }
 
 .detectedTitle {
-  font:
-    700 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-base) var(--font-sans);
   color: var(--color-success);
 }
 
 .detectedMeta {
-  font:
-    500 11px 'JetBrains Mono',
-    monospace;
+  font: 500 var(--text-xs) var(--font-mono);
   color: var(--color-text-muted);
   margin-top: 2px;
   overflow-wrap: anywhere;
@@ -193,7 +155,7 @@
   gap: 14px;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 14px;
   margin-bottom: 20px;
 }
@@ -201,23 +163,20 @@
 .previewSwatch {
   width: 46px;
   height: 46px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--color-border-strong);
+  background: var(--swatch);
   flex: none;
 }
 
 .previewName {
-  font:
-    700 17px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-xl) var(--font-sans);
   letter-spacing: -0.01em;
   color: var(--color-text);
 }
 
 .previewBrand {
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-sm) var(--font-sans);
   color: var(--color-text-muted);
   margin-top: 2px;
 }
@@ -227,28 +186,13 @@
   text-align: right;
 }
 
-.previewWeightLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.07em;
-  color: var(--color-text-muted);
-}
-
 .previewWeightValue {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   color: var(--color-text);
   margin-top: 3px;
 }
 
 .reviewLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
   margin-bottom: 12px;
 }
 
@@ -261,9 +205,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font:
-    700 30px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-display-1) var(--font-sans);
   color: var(--color-success);
 }
 
@@ -272,29 +214,6 @@
   gap: 10px;
   justify-content: center;
   margin-top: 26px;
-}
-
-.viewInventoryButton {
-  font:
-    600 14px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 10px;
-  padding: 13px 20px;
-}
-
-.scanAnotherButton {
-  font:
-    600 14px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-brand-ink);
-  background: var(--color-brand);
-  border: none;
-  border-radius: 10px;
-  padding: 13px 20px;
-  cursor: pointer;
 }
 
 @media (prefers-reduced-motion: reduce) {

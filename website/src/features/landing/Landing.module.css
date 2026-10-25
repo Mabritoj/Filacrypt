@@ -1,17 +1,23 @@
 .page {
-  --brand: #cf9161;
-  --brand-hover: #e0a878;
-  --ink: #1a120b;
-  --muted: #b8b0a5;
-  --muted-2: #9d968c;
-  --muted-3: #6f685e;
-
+  color: var(--color-text);
   min-height: 100%;
   background:
-    radial-gradient(1100px 520px at 82% -6%, rgba(207, 145, 97, 0.2), transparent 55%),
-    radial-gradient(900px 600px at -10% 18%, rgba(176, 106, 55, 0.1), transparent 55%),
-    radial-gradient(1100px 520px at 50% 104%, rgba(207, 145, 97, 0.16), transparent 58%),
-    linear-gradient(#17120b, #1a140c);
+    radial-gradient(
+      1100px 520px at 82% -6%,
+      color-mix(in srgb, var(--color-brand) 20%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      900px 600px at -10% 18%,
+      color-mix(in srgb, var(--color-brand) 10%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      1100px 520px at 50% 104%,
+      color-mix(in srgb, var(--color-brand) 16%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(var(--color-hero-bg-from), var(--color-hero-bg-to));
 }
 
 .container {
@@ -33,24 +39,8 @@
   gap: 10px;
 }
 
-.navMark {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  background: var(--brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font:
-    800 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--ink);
-}
-
 .navName {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   letter-spacing: -0.01em;
 }
 
@@ -61,32 +51,13 @@
 }
 
 .navLink {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
+  font: 600 var(--text-md) var(--font-sans);
+  color: var(--color-text-muted-2);
 }
 
 .navSignIn {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  color: #ece8e2;
-}
-
-.navCta {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--ink);
-  background: var(--brand);
-  border-radius: 9px;
-  padding: 9px 16px;
-}
-
-.navCta:hover {
-  color: var(--ink);
-  background: var(--brand-hover);
+  font: 600 var(--text-md) var(--font-sans);
+  color: var(--color-text);
 }
 
 /* hero */
@@ -107,14 +78,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
+  font: 600 var(--text-xs) var(--font-mono);
   letter-spacing: 0.06em;
-  color: var(--brand);
-  background: rgba(207, 145, 97, 0.1);
-  border: 1px solid rgba(207, 145, 97, 0.25);
-  border-radius: 99px;
+  color: var(--color-brand);
+  background: color-mix(in srgb, var(--color-brand) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-brand) 25%, transparent);
+  border-radius: var(--radius-full);
   padding: 6px 12px;
   margin-bottom: 22px;
 }
@@ -123,24 +92,20 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--brand);
+  background: var(--color-brand);
 }
 
 .heroTitle {
   margin: 0;
-  font:
-    800 54px/1.02 'Hanken Grotesk',
-    sans-serif;
+  font: 800 var(--text-display-3)/1.02 var(--font-sans);
   letter-spacing: -0.03em;
 }
 
 .heroSubtitle {
   margin: 22px 0 0;
   max-width: 460px;
-  font:
-    500 17px/1.6 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
+  font: 500 var(--text-xl)/1.6 var(--font-sans);
+  color: var(--color-text-muted-2);
 }
 
 .heroActions {
@@ -150,55 +115,23 @@
   margin-top: 32px;
 }
 
-.btnPrimary {
-  font:
-    600 14px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--ink);
-  background: var(--brand);
-  border-radius: 10px;
-  padding: 13px 22px;
-}
-
-.btnPrimary:hover {
-  color: var(--ink);
-  background: var(--brand-hover);
-}
-
-.btnSecondary {
-  font:
-    600 14px 'Hanken Grotesk',
-    sans-serif;
-  color: #ece8e2;
-  background: #1c1a17;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 13px 22px;
-}
-
-.btnSecondary:hover {
-  color: #ece8e2;
-}
-
 .heroNote {
   margin-top: 26px;
-  font:
-    500 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted-3);
+  font: 500 var(--text-md) var(--font-sans);
+  color: var(--color-text-subtle);
 }
 
 /* hero spool card */
 
 .spoolCard {
-  background: linear-gradient(155deg, #221d15, #171309);
-  border: 1px solid rgba(207, 145, 97, 0.18);
-  border-radius: 20px;
+  background: linear-gradient(155deg, var(--color-hero-surface-from), var(--color-hero-surface-to));
+  border: 1px solid color-mix(in srgb, var(--color-brand) 18%, transparent);
+  border-radius: var(--radius-2xl);
   padding: 26px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-modal);
   min-width: 0;
 }
 
@@ -215,20 +148,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 6px 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--color-border);
 }
 
 .spoolName {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
 }
 
 .spoolMeta {
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted-2);
+  font: 500 var(--text-sm) var(--font-sans);
+  color: var(--color-text-muted);
   margin-top: 2px;
 }
 
@@ -237,35 +166,24 @@
 }
 
 .spoolPercent {
-  font:
-    800 20px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--brand);
+  font: 800 var(--text-2xl) var(--font-sans);
+  color: var(--color-brand);
 }
 
 .spoolWeight {
-  font:
-    500 11px 'JetBrains Mono',
-    monospace;
-  color: var(--muted-2);
+  font: 500 var(--text-xs) var(--font-mono);
+  color: var(--color-text-muted);
 }
 
 /* shared section chrome */
 
 .eyebrow {
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.08em;
-  color: var(--brand);
   margin-bottom: 10px;
 }
 
 .sectionTitle {
   margin: 0 0 34px;
-  font:
-    700 32px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-display-1) var(--font-sans);
   letter-spacing: -0.02em;
 }
 
@@ -282,39 +200,33 @@
 }
 
 .stepCard {
-  background: linear-gradient(160deg, #1f1b13, #161207);
-  border: 1px solid rgba(207, 145, 97, 0.14);
-  border-radius: 16px;
+  background: linear-gradient(160deg, var(--color-hero-surface-from), var(--color-hero-surface-to));
+  border: 1px solid color-mix(in srgb, var(--color-brand) 14%, transparent);
+  border-radius: var(--radius-xl);
   padding: 24px;
 }
 
 .stepNumber {
   width: 38px;
   height: 38px;
-  border-radius: 10px;
-  background: rgba(207, 145, 97, 0.16);
-  border: 1px solid rgba(207, 145, 97, 0.3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-brand) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-brand) 30%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  font:
-    800 15px 'JetBrains Mono',
-    monospace;
-  color: var(--brand-hover);
+  font: 800 var(--text-lg) var(--font-mono);
+  color: var(--color-brand-hover);
 }
 
 .stepTitle {
-  font:
-    700 18px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-2xl) var(--font-sans);
   margin-top: 16px;
 }
 
 .stepBody {
-  font:
-    500 14px/1.55 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
+  font: 500 var(--text-base)/1.55 var(--font-sans);
+  color: var(--color-text-muted-2);
   margin-top: 8px;
 }
 
@@ -331,24 +243,20 @@
 }
 
 .featureCard {
-  background: #1a1611;
-  border: 1px solid rgba(207, 145, 97, 0.1);
-  border-radius: 14px;
+  background: var(--color-hero-surface);
+  border: 1px solid color-mix(in srgb, var(--color-brand) 10%, transparent);
+  border-radius: var(--radius-lg);
   padding: 22px;
 }
 
 .featureTitle {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
-  color: #ece8e2;
+  font: 700 var(--text-lg) var(--font-sans);
+  color: var(--color-text);
 }
 
 .featureBody {
-  font:
-    500 13px/1.55 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted-2);
+  font: 500 var(--text-md)/1.55 var(--font-sans);
+  color: var(--color-text-muted);
   margin-top: 7px;
 }
 
@@ -356,32 +264,28 @@
 
 .standardBand {
   margin: 70px 0;
-  background: linear-gradient(150deg, #221d15, #171309);
-  border: 1px solid rgba(207, 145, 97, 0.18);
-  border-radius: 20px;
+  background: linear-gradient(150deg, var(--color-hero-surface-from), var(--color-hero-surface-to));
+  border: 1px solid color-mix(in srgb, var(--color-brand) 18%, transparent);
+  border-radius: var(--radius-2xl);
   padding: 40px;
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 32px;
   align-items: center;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-modal);
 }
 
 .standardTitle {
   margin: 0 0 12px;
-  font:
-    700 26px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-4xl) var(--font-sans);
   letter-spacing: -0.02em;
 }
 
 .standardBody {
   margin: 0;
   max-width: 520px;
-  font:
-    500 15px/1.6 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
+  font: 500 var(--text-lg)/1.6 var(--font-sans);
+  color: var(--color-text-muted-2);
 }
 
 .fieldsList {
@@ -394,14 +298,12 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font:
-    500 13px 'JetBrains Mono',
-    monospace;
-  color: #d8d5cf;
+  font: 500 var(--text-md) var(--font-mono);
+  color: var(--color-text);
 }
 
 .fieldBullet {
-  color: var(--brand);
+  color: var(--color-brand);
 }
 
 /* final CTA */
@@ -410,30 +312,26 @@
   text-align: center;
   padding: 56px 40px 64px;
   margin-bottom: 20px;
-  background: radial-gradient(600px 300px at 50% 40%, rgba(207, 145, 97, 0.12), transparent 70%);
-  border: 1px solid rgba(207, 145, 97, 0.14);
-  border-radius: 24px;
+  background: radial-gradient(
+    600px 300px at 50% 40%,
+    color-mix(in srgb, var(--color-brand) 12%, transparent),
+    transparent 70%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-brand) 14%, transparent);
+  border-radius: var(--radius-2xl);
 }
 
 .finalCtaTitle {
   margin: 0 0 10px;
-  font:
-    800 38px 'Hanken Grotesk',
-    sans-serif;
+  font: 800 var(--text-display-2) var(--font-sans);
   letter-spacing: -0.03em;
 }
 
 .finalCtaBody {
   margin: 0 auto 26px;
   max-width: 440px;
-  font:
-    500 16px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted);
-}
-
-.finalCtaButton {
-  display: inline-block;
+  font: 500 var(--text-xl) var(--font-sans);
+  color: var(--color-text-muted-2);
 }
 
 /* footer */
@@ -443,7 +341,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 24px 0 40px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--color-border);
 }
 
 .footerBrand {
@@ -452,32 +350,14 @@
   gap: 9px;
 }
 
-.footerMark {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background: var(--brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font:
-    800 11px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--ink);
-}
-
 .footerName {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted-2);
+  font: 600 var(--text-md) var(--font-sans);
+  color: var(--color-text-muted);
 }
 
 .footerLink {
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--muted-2);
+  font: 600 var(--text-sm) var(--font-sans);
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 860px) {
@@ -514,7 +394,7 @@
   }
 
   .heroTitle {
-    font-size: 38px;
+    font-size: var(--text-display-2);
   }
 
   .heroActions {
@@ -522,7 +402,7 @@
   }
 
   .sectionTitle {
-    font-size: 24px;
+    font-size: var(--text-3xl);
   }
 
   .standardBand {
@@ -530,7 +410,7 @@
   }
 
   .standardTitle {
-    font-size: 22px;
+    font-size: var(--text-3xl);
   }
 
   .finalCta {
@@ -538,7 +418,7 @@
   }
 
   .finalCtaTitle {
-    font-size: 28px;
+    font-size: var(--text-4xl);
   }
 
   .footer {

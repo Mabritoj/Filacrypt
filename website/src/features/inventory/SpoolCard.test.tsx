@@ -1,48 +1,49 @@
-import { describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from '../../test/helpers';
 import { SpoolCard } from './SpoolCard';
 import { mockSpools } from '../../api/mock/spools';
 
 const spool = mockSpools[0];
 
 describe('SpoolCard', () => {
-  it('renders the spool name, brand, and weight', () => {
-    render(<SpoolCard spool={spool} lowStockThresholdG={100} onClick={vi.fn()} />);
+  it('renders the spool name, brand, and material', () => {
+    renderWithProviders(<SpoolCard spool={spool} lowStockThresholdG={100} />);
 
     expect(screen.getByText(spool.materialName)).toBeInTheDocument();
     expect(screen.getByText(spool.brand)).toBeInTheDocument();
     expect(screen.getByText(spool.materialType)).toBeInTheDocument();
   });
 
-  it('calls onClick when clicked', () => {
-    const onClick = vi.fn();
-    render(<SpoolCard spool={spool} lowStockThresholdG={100} onClick={onClick} />);
+  it('is a link to the spool, named by what it opens', () => {
+    renderWithProviders(<SpoolCard spool={spool} lowStockThresholdG={100} />);
 
-    fireEvent.click(screen.getByRole('button'));
-    expect(onClick).toHaveBeenCalledTimes(1);
+    const link = screen.getByRole('link', { name: `${spool.materialName}, ${spool.brand}` });
+    expect(link).toHaveAttribute('href', `/inventory/${spool.id}`);
   });
 
-  it('shows a LOW badge when remaining weight is under the threshold', () => {
-    render(
-      <SpoolCard
-        spool={{ ...spool, remainingWeightG: 50 }}
-        lowStockThresholdG={100}
-        onClick={vi.fn()}
-      />,
-    );
+  it('shows remaining filament as a progress bar', () => {
+    renderWithProviders(<SpoolCard spool={spool} lowStockThresholdG={100} />);
 
-    expect(screen.getByText('LOW')).toBeInTheDocument();
+    const bar = screen.getByRole('progressbar', { name: 'Filament remaining' });
+    expect(bar).toHaveAttribute('aria-valuenow', String(spool.remainingWeightG));
+    expect(bar).toHaveAttribute('aria-valuemax', String(spool.netWeightG));
   });
 
-  it('does not show a LOW badge when remaining weight is above the threshold', () => {
-    render(
-      <SpoolCard
-        spool={{ ...spool, remainingWeightG: 500 }}
-        lowStockThresholdG={100}
-        onClick={vi.fn()}
-      />,
+  it('flags low stock with a badge and in the link name', () => {
+    renderWithProviders(
+      <SpoolCard spool={{ ...spool, remainingWeightG: 50 }} lowStockThresholdG={100} />,
     );
 
-    expect(screen.queryByText('LOW')).not.toBeInTheDocument();
+    expect(screen.getByText('Low')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /low stock/ })).toBeInTheDocument();
+  });
+
+  it('does not flag spools above the threshold', () => {
+    renderWithProviders(
+      <SpoolCard spool={{ ...spool, remainingWeightG: 500 }} lowStockThresholdG={100} />,
+    );
+
+    expect(screen.queryByText('Low')).not.toBeInTheDocument();
   });
 });

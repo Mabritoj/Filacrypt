@@ -1,0 +1,94 @@
+/*
+  Typography roles. Used by the Text component, and composable from any
+  module: `composes: label from '../../styles/typography.module.css';`.
+  Roles set size, weight and spacing only -- color comes from the tone
+  classes below, so a role never fights a tone.
+*/
+
+.base {
+  margin: 0;
+}
+
+.display {
+  composes: base;
+  font: 700 var(--text-display-1) / 1.05 var(--font-sans);
+  letter-spacing: -0.02em;
+}
+
+.h1 {
+  composes: base;
+  font: 700 var(--text-4xl) / 1.1 var(--font-sans);
+  letter-spacing: -0.02em;
+}
+
+.h2 {
+  composes: base;
+  font: 700 var(--text-2xl) / 1.2 var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+.title {
+  composes: base;
+  font: 700 var(--text-lg) / 1.3 var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+.body {
+  composes: base;
+  font: 500 var(--text-base) / 1.55 var(--font-sans);
+}
+
+.bodySm {
+  composes: base;
+  font: 500 var(--text-md) / 1.5 var(--font-sans);
+}
+
+.meta {
+  composes: base;
+  font: 500 var(--text-sm) / 1.4 var(--font-sans);
+}
+
+/* Small mono caps above a value (stat labels, table heads). Uppercase is a
+   style, not content: write "Net weight" in JSX, never "NET WEIGHT". */
+.label {
+  composes: base;
+  font: 600 var(--text-2xs) / 1.3 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Mono caps that introduce a section or card. */
+.eyebrow {
+  composes: base;
+  font: 600 var(--text-xs) / 1.3 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.default {
+  color: var(--color-text);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.subtle {
+  color: var(--color-text-subtle);
+}
+
+.brand {
+  color: var(--color-brand);
+}
+
+.warning {
+  color: var(--color-warning);
+}
+
+.destructive {
+  color: var(--color-destructive);
+}
+
+.success {
+  color: var(--color-success);
+}

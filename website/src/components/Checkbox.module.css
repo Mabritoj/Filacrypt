@@ -1,0 +1,23 @@
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font: 500 var(--text-md) var(--font-sans);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-brand);
+  cursor: pointer;
+}
+
+.input:disabled,
+.input:disabled + span {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

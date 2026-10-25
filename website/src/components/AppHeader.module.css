@@ -22,24 +22,8 @@
   gap: 10px;
 }
 
-.brandMark {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  background: var(--color-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font:
-    800 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-brand-ink);
-}
-
 .brandName {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   letter-spacing: -0.01em;
   color: var(--color-text);
 }

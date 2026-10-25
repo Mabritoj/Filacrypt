@@ -1,0 +1,44 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.label {
+  letter-spacing: 0.05em;
+}
+
+.group {
+  display: flex;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 3px;
+}
+
+.option {
+  flex: 1;
+  white-space: nowrap;
+  text-align: center;
+  font: 600 var(--text-sm) var(--font-sans);
+  padding: 7px 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.option:hover {
+  color: var(--color-text);
+}
+
+.option[aria-checked='true'] {
+  color: var(--color-brand-ink);
+  background: var(--color-brand);
+}

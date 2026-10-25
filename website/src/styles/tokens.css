@@ -1,0 +1,157 @@
+/*
+  Design tokens. Every CSS module reads values from here -- never a raw hex,
+  font name or one-off radius (src/test/cssGuardrails.test.ts enforces the
+  first two). Scales are theme-independent; colors are redefined per theme.
+
+  Breakpoints can't be custom properties (var() isn't allowed inside
+  @media), so they stay as literals by convention: 640px (sm) and 860px (md).
+*/
+
+:root {
+  /* 1480px keeps a 4-column spool grid's cards the same ~348px width the
+     original 3-column grid had at 1120px, instead of shrinking them. */
+  --content-max-width: 1480px;
+
+  /* Type. Families are the only place the font names appear. */
+  --font-sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --text-2xs: 10px; /* micro labels */
+  --text-xs: 11px; /* eyebrows, badges, field labels */
+  --text-sm: 12px; /* meta, secondary text */
+  --text-md: 13px; /* default UI text, buttons */
+  --text-base: 14px; /* body copy, inputs */
+  --text-lg: 15px; /* card titles, brand name */
+  --text-xl: 17px; /* modal titles, lead paragraphs */
+  --text-2xl: 20px; /* stat values, small headings */
+  --text-3xl: 24px; /* section headings */
+  --text-4xl: 28px; /* page <h1> */
+  --text-display-1: 32px; /* detail hero, marketing section titles */
+  --text-display-2: 40px; /* big numbers, marketing CTA */
+  --text-display-3: 54px; /* landing hero only */
+
+  /* Space: 4px base. For new and rebuilt components; existing modules
+     move onto it as they're rebuilt in later phases. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius-sm: 6px; /* chips, small swatches, brand mark */
+  --radius-md: 9px; /* buttons, inputs, menu items */
+  --radius-lg: 13px; /* cards, popovers, modals */
+  --radius-xl: 16px; /* page-level panels */
+  --radius-2xl: 22px; /* marketing / auth hero surfaces */
+  --radius-full: 9999px; /* pills */
+
+  /* Elevation. Shadows stay black in both themes. */
+  --shadow-knob: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-raised: 0 6px 20px rgb(0 0 0 / 0.25);
+  --shadow-popover: 0 18px 44px rgb(0 0 0 / 0.36);
+  --shadow-modal: 0 30px 70px rgb(0 0 0 / 0.4);
+  --shadow-hero: 0 40px 90px rgb(0 0 0 / 0.45);
+
+  /* Layering: floating chat < popovers/menus < modals/sheets. */
+  --z-floating: 40;
+  --z-popover: 50;
+  --z-modal: 1000;
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Marketing / auth surfaces (Landing, Login, ComingSoon). Always rendered
+     inside a data-theme="dark" subtree, so there is no light variant. */
+  --color-hero-bg-from: #17120b;
+  --color-hero-bg-to: #1a140c;
+  --color-hero-surface: #1a1611;
+  --color-hero-surface-from: #221d15;
+  --color-hero-surface-to: #171309;
+}
+
+/*
+  Themes are keyed on [data-theme] rather than :root[data-theme] so any
+  subtree can opt into one -- e.g. <div data-theme="dark"> on the always-dark
+  marketing pages. Such a subtree must also set `color: var(--color-text)`:
+  `color` inherits its computed value from outside, not the redefined token.
+*/
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #121110;
+  --color-surface: #1c1a17;
+  --color-surface-alt: #171410;
+  --color-chip: #2a2621;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
+  --color-overlay: rgb(0 0 0 / 0.55);
+  --color-text: #ece8e2;
+  --color-text-muted: #9d968c;
+  --color-text-muted-2: #b8b0a5;
+  --color-text-subtle: #6f685e;
+  --color-brand: #cf9161;
+  --color-brand-hover: #e0a878;
+  --color-brand-deep: #8a5227;
+  --color-brand-ink: #1a120b;
+  --color-knob: #ffffff;
+  /* Needs attention but not an error: low stock, unhealthy tag. */
+  --color-warning: #d98a6a;
+  --color-warning-bg: rgba(217, 138, 106, 0.14);
+  --color-success: #86ae7f;
+  --color-success-bg: rgba(134, 174, 127, 0.12);
+  /* Errors and irreversible actions (delete, remove). */
+  --color-destructive: #e0685f;
+  --color-destructive-bg: rgba(224, 104, 95, 0.1);
+  --color-accent-tint-bg: #1a1512;
+  --color-accent-tint-border: rgba(207, 145, 97, 0.28);
+  --color-focus-ring: #cf9161;
+
+  /* Spool illustration (flange, hub, spindle holes, center core). */
+  --spool-flange-from: #322e27;
+  --spool-flange-to: #181510;
+  --spool-hub: #241f19;
+  --spool-spindle: #17130d;
+  --spool-core: #0d0c0b;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #faf8f3;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f2ede4;
+  --color-chip: #efe7dd;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.12);
+  --color-overlay: rgb(0 0 0 / 0.55);
+  --color-text: #22201c;
+  --color-text-muted: #6f685e;
+  --color-text-muted-2: #857d72;
+  --color-text-subtle: #a0988c;
+  --color-brand: #b06a37;
+  --color-brand-hover: #c17a44;
+  --color-brand-deep: #8a5227;
+  --color-brand-ink: #ffffff;
+  --color-knob: #ffffff;
+  --color-warning: #c25b3a;
+  --color-warning-bg: rgba(194, 91, 58, 0.14);
+  --color-success: #4e8c5f;
+  --color-success-bg: rgba(78, 140, 95, 0.12);
+  --color-destructive: #c0392b;
+  --color-destructive-bg: rgba(192, 57, 43, 0.1);
+  --color-accent-tint-bg: #fbf4ec;
+  --color-accent-tint-border: rgba(176, 106, 55, 0.28);
+  --color-focus-ring: #b06a37;
+
+  --spool-flange-from: #e6e0d5;
+  --spool-flange-to: #cbc3b6;
+  --spool-hub: #e2dccf;
+  --spool-spindle: #cfc7b8;
+  --spool-core: var(--color-surface);
+}

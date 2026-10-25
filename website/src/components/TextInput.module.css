@@ -1,0 +1,46 @@
+/* The one text-control look. Select and NumberInput compose from here. */
+.control {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font: 500 var(--text-base) var(--font-sans);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.control::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.control:focus-visible {
+  border-color: var(--color-brand);
+}
+
+.control[aria-invalid='true'] {
+  border-color: var(--color-destructive);
+}
+
+.control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.md {
+  padding: 10px 12px;
+}
+
+.sm {
+  padding: 6px 9px;
+  font-size: var(--text-md);
+}
+
+/* iOS zooms the page into any focused input under 16px. On touch devices,
+   keep every control at 16px so focusing one never rescales the layout. */
+@media (pointer: coarse) {
+  .control {
+    font-size: 16px;
+  }
+}

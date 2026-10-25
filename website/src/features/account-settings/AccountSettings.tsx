@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'aws-amplify/auth';
 import {
@@ -13,16 +13,22 @@ import type { UserPreferences } from '../../api/types';
 import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { Badge } from '../../components/Badge';
+import { Card } from '../../components/Card';
+import { Field } from '../../components/Field';
+import { NumberInput } from '../../components/NumberInput';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { Modal } from '../../components/Modal';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { PageShell } from '../../components/PageShell';
-import { Tabs } from '../../components/Tabs';
+import { SegmentedControl } from '../../components/SegmentedControl';
+import { TabPanel, Tabs } from '../../components/Tabs';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { DeletionImpactModal } from './DeletionImpactModal';
 import { MembersSection } from './MembersSection';
 import { SettingsCard } from './SettingsCard';
-import { ToggleGroup } from './ToggleGroup';
 import styles from './AccountSettings.module.css';
 
 interface InventoryDefaultsForm {
@@ -145,10 +151,13 @@ export function AccountSettings() {
         }
       />
 
-      <h1 className={styles.title}>Account settings</h1>
-      <p className={styles.subtitle}>Manage your profile and printing preferences.</p>
+      <Text variant="h1">Account settings</Text>
+      <Text tone="muted" className={styles.subtitle}>
+        Manage your profile and printing preferences.
+      </Text>
 
       <Tabs
+        id="account-settings"
         tabs={[
           { id: 'general', label: 'General' },
           { id: 'members', label: 'Members' },
@@ -158,27 +167,22 @@ export function AccountSettings() {
       />
 
       {activeTab === 'general' && (
-        <>
+        <TabPanel tabsId="account-settings" tabId="general">
           <SettingsCard title="Profile">
             <div className={styles.avatarRow}>
               <div className={styles.avatar}>{user.name.charAt(0).toUpperCase()}</div>
             </div>
             <div className={styles.grid}>
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Name</span>
-                <div className={styles.disabledField}>{user.name}</div>
-              </div>
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Username</span>
-                <div className={styles.disabledField}>{user.username}</div>
-              </div>
-              <div className={`${styles.field} ${styles.fieldWide}`}>
-                <span className={styles.fieldLabel}>Email</span>
-                <div className={styles.emailRow}>
-                  <span>{user.email}</span>
-                  {user.emailVerified && <span className={styles.verifiedBadge}>✓ VERIFIED</span>}
-                </div>
-              </div>
+              <ReadOnlyField label="Name">{user.name}</ReadOnlyField>
+              <ReadOnlyField label="Username">{user.username}</ReadOnlyField>
+              <ReadOnlyField label="Email" wide>
+                <span className={styles.value}>{user.email}</span>
+                {user.emailVerified && (
+                  <Badge tone="success" size="sm">
+                    ✓ Verified
+                  </Badge>
+                )}
+              </ReadOnlyField>
             </div>
           </SettingsCard>
 
@@ -187,8 +191,8 @@ export function AccountSettings() {
             description="How measurements and value appear throughout Filacrypt."
           >
             <div className={styles.grid}>
-              <ToggleGroup
-                label="WEIGHT UNIT"
+              <SegmentedControl
+                label="Weight unit"
                 value={preferences.weightUnit}
                 onChange={(weightUnit) => setPreferences({ ...preferences, weightUnit })}
                 options={[
@@ -196,8 +200,8 @@ export function AccountSettings() {
                   { value: 'kg', label: 'Kilograms' },
                 ]}
               />
-              <ToggleGroup
-                label="TEMPERATURE"
+              <SegmentedControl
+                label="Temperature"
                 value={preferences.temperatureUnit}
                 onChange={(temperatureUnit) => setPreferences({ ...preferences, temperatureUnit })}
                 options={[
@@ -205,8 +209,8 @@ export function AccountSettings() {
                   { value: 'F', label: '°F' },
                 ]}
               />
-              <ToggleGroup
-                label="LENGTH"
+              <SegmentedControl
+                label="Length"
                 value={preferences.lengthUnit}
                 onChange={(lengthUnit) => setPreferences({ ...preferences, lengthUnit })}
                 options={[
@@ -214,8 +218,8 @@ export function AccountSettings() {
                   { value: 'ft', label: 'Feet' },
                 ]}
               />
-              <ToggleGroup
-                label="CURRENCY"
+              <SegmentedControl
+                label="Currency"
                 value={preferences.currency}
                 onChange={(currency) => setPreferences({ ...preferences, currency })}
                 options={[
@@ -224,8 +228,8 @@ export function AccountSettings() {
                   { value: 'GBP', label: 'GBP £' },
                 ]}
               />
-              <ToggleGroup
-                label="THEME"
+              <SegmentedControl
+                label="Theme"
                 value={preferences.theme}
                 onChange={(theme) => setPreferences({ ...preferences, theme })}
                 options={[
@@ -233,8 +237,8 @@ export function AccountSettings() {
                   { value: 'light', label: 'Light' },
                 ]}
               />
-              <ToggleGroup
-                label="DEFAULT SPOOL ENTRY"
+              <SegmentedControl
+                label="Default spool entry"
                 value={preferences.defaultEntryMode}
                 onChange={(defaultEntryMode) =>
                   setPreferences({ ...preferences, defaultEntryMode })
@@ -252,58 +256,43 @@ export function AccountSettings() {
             description="Pre-filled when adding spools and used for alerts."
           >
             <div className={styles.grid}>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Low-stock alert below</span>
-                <div className={styles.unitRow}>
-                  <input
-                    type="number"
-                    className={styles.unitInput}
-                    value={inventoryDefaults.lowStockThresholdG}
-                    onChange={(event) =>
-                      setInventoryDefaults({
-                        ...inventoryDefaults,
-                        lowStockThresholdG: Number(event.target.value),
-                      })
-                    }
-                  />
-                  <span className={styles.unitLabel}>grams</span>
-                </div>
-              </label>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Default diameter</span>
-                <div className={styles.unitRow}>
-                  <input
-                    type="number"
-                    step={0.05}
-                    className={styles.unitInput}
-                    value={inventoryDefaults.defaultDiameterMm}
-                    onChange={(event) =>
-                      setInventoryDefaults({
-                        ...inventoryDefaults,
-                        defaultDiameterMm: Number(event.target.value),
-                      })
-                    }
-                  />
-                  <span className={styles.unitLabel}>mm</span>
-                </div>
-              </label>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Default empty spool weight</span>
-                <div className={styles.unitRow}>
-                  <input
-                    type="number"
-                    className={styles.unitInput}
-                    value={inventoryDefaults.defaultEmptySpoolWeightG}
-                    onChange={(event) =>
-                      setInventoryDefaults({
-                        ...inventoryDefaults,
-                        defaultEmptySpoolWeightG: Number(event.target.value),
-                      })
-                    }
-                  />
-                  <span className={styles.unitLabel}>grams</span>
-                </div>
-              </label>
+              <Field label="Low-stock alert below">
+                <NumberInput
+                  unit="grams"
+                  value={inventoryDefaults.lowStockThresholdG}
+                  onChange={(event) =>
+                    setInventoryDefaults({
+                      ...inventoryDefaults,
+                      lowStockThresholdG: Number(event.target.value),
+                    })
+                  }
+                />
+              </Field>
+              <Field label="Default diameter">
+                <NumberInput
+                  unit="mm"
+                  step={0.05}
+                  value={inventoryDefaults.defaultDiameterMm}
+                  onChange={(event) =>
+                    setInventoryDefaults({
+                      ...inventoryDefaults,
+                      defaultDiameterMm: Number(event.target.value),
+                    })
+                  }
+                />
+              </Field>
+              <Field label="Default empty spool weight">
+                <NumberInput
+                  unit="grams"
+                  value={inventoryDefaults.defaultEmptySpoolWeightG}
+                  onChange={(event) =>
+                    setInventoryDefaults({
+                      ...inventoryDefaults,
+                      defaultEmptySpoolWeightG: Number(event.target.value),
+                    })
+                  }
+                />
+              </Field>
             </div>
           </SettingsCard>
 
@@ -319,20 +308,22 @@ export function AccountSettings() {
             <Button variant="ghost" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button onClick={handleSave} loading={isSaving}>
               {isSaving ? 'Saving…' : justSaved ? 'Saved' : 'Save changes'}
             </Button>
           </div>
 
-          <div className={styles.dangerCard}>
+          <Card as="section" tone="destructive" padding="lg" className={styles.dangerCard}>
             <div>
-              <div className={styles.dangerTitle}>Delete account</div>
-              <div className={styles.dangerMeta}>
+              <Text variant="title" as="h2" tone="destructive">
+                Delete account
+              </Text>
+              <Text variant="meta" as="p" className={styles.dangerMeta}>
                 Permanently removes your account and all data associated with it.
-              </div>
+              </Text>
             </div>
             <Button
-              variant="danger"
+              variant="destructive"
               onClick={() => {
                 setDeleteConfirmEmail('');
                 if (deletionImpact.data && deletionImpact.data.length > 0) {
@@ -345,7 +336,7 @@ export function AccountSettings() {
             >
               Delete account
             </Button>
-          </div>
+          </Card>
 
           {showDeletionImpact && deletionImpact.data && deletionImpact.data.length > 0 && (
             <DeletionImpactModal
@@ -360,42 +351,58 @@ export function AccountSettings() {
           )}
 
           {confirmingDelete && (
-            <Modal title="Delete your account?" onCancel={() => setConfirmingDelete(false)}>
+            <ConfirmDialog
+              title="Delete your account?"
+              confirmLabel="Delete"
+              pendingLabel="Deleting…"
+              pending={deleteAccount.isPending}
+              confirmDisabled={!canConfirmDelete}
+              error={deleteAccount.error?.message}
+              onConfirm={handleDeleteConfirm}
+              onCancel={() => setConfirmingDelete(false)}
+            >
               <p>
                 This can&apos;t be undone. Type <strong>{user.email}</strong> to confirm.
               </p>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Confirm email address</span>
-                <input
-                  className={styles.input}
+              <Field label="Confirm email address">
+                <TextInput
                   value={deleteConfirmEmail}
                   onChange={(event) => setDeleteConfirmEmail(event.target.value)}
+                  autoComplete="off"
                 />
-              </label>
-              {deleteAccount.isError && <ErrorMessage message={deleteAccount.error.message} />}
-              <div className={styles.modalActions}>
-                <Button variant="ghost" onClick={() => setConfirmingDelete(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={handleDeleteConfirm}
-                  disabled={!canConfirmDelete || deleteAccount.isPending}
-                >
-                  {deleteAccount.isPending ? 'Deleting…' : 'Delete'}
-                </Button>
-              </div>
-            </Modal>
+              </Field>
+            </ConfirmDialog>
           )}
-        </>
+        </TabPanel>
       )}
 
       {activeTab === 'members' && (
-        <MembersSection
-          workspaceId={workspaceId ?? ''}
-          callerRole={workspaceQuery.data?.callerRole ?? 'member'}
-        />
+        <TabPanel tabsId="account-settings" tabId="members">
+          <MembersSection
+            workspaceId={workspaceId ?? ''}
+            callerRole={workspaceQuery.data?.callerRole ?? 'member'}
+          />
+        </TabPanel>
       )}
     </PageShell>
+  );
+}
+
+interface ReadOnlyFieldProps {
+  label: string;
+  /** Span both grid columns. */
+  wide?: boolean;
+  children: ReactNode;
+}
+
+/** A labelled value styled like a disabled input -- profile details aren't editable here. */
+function ReadOnlyField({ label, wide, children }: ReadOnlyFieldProps) {
+  return (
+    <div className={wide ? `${styles.readOnly} ${styles.wide}` : styles.readOnly}>
+      <Text variant="eyebrow" className={styles.readOnlyLabel}>
+        {label}
+      </Text>
+      <div className={styles.readOnlyValue}>{children}</div>
+    </div>
   );
 }

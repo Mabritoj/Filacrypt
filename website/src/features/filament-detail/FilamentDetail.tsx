@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSpool, useUpdateSpool, useDeleteSpool } from '../../api/spools';
 import { useUsageEvents } from '../../api/usageEvents';
 import { usePreferences } from '../../api/user';
@@ -9,11 +9,23 @@ import type { Spool } from '../../api/types';
 import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
+import { EmptyState } from '../../components/EmptyState';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { Modal } from '../../components/Modal';
+import { IconButton } from '../../components/IconButton';
+import { MoreIcon, NfcIcon } from '../../components/icons';
+import { Menu, MenuGroup, MenuItem } from '../../components/Menu';
+import { Badge } from '../../components/Badge';
+import { Card } from '../../components/Card';
+import { ColorInput } from '../../components/ColorInput';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { LoadingSpool } from '../../components/LoadingSpool';
+import { NumberInput } from '../../components/NumberInput';
 import { PageShell } from '../../components/PageShell';
-import { useDismissablePanel } from '../../hooks/useDismissablePanel';
+import { ProgressBar } from '../../components/ProgressBar';
+import { Select } from '../../components/Select';
+import { Stat } from '../../components/Stat';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { formatCurrency, formatLength, formatTemperature, formatWeight } from '../../utils/units';
 import { canFilament } from '../../utils/permissions';
@@ -21,6 +33,7 @@ import { DetailCard } from './DetailCard';
 import { SpoolVisualization } from './SpoolVisualization';
 import { UsageHistoryTable } from './UsageHistoryTable';
 import styles from './FilamentDetail.module.css';
+import { formatDate, formatRelativeTime, humanizeEnum } from '../../utils/format';
 
 const SPOOL_STATUSES: Spool['status'][] = ['in_use', 'stored', 'empty', 'archived'];
 
@@ -71,33 +84,6 @@ function diffSpool(original: Spool, draft: Spool): Partial<Spool> {
   return diff;
 }
 
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatDate(iso?: string): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
-function formatRelativeTime(iso?: string): string {
-  if (!iso) return 'Never';
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const hours = Math.round(diffMs / (1000 * 60 * 60));
-  if (hours < 1) return 'Just now';
-  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
-  const days = Math.round(hours / 24);
-  return `${days} day${days === 1 ? '' : 's'} ago`;
-}
-
-function formatStatus(status: string): string {
-  return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
 export function FilamentDetail() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
@@ -109,8 +95,6 @@ export function FilamentDetail() {
   const deleteSpool = useDeleteSpool(workspaceId ?? '');
   const workspaceQuery = useWorkspace(workspaceId ?? '');
 
-  const [optionsOpen, setOptionsOpen] = useState(false);
-  const optionsRef = useDismissablePanel<HTMLDivElement>(optionsOpen, () => setOptionsOpen(false));
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Spool | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -132,9 +116,9 @@ export function FilamentDetail() {
     return (
       <PageShell centered>
         <ErrorMessage message="Something went wrong loading this spool." />
-        <Link to="/inventory" className={styles.backLink}>
+        <Button to="/inventory" variant="secondary">
           Back to inventory
-        </Link>
+        </Button>
       </PageShell>
     );
   }
@@ -142,10 +126,17 @@ export function FilamentDetail() {
   if (!spool) {
     return (
       <PageShell centered>
-        <p>Spool not found.</p>
-        <Link to="/inventory" className={styles.backLink}>
-          Back to inventory
-        </Link>
+        <EmptyState
+          title="Spool not found."
+          titleAs="h1"
+          action={
+            <Button to="/inventory" variant="secondary">
+              Back to inventory
+            </Button>
+          }
+        >
+          It may have been deleted, or the link is wrong.
+        </EmptyState>
       </PageShell>
     );
   }
@@ -159,9 +150,9 @@ export function FilamentDetail() {
 
   function textField(ariaLabel: string, key: keyof Spool) {
     return (
-      <input
+      <TextInput
+        size="sm"
         aria-label={ariaLabel}
-        className={styles.editInput}
         value={(draft?.[key] as string | undefined) ?? ''}
         onChange={(event) => updateDraft(key, event.target.value as Spool[typeof key])}
       />
@@ -170,10 +161,9 @@ export function FilamentDetail() {
 
   function numberField(ariaLabel: string, key: keyof Spool) {
     return (
-      <input
-        type="number"
+      <NumberInput
+        size="sm"
         aria-label={ariaLabel}
-        className={styles.editInput}
         value={(draft?.[key] as number | undefined) ?? ''}
         onChange={(event) => {
           const raw = event.target.value;
@@ -186,10 +176,10 @@ export function FilamentDetail() {
   function dateField(ariaLabel: string, key: keyof Spool) {
     const raw = draft?.[key] as string | undefined;
     return (
-      <input
+      <TextInput
         type="date"
+        size="sm"
         aria-label={ariaLabel}
-        className={styles.editInput}
         value={raw ? raw.slice(0, 10) : ''}
         onChange={(event) => {
           const raw2 = event.target.value;
@@ -202,7 +192,6 @@ export function FilamentDetail() {
   function startEditing() {
     setDraft(currentSpool);
     setEditing(true);
-    setOptionsOpen(false);
   }
 
   function cancelEditing() {
@@ -220,7 +209,7 @@ export function FilamentDetail() {
     deleteSpool.mutate(currentSpool.id, { onSuccess: () => navigate('/inventory') });
   }
 
-  const finish = view.tags[0] ? formatTag(view.tags[0]) : undefined;
+  const finish = view.tags[0] ? humanizeEnum(view.tags[0]) : undefined;
   const pricePerKgCents =
     view.purchasePriceCents && view.netWeightG
       ? Math.round(view.purchasePriceCents / (view.netWeightG / 1000))
@@ -245,52 +234,27 @@ export function FilamentDetail() {
     </>
   ) : (
     <>
-      <div className={styles.optionsWrap} ref={optionsRef}>
-        <button
-          type="button"
-          className={styles.optionsButton}
-          aria-label="Spool options"
-          aria-expanded={optionsOpen}
-          onClick={() => setOptionsOpen((value) => !value)}
-        >
-          ⋮
-        </button>
-        {optionsOpen && (
-          <div className={styles.optionsMenu} role="menu">
-            <button
-              type="button"
-              className={styles.optionsItem}
-              role="menuitem"
-              onClick={() => setOptionsOpen(false)}
-            >
-              Reorder spool
-            </button>
-            {canEditSpool && (
-              <button
-                type="button"
-                className={styles.optionsItem}
-                role="menuitem"
-                onClick={startEditing}
-              >
-                Edit spool
-              </button>
-            )}
-            {canDeleteSpool && (
-              <button
-                type="button"
-                className={`${styles.optionsItem} ${styles.destructive}`}
-                role="menuitem"
-                onClick={() => {
-                  setConfirmingDelete(true);
-                  setOptionsOpen(false);
-                }}
-              >
-                Delete spool
-              </button>
-            )}
-          </div>
+      <Menu
+        label="Spool options"
+        trigger={(triggerProps) => (
+          <IconButton
+            {...triggerProps}
+            label="Spool options"
+            variant="outline"
+            icon={<MoreIcon size={18} />}
+          />
         )}
-      </div>
+      >
+        <MenuGroup>
+          <MenuItem>Reorder spool</MenuItem>
+          {canEditSpool && <MenuItem onClick={startEditing}>Edit spool</MenuItem>}
+          {canDeleteSpool && (
+            <MenuItem tone="destructive" onClick={() => setConfirmingDelete(true)}>
+              Delete spool
+            </MenuItem>
+          )}
+        </MenuGroup>
+      </Menu>
     </>
   );
 
@@ -301,18 +265,17 @@ export function FilamentDetail() {
       {updateSpool.isError && <ErrorMessage message={updateSpool.error.message} />}
 
       {confirmingDelete && (
-        <Modal title="Delete this spool?" onCancel={() => setConfirmingDelete(false)}>
+        <ConfirmDialog
+          title="Delete this spool?"
+          confirmLabel="Delete"
+          pendingLabel="Deleting…"
+          pending={deleteSpool.isPending}
+          error={deleteSpool.error?.message}
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmingDelete(false)}
+        >
           <p>This can&apos;t be undone.</p>
-          {deleteSpool.isError && <ErrorMessage message={deleteSpool.error.message} />}
-          <div className={styles.modalActions}>
-            <Button variant="secondary" onClick={() => setConfirmingDelete(false)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={confirmDelete} disabled={deleteSpool.isPending}>
-              {deleteSpool.isPending ? 'Deleting…' : 'Delete'}
-            </Button>
-          </div>
-        </Modal>
+        </ConfirmDialog>
       )}
 
       <div className={styles.hero}>
@@ -325,33 +288,35 @@ export function FilamentDetail() {
           lengthUnit={preferences.lengthUnit}
         />
 
-        <div className={styles.identityCard}>
+        <Card padding="lg" className={styles.identityCard}>
           {editing ? (
-            <input
+            <TextInput
+              size="sm"
               aria-label="Brand"
-              className={styles.editInput}
               value={draft?.brand ?? ''}
               onChange={(event) => updateDraft('brand', event.target.value)}
             />
           ) : (
-            <div className={styles.brandLabel}>{spool.brand}</div>
+            <Text variant="bodySm" tone="muted" className={styles.brandLabel}>
+              {spool.brand}
+            </Text>
           )}
           {editing ? (
-            <input
+            <TextInput
               aria-label="Spool name"
-              className={`${styles.editInput} ${styles.editTitleInput}`}
+              className={styles.editTitleInput}
               value={draft?.materialName ?? ''}
               onChange={(event) => updateDraft('materialName', event.target.value)}
             />
           ) : (
-            <h1 className={styles.title}>{spool.materialName}</h1>
+            <Text variant="display">{spool.materialName}</Text>
           )}
           <div className={styles.badges}>
             {editing ? (
               <>
-                <select
+                <Select
+                  size="sm"
                   aria-label="Material type"
-                  className={styles.editInput}
                   value={draft?.materialType}
                   onChange={(event) =>
                     updateDraft('materialType', event.target.value as Spool['materialType'])
@@ -362,10 +327,10 @@ export function FilamentDetail() {
                       {type}
                     </option>
                   ))}
-                </select>
-                <select
+                </Select>
+                <Select
+                  size="sm"
                   aria-label="Finish"
-                  className={styles.editInput}
                   value={draft?.tags[0]}
                   onChange={(event) =>
                     updateDraft('tags', [event.target.value as Spool['tags'][number]])
@@ -373,65 +338,47 @@ export function FilamentDetail() {
                 >
                   {MATERIAL_TAGS.map((tag) => (
                     <option key={tag} value={tag}>
-                      {formatTag(tag)}
+                      {humanizeEnum(tag)}
                     </option>
                   ))}
-                </select>
-                <div className={styles.editColorGroup}>
-                  <input
-                    type="color"
-                    aria-label="Color"
-                    className={styles.editColorSwatch}
-                    value={draft?.colorHex ?? '#888888'}
-                    onChange={(event) => updateDraft('colorHex', event.target.value)}
-                  />
-                  <input
-                    type="text"
-                    aria-label="Color hex code"
-                    className={styles.editColorHexInput}
-                    value={draft?.colorHex ?? ''}
-                    onChange={(event) => updateDraft('colorHex', event.target.value)}
-                  />
-                </div>
+                </Select>
+                <ColorInput
+                  size="sm"
+                  value={draft?.colorHex ?? ''}
+                  onChange={(hex) => updateDraft('colorHex', hex)}
+                />
               </>
             ) : (
               <>
-                <span className={styles.badge}>{spool.materialType}</span>
-                {finish && <span className={styles.badge}>{finish.toUpperCase()}</span>}
+                <Badge>{spool.materialType}</Badge>
+                {finish && <Badge>{finish}</Badge>}
               </>
             )}
           </div>
 
           <div className={styles.miniStats}>
-            <div className={styles.miniStat}>
-              <div className={styles.miniStatLabel}>NET WEIGHT</div>
-              <div className={styles.miniStatValue}>
-                {formatWeight(spool.netWeightG, preferences.weightUnit)}
-              </div>
-            </div>
-            <div className={styles.miniStat}>
-              <div className={styles.miniStatLabel}>REMAINING</div>
-              <div className={styles.miniStatValue}>
-                {formatWeight(view.remainingWeightG, preferences.weightUnit)}
-              </div>
-            </div>
-            <div className={styles.miniStat}>
-              <div className={styles.miniStatLabel}>DIAMETER</div>
-              <div className={styles.miniStatValue}>{view.filamentDiameterMm} mm</div>
-            </div>
+            <MiniStat
+              label="Net weight"
+              value={formatWeight(spool.netWeightG, preferences.weightUnit)}
+            />
+            <MiniStat
+              label="Remaining"
+              value={formatWeight(view.remainingWeightG, preferences.weightUnit)}
+            />
+            <MiniStat label="Diameter" value={`${view.filamentDiameterMm} mm`} />
             {view.minNozzleTempC && (
-              <div className={styles.miniStat}>
-                <div className={styles.miniStatLabel}>PRINT TEMP</div>
-                <div className={styles.miniStatValue}>
-                  {formatTemperature(view.minNozzleTempC, preferences.temperatureUnit)}
-                </div>
-              </div>
+              <MiniStat
+                label="Print temp"
+                value={formatTemperature(view.minNozzleTempC, preferences.temperatureUnit)}
+              />
             )}
           </div>
 
           {editing && (
             <div className={styles.remainingEditSection}>
-              <div className={styles.remainingEditLabel}>Remaining weight</div>
+              <Text variant="label" as="div" className={styles.remainingEditLabel}>
+                Remaining weight
+              </Text>
               <input
                 type="range"
                 min={0}
@@ -450,79 +397,64 @@ export function FilamentDetail() {
           )}
 
           <div className={styles.spacer} />
-        </div>
+        </Card>
       </div>
 
       {spool.tag && (
-        <div className={styles.tagBand}>
+        <Card as="section" tone="accent" padding="lg" className={styles.tagBand}>
           <div className={styles.tagHeader}>
             <div className={styles.tagIcon} aria-hidden="true">
-              <svg
-                width={22}
-                height={22}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--color-brand)"
-                strokeWidth={2}
-                strokeLinecap="round"
-              >
-                <path d="M5 8a10 10 0 0 1 0 8" />
-                <path d="M9 5a15 15 0 0 1 0 14" />
-                <path d="M13 3a20 20 0 0 1 0 18" />
-                <circle cx={19} cy={12} r={1.4} fill="var(--color-brand)" stroke="none" />
-              </svg>
+              <NfcIcon size={22} />
             </div>
             <div>
               <div className={styles.tagTitleRow}>
-                <span className={styles.tagTitle}>NFC tag</span>
-                <span className={styles.healthBadge} data-healthy={spool.tag.healthy}>
-                  <span className={styles.healthDot} />
+                <Text variant="title" as="h2">
+                  NFC tag
+                </Text>
+                <Badge variant="status" tone={spool.tag.healthy ? 'success' : 'warning'}>
                   {spool.tag.healthy ? 'Healthy' : 'Needs attention'}
-                </span>
+                </Badge>
               </div>
-              <div className={styles.tagStandard}>{spool.tag.standard}</div>
+              <Text variant="meta" as="div" className={styles.tagStandard}>
+                {spool.tag.standard}
+              </Text>
             </div>
           </div>
           <div className={styles.tagStats}>
-            <div>
-              <div className={styles.tagStatLabel}>TAG UID</div>
-              <div className={styles.tagStatValue}>{spool.tag.uid}</div>
-            </div>
-            <div>
-              <div className={styles.tagStatLabel}>LAST SCANNED</div>
-              <div className={styles.tagStatValue}>
-                {formatRelativeTime(spool.tag.lastScannedAt)}
-              </div>
-            </div>
-            <div>
-              <div className={styles.tagStatLabel}>LAST WRITTEN</div>
-              <div className={styles.tagStatValue}>
-                {formatRelativeTime(spool.tag.lastWrittenAt)}
-              </div>
-            </div>
+            <Stat size="sm" label="Tag UID" value={spool.tag.uid} />
+            <Stat
+              size="sm"
+              label="Last scanned"
+              value={formatRelativeTime(spool.tag.lastScannedAt)}
+            />
+            <Stat
+              size="sm"
+              label="Last written"
+              value={formatRelativeTime(spool.tag.lastWrittenAt)}
+            />
             {spool.tag.memoryUsedBytes !== undefined && spool.tag.memoryTotalBytes && (
               <div>
-                <div className={styles.tagStatLabel}>MEMORY USED</div>
-                <div className={styles.tagStatValue}>
-                  {spool.tag.memoryUsedBytes} / {spool.tag.memoryTotalBytes} bytes
-                </div>
-                <div className={styles.memoryTrack}>
-                  <div
-                    className={styles.memoryFill}
-                    style={{
-                      width: `${(spool.tag.memoryUsedBytes / spool.tag.memoryTotalBytes) * 100}%`,
-                    }}
-                  />
-                </div>
+                <Stat
+                  size="sm"
+                  label="Memory used"
+                  value={`${spool.tag.memoryUsedBytes} / ${spool.tag.memoryTotalBytes} bytes`}
+                />
+                <ProgressBar
+                  size="sm"
+                  label="Tag memory used"
+                  value={spool.tag.memoryUsedBytes}
+                  max={spool.tag.memoryTotalBytes}
+                  className={styles.memoryBar}
+                />
               </div>
             )}
           </div>
-        </div>
+        </Card>
       )}
 
       <div className={styles.detailGrid}>
         <DetailCard
-          title="PRINT SETTINGS"
+          title="Print settings"
           rows={[
             editing
               ? {
@@ -576,7 +508,7 @@ export function FilamentDetail() {
         />
 
         <DetailCard
-          title="PHYSICAL"
+          title="Physical"
           rows={[
             {
               label: 'Diameter',
@@ -616,7 +548,7 @@ export function FilamentDetail() {
 
         {(editing || spool.dryingTempC || spool.dryingTimeMin) && (
           <DetailCard
-            title="DRYING"
+            title="Drying"
             rows={[
               editing
                 ? {
@@ -643,7 +575,7 @@ export function FilamentDetail() {
 
         {(editing || view.purchasePriceCents !== undefined) && (
           <DetailCard
-            title="COST & VALUE"
+            title="Cost & value"
             rows={[
               editing
                 ? {
@@ -681,7 +613,7 @@ export function FilamentDetail() {
         )}
 
         <DetailCard
-          title="IDENTITY & TAG"
+          title="Identity & tag"
           rows={[
             { label: 'Brand', value: view.brand },
             {
@@ -711,7 +643,7 @@ export function FilamentDetail() {
         />
 
         <DetailCard
-          title="STORAGE & ASSIGNMENT"
+          title="Storage & assignment"
           rows={[
             {
               label: 'Location',
@@ -722,20 +654,20 @@ export function FilamentDetail() {
             {
               label: 'Status',
               value: editing ? (
-                <select
+                <Select
+                  size="sm"
                   aria-label="Status"
-                  className={styles.editInput}
                   value={draft?.status}
                   onChange={(event) => updateDraft('status', event.target.value as Spool['status'])}
                 >
                   {SPOOL_STATUSES.map((status) => (
                     <option key={status} value={status}>
-                      {formatStatus(status)}
+                      {humanizeEnum(status)}
                     </option>
                   ))}
-                </select>
+                </Select>
               ) : (
-                formatStatus(view.status)
+                humanizeEnum(view.status)
               ),
               emphasize: !editing && view.status === 'in_use',
             },
@@ -749,5 +681,13 @@ export function FilamentDetail() {
 
       <UsageHistoryTable events={usageQuery.data ?? []} />
     </PageShell>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <Card tone="sunken" padding="none" className={styles.miniStat}>
+      <Stat label={label} value={value} />
+    </Card>
   );
 }

@@ -94,7 +94,7 @@ describe('InventoryHome', () => {
     fireEvent.click(screen.getByRole('button', { name: /filters/i }));
     expect(screen.getByText('Material type')).toBeInTheDocument();
 
-    fireEvent.mouseDown(screen.getByRole('heading', { name: 'Inventory' }));
+    fireEvent.pointerDown(screen.getByRole('heading', { name: 'Inventory' }));
     expect(screen.queryByText('Material type')).not.toBeInTheDocument();
   });
 
@@ -164,7 +164,7 @@ describe('InventoryHome', () => {
     renderWithProviders(<InventoryHome />);
 
     await screen.findByRole('heading', { name: 'Inventory' });
-    expect(screen.queryByRole('button', { name: /scan.*add spool/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /scan.*add spool/i })).not.toBeInTheDocument();
   });
 
   it('shows the add-spool button when a member caller has filament:create', async () => {
@@ -183,6 +183,6 @@ describe('InventoryHome', () => {
     renderWithProviders(<InventoryHome />);
 
     await screen.findByRole('heading', { name: 'Inventory' });
-    expect(screen.getByRole('button', { name: /scan.*add spool/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /scan.*add spool/i })).toHaveAttribute('href', '/scan');
   });
 });

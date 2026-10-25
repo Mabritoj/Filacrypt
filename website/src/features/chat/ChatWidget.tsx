@@ -1,16 +1,20 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSpools } from '../../api/spools';
 import { usePreferences } from '../../api/user';
 import { useWorkspace } from '../../api/workspace';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
+import { Alert } from '../../components/Alert';
+import { Button } from '../../components/Button';
+import { IconButton } from '../../components/IconButton';
+import { CloseIcon, SpoolIcon } from '../../components/icons';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import { SpoolCard } from '../inventory/SpoolCard';
 import { useChatStream } from './useChatStream';
 import styles from './ChatWidget.module.css';
 import spinStyles from '../../components/spoolSpin.module.css';
 
 export function ChatWidget() {
-  const navigate = useNavigate();
   const workspaceId = useWorkspaceId() ?? '';
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState('');
@@ -45,74 +49,21 @@ export function ChatWidget() {
         onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? 'Close inventory assistant chat' : 'Open inventory assistant chat'}
       >
-        <svg
-          className={isStreaming ? spinStyles.spin : undefined}
-          width={28}
-          height={28}
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx={12} cy={12} r={10} stroke="var(--color-border-strong)" strokeWidth={1} />
-          <circle
-            cx={12}
-            cy={12}
-            r={8.5}
-            stroke="var(--color-brand-ink)"
-            strokeOpacity={0.9}
-            strokeWidth={1.2}
-            strokeLinecap="round"
-            strokeDasharray="3 2"
-          />
-          <circle
-            cx={12}
-            cy={12}
-            r={7}
-            stroke="var(--color-brand-ink)"
-            strokeOpacity={0.7}
-            strokeWidth={1.2}
-            strokeLinecap="round"
-            strokeDasharray="3 2"
-            strokeDashoffset={1.5}
-          />
-          <circle
-            cx={12}
-            cy={12}
-            r={5.5}
-            stroke="var(--color-brand-ink)"
-            strokeOpacity={0.5}
-            strokeWidth={1.2}
-            strokeLinecap="round"
-            strokeDasharray="2.5 2"
-            strokeDashoffset={0.8}
-          />
-          <circle
-            cx={12}
-            cy={12}
-            r={4}
-            stroke="var(--color-brand-ink)"
-            strokeOpacity={0.35}
-            strokeWidth={1.2}
-            strokeLinecap="round"
-            strokeDasharray="2 1.5"
-            strokeDashoffset={1.2}
-          />
-          <circle cx={12} cy={12} r={2} fill="var(--color-brand-ink)" />
-        </svg>
+        <SpoolIcon size={28} className={isStreaming ? spinStyles.spin : undefined} />
       </button>
 
       {isOpen && (
         <div className={styles.panel}>
           <div className={styles.header}>
-            <span>Inventory assistant</span>
-            <button
-              type="button"
-              className={styles.close}
+            <Text variant="title" as="h2">
+              Inventory assistant
+            </Text>
+            <IconButton
+              label="Close chat"
+              size="sm"
+              icon={<CloseIcon />}
               onClick={() => setIsOpen(false)}
-              aria-label="Close chat"
-            >
-              ×
-            </button>
+            />
           </div>
 
           <div className={styles.log}>
@@ -137,7 +88,6 @@ export function ChatWidget() {
                           spool={spool}
                           lowStockThresholdG={lowStockThresholdG}
                           weightUnit={preferences.weightUnit}
-                          onClick={() => navigate(`/inventory/${spool.id}`)}
                         />
                       ))}
                   </div>
@@ -145,20 +95,20 @@ export function ChatWidget() {
               </div>
             ))}
 
-            {error && <p className={styles.error}>{error}</p>}
+            {error && <Alert tone="error">{error}</Alert>}
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
-            <input
+            <TextInput
               className={styles.input}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               placeholder="Ask about your spools…"
               aria-label="Ask a question"
             />
-            <button type="submit" className={styles.send} disabled={isStreaming || !draft.trim()}>
-              {isStreaming ? '…' : 'Send'}
-            </button>
+            <Button type="submit" loading={isStreaming} disabled={!draft.trim()}>
+              Send
+            </Button>
           </form>
         </div>
       )}

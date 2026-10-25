@@ -19,7 +19,7 @@ describe('useDismissablePanel', () => {
     const onClose = vi.fn();
     const { getByText } = render(<TestPanel isOpen onClose={onClose} />);
 
-    fireEvent.mouseDown(getByText('Outside'));
+    fireEvent.pointerDown(getByText('Outside'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -27,7 +27,7 @@ describe('useDismissablePanel', () => {
     const onClose = vi.fn();
     const { getByText } = render(<TestPanel isOpen onClose={onClose} />);
 
-    fireEvent.mouseDown(getByText('Inside'));
+    fireEvent.pointerDown(getByText('Inside'));
     expect(onClose).not.toHaveBeenCalled();
   });
 
@@ -43,7 +43,7 @@ describe('useDismissablePanel', () => {
     const onClose = vi.fn();
     const { getByText } = render(<TestPanel isOpen={false} onClose={onClose} />);
 
-    fireEvent.mouseDown(getByText('Outside'));
+    fireEvent.pointerDown(getByText('Outside'));
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).not.toHaveBeenCalled();
   });

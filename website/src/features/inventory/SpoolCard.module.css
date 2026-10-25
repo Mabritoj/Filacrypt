@@ -1,15 +1,5 @@
 .card {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  text-align: left;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 13px;
   padding: 15px;
-  cursor: pointer;
-  font-family: inherit;
-  color: inherit;
 }
 
 .top {
@@ -21,9 +11,10 @@
 .swatch {
   width: 46px;
   height: 46px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   flex: none;
   border: 1px solid var(--color-border-strong);
+  background: var(--swatch);
 }
 
 .identity {
@@ -32,17 +23,12 @@
 }
 
 .name {
-  font:
-    600 14px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-base) var(--font-sans);
   letter-spacing: -0.01em;
+  color: var(--color-text);
 }
 
 .brand {
-  font:
-    500 12px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text-muted);
   margin-top: 3px;
 }
 
@@ -53,28 +39,6 @@
   gap: 5px;
 }
 
-.materialBadge {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted-2);
-  padding: 3px 7px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 6px;
-}
-
-.lowBadge {
-  font:
-    700 9px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.06em;
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
-  padding: 2px 6px;
-  border-radius: 5px;
-}
-
 .progress {
   margin-top: 16px;
 }
@@ -82,9 +46,7 @@
 .progressLabel {
   display: flex;
   justify-content: space-between;
-  font:
-    500 11px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-xs) var(--font-sans);
   color: var(--color-text-muted);
   margin-bottom: 6px;
 }
@@ -92,19 +54,6 @@
 .progressValue {
   color: var(--color-text);
   font-weight: 600;
-}
-
-.progressTrack {
-  height: 7px;
-  background: var(--color-border);
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: var(--color-brand);
-  border-radius: 99px;
 }
 
 .specs {
@@ -115,19 +64,11 @@
   margin-top: 15px;
   padding-top: 13px;
   border-top: 1px solid var(--color-border);
-}
-
-.specLabel {
-  font:
-    600 9px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.07em;
-  color: var(--color-text-muted);
+  margin-bottom: 0;
 }
 
 .specValue {
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
-  margin-top: 2px;
+  margin: 2px 0 0;
+  font: 600 var(--text-sm) var(--font-sans);
+  color: var(--color-text);
 }

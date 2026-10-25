@@ -1,5 +1,12 @@
+import type { CSSProperties, ReactNode } from 'react';
 import type { MaterialTag, MaterialType } from '../../api/types';
+import { Button } from '../../components/Button';
+import { Checkbox } from '../../components/Checkbox';
+import { Chip } from '../../components/Chip';
+import { Select } from '../../components/Select';
+import { Text } from '../../components/Text';
 import styles from './FilterPanel.module.css';
+import { humanizeEnum } from '../../utils/format';
 
 export interface FilterPanelProps {
   availableMaterialTypes: MaterialType[];
@@ -18,10 +25,6 @@ export interface FilterPanelProps {
   onToggleLowStockOnly: () => void;
   onReset: () => void;
   onClose: () => void;
-}
-
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function FilterPanel({
@@ -45,77 +48,66 @@ export function FilterPanel({
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <span className={styles.title}>Filters</span>
-        <button type="button" className={styles.close} onClick={onClose}>
+        <Text variant="title" as="h2">
+          Filters
+        </Text>
+        <Button variant="ghost" size="sm" onClick={onClose}>
           Close
-        </button>
+        </Button>
       </div>
 
       {availableMaterialTypes.length > 0 && (
-        <>
-          <div className={styles.sectionLabel}>Material type</div>
+        <Section label="Material type">
           <div className={styles.chips}>
             {availableMaterialTypes.map((materialType) => (
-              <button
+              <Chip
                 key={materialType}
-                type="button"
-                className={styles.chip}
-                data-active={materialTypes.includes(materialType)}
-                aria-pressed={materialTypes.includes(materialType)}
+                pressed={materialTypes.includes(materialType)}
                 onClick={() => onToggleMaterialType(materialType)}
               >
                 {materialType}
-              </button>
+              </Chip>
             ))}
           </div>
-        </>
+        </Section>
       )}
 
       {availableTags.length > 0 && (
-        <>
-          <div className={styles.sectionLabel}>Finish</div>
+        <Section label="Finish">
           <div className={styles.chips}>
             {availableTags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                className={styles.chip}
-                data-active={tags.includes(tag)}
-                aria-pressed={tags.includes(tag)}
-                onClick={() => onToggleTag(tag)}
-              >
-                {formatTag(tag)}
-              </button>
+              <Chip key={tag} pressed={tags.includes(tag)} onClick={() => onToggleTag(tag)}>
+                {humanizeEnum(tag)}
+              </Chip>
             ))}
           </div>
-        </>
+        </Section>
       )}
 
       {availableColors.length > 0 && (
-        <>
-          <div className={styles.sectionLabel}>Color</div>
+        <Section label="Color">
           <div className={styles.swatches}>
             {availableColors.map((hex) => (
               <button
                 key={hex}
                 type="button"
                 className={styles.swatch}
-                data-active={colors.includes(hex)}
                 aria-pressed={colors.includes(hex)}
-                style={{ background: hex }}
+                // The filament color is data, so it reaches CSS as a custom property.
+                style={{ '--swatch': hex } as CSSProperties}
                 aria-label={`Filter by color ${hex}`}
                 onClick={() => onToggleColor(hex)}
               />
             ))}
           </div>
-        </>
+        </Section>
       )}
 
       {availableBrands.length > 0 && (
-        <>
-          <div className={styles.sectionLabel}>Brand</div>
-          <select
-            className={styles.brandSelect}
+        <Section label="Brand">
+          <Select
+            size="sm"
+            aria-label="Brand"
             value={brand ?? ''}
             onChange={(event) => onSetBrand(event.target.value || null)}
           >
@@ -125,23 +117,33 @@ export function FilterPanel({
                 {b}
               </option>
             ))}
-          </select>
-        </>
+          </Select>
+        </Section>
       )}
 
-      <label className={styles.checkboxRow}>
-        <input type="checkbox" checked={lowStockOnly} onChange={onToggleLowStockOnly} />
+      <Checkbox className={styles.lowStock} checked={lowStockOnly} onChange={onToggleLowStockOnly}>
         Only show low stock
-      </label>
+      </Checkbox>
 
       <div className={styles.actions}>
-        <button type="button" className={styles.reset} onClick={onReset}>
+        <Button variant="secondary" className={styles.reset} onClick={onReset}>
           Reset
-        </button>
-        <button type="button" className={styles.apply} onClick={onClose}>
+        </Button>
+        <Button className={styles.apply} onClick={onClose}>
           Apply filters
-        </button>
+        </Button>
       </div>
+    </div>
+  );
+}
+
+function Section({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className={styles.section}>
+      <Text variant="label" as="div" className={styles.sectionLabel}>
+        {label}
+      </Text>
+      {children}
     </div>
   );
 }
