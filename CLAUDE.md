@@ -18,7 +18,7 @@ Always run `npm run typecheck && npm run lint` before committing.
 
 ## Architecture
 
-- `website/src/components/` — reusable UI components (Button, Modal, Table, etc.)
+- `website/src/components/` — the design-system primitives (see **Design System** below); `website/src/styles/` — `tokens.css` and the `typography.module.css` roles
 - `website/src/features/` — feature modules (auth, dashboard, settings), each with its own components, hooks, and API calls
 - `website/src/hooks/` — shared custom hooks
 - `website/src/api/types/` — domain type modules (`openPrintTag.ts`, `spool.ts`, `user.ts`), re-exported from `index.ts`
@@ -40,10 +40,28 @@ New readable entity (e.g. adding `Printer` fetching): add a fixture to `website/
 
 ```tsx
 // Good
-export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
-  return <button className={styles[variant]} onClick={onClick}>{label}</button>;
+export function Button({ label, onClick, variant = "primary" }: ButtonProps) {
+  return (
+    <button className={styles[variant]} onClick={onClick}>
+      {label}
+    </button>
+  );
 }
 ```
+
+## Design System
+
+Plan and history: `docs/design-system-alignment-plan.md`. Browse every primitive live, in both themes, at **`/__design`** (`npm run dev`; dev-only, excluded from production builds) — add new primitives there too.
+
+- **Reach for a primitive before writing a local control.** Hand-styling a `<button>`, `<input>`, card, badge or label in a feature module is how the app drifted in the first place.
+  - Actions: `Button` (`primary`/`secondary`/`ghost`/`destructive`, `sm`/`md`/`lg`, `loading`, `icon`), `IconButton` (icon-only; `label` is required), icons from `components/icons.tsx`.
+  - Forms: wrap a control in `Field` (label + hint + error, wired to the control through context) — `TextInput`, `NumberInput` (optional `unit` suffix), `Select`, `ColorInput`, `Checkbox`, `Switch`, `SegmentedControl` (one-of-many), `Chip` (toggle filters). Text controls render at 16px on touch devices so iOS doesn't zoom into them; don't override their font size.
+  - Display: `Text` (typography roles + tone), `Card`, `Stat`, `Badge` (`tag` or `status`), `ProgressBar`, `Alert`/`ErrorMessage`, `EmptyState`, `Pagination`, `Tabs`/`TabPanel`, `BrandMark`.
+  - Overlays: `Modal`/`ConfirmDialog` (native `<dialog>`; Escape closes, backdrop clicks don't unless `closeOnBackdropClick`), `Menu`/`MenuGroup`/`MenuItem` (keyboard-navigable dropdowns), `Popover` (anchored panel; a bottom sheet on phones).
+- **Polymorphism, two patterns.** When the element changes _behavior_, it's a discriminated union on the target: `Button`/`IconButton`/`MenuItem` render a router `Link` for `to`, an `<a>` for `href`, else a `<button type="button">` (`ActionElement.tsx`). When only the _tag_ changes, it's an `as` prop typed by `PolymorphicProps` (`Card`, `Text`) — e.g. `<Card as={Link} to={…} interactive>`. Anything that navigates must be a link, never a button with an `onClick` that calls `navigate`.
+- **A `className` passed to a primitive sets layout and margins only** (flex, grid placement, width, margin). Never override a primitive's padding, radius, color, font or display that way: it ties in specificity, so the result depends on CSS load order. Use a prop (`size`, `tone`, `padding`) instead; `Card padding="none"` leaves padding entirely to you. If an override is truly needed, scope it (`.parent .child`) so it wins deliberately.
+- **Write labels in sentence case.** Caps are a style (`Text variant="label"`/`"eyebrow"`, Field labels), so JSX says `"Net weight"`, never `"NET WEIGHT"` — screen readers may spell out all-caps strings, and tests query the real text.
+- Formatting helpers live in `website/src/utils/format.ts` (`humanizeEnum`, `formatDate`, `formatRelativeTime`, `formatDuration`) and `utils/units.ts` — don't redefine them per component.
 
 ## State Management
 
@@ -59,6 +77,8 @@ export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
 - Every component should have at least a smoke test (renders without crashing)
 - Mock API calls with MSW (Mock Service Worker), not jest.mock
 - Place test utilities in `website/src/test/helpers.ts`
+- jsdom has no `HTMLDialogElement.showModal()`; `src/test/dialogShim.ts` (installed from `setup.ts`) fills it in and, like browsers, fires `close` asynchronously — await it (`waitFor`) when asserting on a close. Simulate Escape on a dialog with `fireEvent(dialog, new Event('cancel', { cancelable: true }))`. Top-layer rendering, focus trapping and inertness aren't emulated: check overlays in a real browser.
+- When a control changes element (button → link), update the _negative_ assertions too — `queryByRole('button', …)` against something that's now a link passes vacuously.
 
 ## TypeScript
 
@@ -76,10 +96,11 @@ export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
 
 ## Layout & Theming
 
-- Every page's outer container must render the global `app-container` class (defined in `website/src/index.css`, width from the `--content-max-width` CSS var) alongside its own CSS-module class — e.g. `className={\`app-container ${styles.container}\`}`. Never declare a page-local `max-width` on the container. This is a real-bug fix: Landing, Inventory Home, and Filament Detail were each built from a separate Claude Design mockup and ended up with three different widths (1120/1140/1080px), which made the header visibly shift sideways when navigating between pages.
+- Every page's outer container must render the global `app-container` class (defined in `website/src/index.css`, width from the `--content-max-width` token in `website/src/styles/tokens.css`) alongside its own CSS-module class — e.g. `className={\`app-container ${styles.container}\`}`. Never declare a page-local `max-width` on the container. This is a real-bug fix: Landing, Inventory Home, and Filament Detail were each built from a separate Claude Design mockup and ended up with three different widths (1120/1140/1080px), which made the header visibly shift sideways when navigating between pages.
 - Authenticated app pages (everything except `Landing`) use `website/src/components/AppHeader.tsx` for their top bar (brand mark/name + optional `breadcrumb` + optional `actions` + `ProfileMenu`) instead of building their own header — keeps the logo's size and position identical across pages. `Landing` keeps its own marketing nav (different links, logged-out) but matches the same brand-mark sizing.
 - **Claude Design mockups are not pixel-consistent with each other** — each screen is generated independently, so container widths, header sizing, and spacing all drift slightly between screens even though they look identical at a glance. When implementing a new page from a mockup, treat its layout chrome (container width, header, spacing) as reference only; use the shared conventions above rather than the mockup's literal values.
-- Theme: `useThemeStore` (`website/src/stores/themeStore.ts`) holds `'dark' | 'light'`; `App.tsx` syncs it to `document.documentElement`'s `data-theme` attribute on change. All CSS must read colors via the `var(--color-*)` custom properties defined per-theme in `website/src/index.css` (e.g. `var(--color-surface)`, `var(--color-text-muted)`) — never hardcode a hex color in a CSS module, or it won't respond to the theme toggle.
+- Theme: `useThemeStore` (`website/src/stores/themeStore.ts`) holds `'dark' | 'light'`; `App.tsx` syncs it to `document.documentElement`'s `data-theme` attribute on change. All design values live in `website/src/styles/tokens.css`: colors as `var(--color-*)` redefined per theme (e.g. `var(--color-surface)`, `var(--color-text-muted)`), plus theme-independent scales — `--font-sans`/`--font-mono`, `--text-*` sizes, `--radius-*`, `--shadow-*`, `--z-*`, `--space-*`. Never hardcode a hex/rgb color, a font name, or `outline: none` in a stylesheet — `src/test/cssGuardrails.test.ts` fails the build on all three. Use `--color-warning` for needs-attention states (low stock) and `--color-destructive` for errors and irreversible actions.
+- Themes are keyed on `[data-theme]`, not just `:root`, so a subtree can opt in: the always-dark Landing and Login render `data-theme="dark"` on their page root (and set `color: var(--color-text)`, since `color` doesn't re-resolve on its own). Never force a look by mutating the global theme store.
 - `html { scrollbar-gutter: stable }` is intentional — without it, centered content shifts a few px between pages that do/don't have a vertical scrollbar. Don't remove it.
 
 ## Workflow
@@ -97,7 +118,7 @@ export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
 
 - Do not use `any` without a justifying comment
 - Do not add new dependencies without discussing first
-- Do not use inline styles — use CSS Modules
+- Do not use inline styles — use CSS Modules. The one exception is runtime data CSS can't know (a spool's color, a progress percentage): pass it as a custom property only, `style={{ '--swatch': hex } as CSSProperties}`, and let the module use `var(--swatch)`.
 - Do not use default exports
 
 ## Backend (AWS SAM)

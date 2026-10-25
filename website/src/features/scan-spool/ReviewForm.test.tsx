@@ -49,9 +49,9 @@ describe('ReviewForm', () => {
       />,
     );
 
-    expect(screen.getByLabelText('Empty spool weight (g)')).toHaveValue(215);
+    expect(screen.getByLabelText('Empty spool weight')).toHaveValue(215);
 
-    fireEvent.change(screen.getByLabelText('Empty spool weight (g)'), {
+    fireEvent.change(screen.getByLabelText('Empty spool weight'), {
       target: { value: '250' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Add to inventory' }));

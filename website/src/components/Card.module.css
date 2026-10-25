@@ -1,0 +1,67 @@
+.card {
+  display: block;
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid;
+  border-radius: var(--radius-lg);
+}
+
+/* padding (larger cards also round more). `none` has no rule on purpose: it
+   leaves padding to the caller's className without a specificity tie. */
+
+.sm {
+  padding: 14px 16px;
+}
+
+.md {
+  padding: 18px 20px;
+}
+
+.lg {
+  padding: 22px;
+  border-radius: var(--radius-xl);
+}
+
+/* tones */
+
+.default {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.sunken {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+}
+
+.accent {
+  background: var(--color-accent-tint-bg);
+  border-color: var(--color-accent-tint-border);
+}
+
+.destructive {
+  background: color-mix(in srgb, var(--color-destructive) 5%, transparent);
+  border-color: var(--color-destructive-bg);
+}
+
+/* Clickable cards: also resets button/link defaults so `as="button"` and
+   `as={Link}` look like every other card. `:hover` doubles the class so it
+   outranks the global `a:hover` color. */
+
+.interactive {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.interactive,
+.interactive:hover {
+  color: inherit;
+}
+
+.interactive:hover {
+  border-color: var(--color-border-strong);
+}

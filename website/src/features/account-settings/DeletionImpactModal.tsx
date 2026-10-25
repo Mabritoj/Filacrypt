@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button } from '../../components/Button';
-import { Modal } from '../../components/Modal';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { Select } from '../../components/Select';
 import type { DeletionImpactWorkspace, WorkspaceResolution } from '../../api/user';
 import styles from './DeletionImpactModal.module.css';
 
@@ -33,7 +33,14 @@ export function DeletionImpactModal({
   }
 
   return (
-    <Modal title="Before you go — resolve ownership" onCancel={onCancel}>
+    <ConfirmDialog
+      title="Before you go — resolve ownership"
+      confirmLabel="Continue"
+      confirmDisabled={!allResolved}
+      onConfirm={() => onResolved(choices)}
+      onCancel={onCancel}
+      size="md"
+    >
       <p>You own the following workspaces with other members. Choose what happens to each one.</p>
 
       {workspaces.map((workspace) => {
@@ -55,7 +62,9 @@ export function DeletionImpactModal({
                 checked={choice?.action === 'reassign'}
               />
               Reassign to
-              <select
+              <Select
+                size="sm"
+                className={styles.select}
                 disabled={choice?.action !== 'reassign'}
                 value={choice?.action === 'reassign' ? choice.newOwnerId : ''}
                 onChange={(event) => setReassign(workspace.workspaceId, event.target.value)}
@@ -68,7 +77,7 @@ export function DeletionImpactModal({
                     {member.name} ({member.role})
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
 
             <label className={styles.option}>
@@ -83,15 +92,6 @@ export function DeletionImpactModal({
           </fieldset>
         );
       })}
-
-      <div className={styles.modalActions}>
-        <Button variant="ghost" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button variant="danger" disabled={!allResolved} onClick={() => onResolved(choices)}>
-          Continue
-        </Button>
-      </div>
-    </Modal>
+    </ConfirmDialog>
   );
 }

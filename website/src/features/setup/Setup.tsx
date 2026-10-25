@@ -1,9 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetupProfile } from '../../api/user';
-import { PageShell } from '../../components/PageShell';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { Field } from '../../components/Field';
+import { PageShell } from '../../components/PageShell';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import styles from './Setup.module.css';
 
 export function Setup() {
@@ -25,36 +29,38 @@ export function Setup() {
   return (
     <PageShell>
       <div className={styles.wrapper}>
-        <form className={styles.card} onSubmit={handleSubmit}>
-          <h1 className={styles.title}>Welcome to Filacrypt</h1>
-          <p className={styles.subtitle}>Let&apos;s set up your profile.</p>
+        <Card as="form" padding="none" className={styles.card} onSubmit={handleSubmit}>
+          <div>
+            <Text variant="h1">Welcome to Filacrypt</Text>
+            <Text tone="muted" className={styles.subtitle}>
+              Let&apos;s set up your profile.
+            </Text>
+          </div>
 
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Name</span>
-            <input
-              className={styles.input}
+          <Field label="Name">
+            <TextInput
               value={name}
               onChange={(event) => setName(event.target.value)}
+              autoComplete="name"
               required
             />
-          </label>
+          </Field>
 
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Username</span>
-            <input
-              className={styles.input}
+          <Field label="Username">
+            <TextInput
               value={username}
               onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
               required
             />
-          </label>
+          </Field>
 
           {setupProfile.isError && <ErrorMessage message={setupProfile.error.message} />}
 
-          <Button type="submit" disabled={setupProfile.isPending}>
+          <Button type="submit" loading={setupProfile.isPending}>
             {setupProfile.isPending ? 'Setting up…' : 'Continue'}
           </Button>
-        </form>
+        </Card>
       </div>
     </PageShell>
   );

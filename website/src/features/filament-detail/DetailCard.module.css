@@ -1,23 +1,16 @@
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  padding: 18px 20px;
+.title {
+  margin-bottom: 8px;
 }
 
-.title {
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
-  margin-bottom: 8px;
+.list {
+  margin: 0;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 9px 0;
   border-bottom: 1px solid var(--color-border);
 }
@@ -27,16 +20,14 @@
 }
 
 .label {
-  font:
-    500 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-md) var(--font-sans);
   color: var(--color-text-muted);
 }
 
 .value {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  margin: 0;
+  min-width: 0;
+  font: 600 var(--text-md) var(--font-sans);
   color: var(--color-text);
   text-align: right;
 }

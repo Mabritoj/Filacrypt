@@ -1,0 +1,15 @@
+.select {
+  composes: control from './TextInput.module.css';
+  appearance: none;
+  padding-right: 32px;
+  cursor: pointer;
+  /* Chevron drawn from currentColor so it follows the theme. */
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 17px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}

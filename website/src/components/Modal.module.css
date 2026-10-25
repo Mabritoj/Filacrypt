@@ -1,34 +1,58 @@
-.backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgb(0 0 0 / 55%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 1000;
+/* A native modal <dialog>: the browser puts it in the top layer (no z-index
+   needed), makes the rest of the page inert and traps focus inside. */
+.dialog {
+  box-sizing: border-box;
+  width: calc(100% - 40px);
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-modal);
 }
 
-.panel {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 13px;
-  padding: 24px;
-  width: 100%;
+.dialog::backdrop {
+  background: var(--color-overlay);
+}
+
+.sm {
   max-width: 400px;
-  box-sizing: border-box;
+}
+
+.md {
+  max-width: 520px;
+}
+
+/* Padding lives here, not on the dialog, so a click that lands on the dialog
+   element itself can only have come from the backdrop. */
+.content {
+  padding: 24px;
 }
 
 .title {
-  font:
-    600 17px 'Hanken Grotesk',
-    sans-serif;
   margin: 0 0 10px;
+  font: 600 var(--text-xl) var(--font-sans);
 }
 
 .body {
-  font:
-    500 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 500 var(--text-md) / 1.5 var(--font-sans);
   color: var(--color-text-muted);
+}
+
+.body > p:first-child {
+  margin-top: 0;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 20px;
+  }
 }

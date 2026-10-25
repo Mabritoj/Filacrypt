@@ -1,0 +1,52 @@
+.stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.labelBottom {
+  flex-direction: column-reverse;
+}
+
+.value {
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.unit {
+  margin-left: 0.2em;
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--color-text-muted);
+}
+
+.sm {
+  gap: 4px;
+}
+
+.sm .value {
+  font: 600 var(--text-md) var(--font-sans);
+}
+
+.md {
+  gap: 6px;
+}
+
+.md .value {
+  font: 700 var(--text-2xl) var(--font-sans);
+}
+
+.lg {
+  gap: 8px;
+}
+
+.lg .value {
+  font: 700 var(--text-3xl) var(--font-sans);
+  letter-spacing: -0.02em;
+}
+
+.warning .value {
+  color: var(--color-warning);
+}

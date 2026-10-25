@@ -9,16 +9,12 @@
 }
 
 .link {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
   color: var(--color-text-muted);
 }
 
 .current {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
+  font: 600 var(--text-md) var(--font-sans);
   color: var(--color-text);
 }
 

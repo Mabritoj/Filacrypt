@@ -1,7 +1,14 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
-import { Modal } from '../../components/Modal';
+import { Card } from '../../components/Card';
+import { Checkbox } from '../../components/Checkbox';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { Field } from '../../components/Field';
+import { Select } from '../../components/Select';
+import { Text } from '../../components/Text';
+import { TextInput } from '../../components/TextInput';
 import {
   useMembers,
   useInviteMember,
@@ -24,6 +31,7 @@ const ROLE_RANK: Record<WorkspaceRole, number> = { owner: 0, admin: 1, member: 2
 export function MembersSection({ workspaceId, callerRole }: MembersSectionProps) {
   const [draftEmail, setDraftEmail] = useState('');
   const [removing, setRemoving] = useState<WorkspaceMember | null>(null);
+  const headingId = useId();
 
   const membersQuery = useMembers(workspaceId);
   const inviteMember = useInviteMember(workspaceId);
@@ -65,22 +73,29 @@ export function MembersSection({ workspaceId, callerRole }: MembersSectionProps)
   }
 
   return (
-    <section className={styles.section}>
-      <h2 className={styles.heading}>Members</h2>
+    <Card as="section" padding="lg" aria-labelledby={headingId}>
+      <Text variant="title" as="h2" id={headingId} className={styles.heading}>
+        Members
+      </Text>
 
       {membersQuery.isError && <ErrorMessage message={membersQuery.error.message} />}
 
       {members && (
         <ul className={styles.roster}>
           {members.map((member) => (
-            <li key={member.userId} className={styles.row}>
+            <Card as="li" key={member.userId} padding="sm" className={styles.row}>
               <div className={styles.identity}>
-                <span className={styles.name}>{member.name}</span>
-                <span className={styles.email}>{member.email}</span>
+                <Text as="span" className={styles.name}>
+                  {member.name}
+                </Text>
+                <Text variant="meta" className={styles.email}>
+                  {member.email}
+                </Text>
               </div>
 
               {canChangeRoles && member.role !== 'owner' ? (
-                <select
+                <Select
+                  size="sm"
                   aria-label={`Role for ${member.name}`}
                   className={styles.roleSelect}
                   value={member.role}
@@ -90,68 +105,63 @@ export function MembersSection({ workspaceId, callerRole }: MembersSectionProps)
                 >
                   <option value="admin">Admin</option>
                   <option value="member">Member</option>
-                </select>
+                </Select>
               ) : (
-                <span className={styles.roleLabel}>{member.role}</span>
+                <Badge>{member.role}</Badge>
               )}
 
               {member.role === 'member' && canManage ? (
                 <div className={styles.permissions}>
                   {PERMISSION_KEYS.map((key) => (
-                    <label key={key} className={styles.permissionToggle}>
-                      <input
-                        type="checkbox"
-                        aria-label={key}
-                        checked={member.filamentPermissions?.[key] ?? false}
-                        onChange={(event) =>
-                          handlePermissionToggle(member, key, event.target.checked)
-                        }
-                      />
+                    <Checkbox
+                      key={key}
+                      className={styles.permission}
+                      checked={member.filamentPermissions?.[key] ?? false}
+                      onChange={(event) =>
+                        handlePermissionToggle(member, key, event.target.checked)
+                      }
+                    >
                       {key}
-                    </label>
+                    </Checkbox>
                   ))}
                 </div>
-              ) : member.role === 'member' ? (
-                <span className={styles.permissionsSummary}>
-                  {PERMISSION_KEYS.filter((key) => member.filamentPermissions?.[key]).join(', ') ||
-                    'No access'}
-                </span>
               ) : (
-                <span className={styles.permissionsSummary}>Full access</span>
+                <Text variant="meta" className={styles.permissionsSummary}>
+                  {member.role === 'member'
+                    ? PERMISSION_KEYS.filter((key) => member.filamentPermissions?.[key]).join(
+                        ', ',
+                      ) || 'No access'
+                    : 'Full access'}
+                </Text>
               )}
 
               {canManage && member.role !== 'owner' && (
                 <Button
                   variant="ghost"
+                  size="sm"
                   onClick={() => setRemoving(member)}
                   aria-label={`Remove ${member.name}`}
                 >
                   Remove
                 </Button>
               )}
-            </li>
+            </Card>
           ))}
         </ul>
       )}
 
       {canManage && (
         <form className={styles.inviteForm} onSubmit={handleInvite}>
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Invite by email</span>
-            <input
+          <Field label="Invite by email" className={styles.inviteField}>
+            <TextInput
               type="email"
-              aria-label="Email"
-              className={styles.input}
               value={draftEmail}
               onChange={(event) => setDraftEmail(event.target.value)}
               placeholder="someone@example.com"
+              autoComplete="off"
             />
-          </label>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={inviteMember.isPending || !draftEmail.trim()}
-          >
+          </Field>
+          <Button type="submit" loading={inviteMember.isPending} disabled={!draftEmail.trim()}>
             {inviteMember.isPending ? 'Inviting…' : 'Invite'}
           </Button>
         </form>
@@ -161,19 +171,18 @@ export function MembersSection({ workspaceId, callerRole }: MembersSectionProps)
       {updatePermissions.isError && <ErrorMessage message={updatePermissions.error.message} />}
 
       {removing && (
-        <Modal title={`Remove ${removing.name}?`} onCancel={() => setRemoving(null)}>
+        <ConfirmDialog
+          title={`Remove ${removing.name}?`}
+          confirmLabel="Remove"
+          pendingLabel="Removing…"
+          pending={removeMember.isPending}
+          error={removeMember.error?.message}
+          onConfirm={confirmRemove}
+          onCancel={() => setRemoving(null)}
+        >
           <p>They will lose access to this workspace immediately.</p>
-          {removeMember.isError && <ErrorMessage message={removeMember.error.message} />}
-          <div className={styles.modalActions}>
-            <Button variant="ghost" onClick={() => setRemoving(null)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={confirmRemove} disabled={removeMember.isPending}>
-              {removeMember.isPending ? 'Removing…' : 'Remove'}
-            </Button>
-          </div>
-        </Modal>
+        </ConfirmDialog>
       )}
-    </section>
+    </Card>
   );
 }

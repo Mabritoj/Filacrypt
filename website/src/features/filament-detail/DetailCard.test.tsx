@@ -7,7 +7,7 @@ describe('DetailCard', () => {
   it('renders the title and every row label/value', () => {
     renderWithProviders(
       <DetailCard
-        title="PHYSICAL"
+        title="Physical"
         rows={[
           { label: 'Diameter', value: '1.75 mm' },
           { label: 'Density', value: '1.24 g/cm³' },
@@ -15,7 +15,7 @@ describe('DetailCard', () => {
       />,
     );
 
-    expect(screen.getByText('PHYSICAL')).toBeInTheDocument();
+    expect(screen.getByText('Physical')).toBeInTheDocument();
     expect(screen.getByText('Diameter')).toBeInTheDocument();
     expect(screen.getByText('1.75 mm')).toBeInTheDocument();
     expect(screen.getByText('Density')).toBeInTheDocument();

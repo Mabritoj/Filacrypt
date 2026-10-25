@@ -1,143 +1,7 @@
-.backLink {
-  display: block;
-  text-align: center;
-}
-
-.optionsWrap {
-  position: relative;
-}
-
-.optionsButton {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  cursor: pointer;
-  color: var(--color-text);
-  font-size: 16px;
-  line-height: 1;
-}
-
-.optionsMenu {
-  position: absolute;
-  top: 42px;
-  right: 0;
-  z-index: 50;
-  width: 180px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 11px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  padding: 6px;
-}
-
-.optionsItem {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  text-align: left;
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text);
-  background: none;
-  border: none;
-  border-radius: 7px;
-  padding: 9px 10px;
-  cursor: pointer;
-}
-
-.optionsItem:hover {
-  background: var(--color-chip);
-}
-
-.destructive {
-  color: var(--color-destructive);
-}
-
-.destructive:hover {
-  background: var(--color-destructive-bg);
-}
-
-.modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.editInput {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
-  padding: 7px 9px;
-  color: var(--color-text);
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  outline: none;
-}
-
-.editTitleInput {
-  font:
-    700 22px 'Hanken Grotesk',
-    sans-serif;
+.identityCard .editTitleInput {
+  font-size: var(--text-3xl);
+  font-weight: 700;
   padding: 8px 10px;
-}
-
-.editColorGroup {
-  display: flex;
-  align-items: center;
-  flex: none;
-  gap: 8px;
-}
-
-.editColorHexInput {
-  width: 100px;
-  flex: none;
-  box-sizing: border-box;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
-  padding: 7px 9px;
-  color: var(--color-text);
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  outline: none;
-}
-
-.editColorSwatch {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 9px;
-  background: none;
-  cursor: pointer;
-}
-
-.editColorSwatch::-webkit-color-swatch-wrapper {
-  padding: 0;
-  border-radius: 8px;
-}
-
-.editColorSwatch::-webkit-color-swatch {
-  border: none;
-  border-radius: 8px;
-}
-
-.editColorSwatch::-moz-color-swatch {
-  border: none;
-  border-radius: 8px;
 }
 
 .editRangeInputs {
@@ -153,10 +17,6 @@
 }
 
 .remainingEditLabel {
-  font:
-    600 12px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text-muted);
   margin-bottom: 10px;
 }
 
@@ -171,16 +31,12 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 10px;
-  font:
-    500 11px 'JetBrains Mono',
-    monospace;
+  font: 500 var(--text-xs) var(--font-mono);
   color: var(--color-text-muted);
 }
 
 .remainingEditValue {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
+  font: 700 var(--text-lg) var(--font-sans);
   color: var(--color-brand);
 }
 
@@ -196,30 +52,13 @@
 }
 
 .identityCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 24px;
   display: flex;
   flex-direction: column;
 }
 
 .brandLabel {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  letter-spacing: 0.02em;
-  color: var(--color-text-muted);
   margin-bottom: 7px;
-}
-
-.title {
-  margin: 0;
-  font:
-    700 34px/1.03 'Hanken Grotesk',
-    sans-serif;
-  letter-spacing: -0.02em;
-  color: var(--color-text);
+  letter-spacing: 0.02em;
 }
 
 .badges {
@@ -234,17 +73,6 @@
   min-width: 0;
 }
 
-.badge {
-  font:
-    600 11px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted-2);
-  padding: 3px 9px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 6px;
-}
-
 .miniStats {
   display: flex;
   gap: 10px;
@@ -255,26 +83,7 @@
 .miniStat {
   flex: 1;
   min-width: 90px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 11px;
   padding: 13px 15px;
-}
-
-.miniStatLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
-}
-
-.miniStatValue {
-  margin-top: 6px;
-  font:
-    700 18px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text);
 }
 
 .spacer {
@@ -282,10 +91,6 @@
 }
 
 .tagBand {
-  background: var(--color-accent-tint-bg);
-  border: 1px solid var(--color-accent-tint-border);
-  border-radius: 16px;
-  padding: 20px 22px;
   margin-bottom: 20px;
 }
 
@@ -299,8 +104,9 @@
 .tagIcon {
   width: 44px;
   height: 44px;
-  border-radius: 11px;
+  border-radius: var(--radius-lg);
   background: var(--color-chip);
+  color: var(--color-brand);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -313,44 +119,9 @@
   gap: 9px;
 }
 
-.tagTitle {
-  font:
-    700 15px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-text);
-}
-
-.healthBadge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font:
-    600 11px 'Hanken Grotesk',
-    sans-serif;
-  color: var(--color-success);
-  background: var(--color-success-bg);
-  padding: 3px 9px;
-  border-radius: 99px;
-}
-
-.healthBadge[data-healthy='false'] {
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
-}
-
-.healthDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
 .tagStandard {
-  font:
-    500 12px 'JetBrains Mono',
-    monospace;
-  color: var(--color-text-muted);
   margin-top: 4px;
+  font-family: var(--font-mono);
 }
 
 .tagStats {
@@ -360,34 +131,8 @@
   margin-top: 18px;
 }
 
-.tagStatLabel {
-  font:
-    600 10px 'JetBrains Mono',
-    monospace;
-  letter-spacing: 0.07em;
-  color: var(--color-text-muted);
-}
-
-.tagStatValue {
-  font:
-    600 13px 'Hanken Grotesk',
-    sans-serif;
-  margin-top: 5px;
-  color: var(--color-text);
-}
-
-.memoryTrack {
-  height: 5px;
-  background: var(--color-border);
-  border-radius: 99px;
+.memoryBar {
   margin-top: 6px;
-  overflow: hidden;
-}
-
-.memoryFill {
-  height: 100%;
-  background: var(--color-brand);
-  border-radius: 99px;
 }
 
 .detailGrid {

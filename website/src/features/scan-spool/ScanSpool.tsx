@@ -1,14 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAddSpool } from '../../api/spools';
 import { useUser } from '../../api/user';
 import { useWorkspace } from '../../api/workspace';
 import type { Spool, SpoolNfcTagStatus, Workspace } from '../../api/types';
+import { Alert } from '../../components/Alert';
 import { AppHeader } from '../../components/AppHeader';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { NfcIcon } from '../../components/icons';
 import { PageShell } from '../../components/PageShell';
+import { Text } from '../../components/Text';
 import { LoadingSpool } from '../../components/LoadingSpool';
 import { useWorkspaceId } from '../../hooks/useWorkspaceId';
 import { useNfcScan, type NfcScanError, type NfcScanResult } from '../../hooks/useNfcScan';
@@ -16,6 +20,7 @@ import type { OpenPrintTagPayload } from '../../utils/openPrintTag/types';
 import { ReviewForm, type ReviewFormValues } from './ReviewForm';
 import { payloadToReviewValues, payloadToSpoolExtras, payloadToTagStatus } from './tagToSpool';
 import styles from './ScanSpool.module.css';
+import { humanizeEnum } from '../../utils/format';
 
 /**
  * There is deliberately no separate "scanning" step: the reader card arms
@@ -45,10 +50,6 @@ function manualEntryDefaults(workspace: Workspace | undefined): ReviewFormValues
     bedTempC: 60,
     markFull: true,
   };
-}
-
-function formatTag(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 /** Errors that mean this tag won't get better -- go back and let them retry. */
@@ -262,7 +263,7 @@ export function ScanSpool() {
 
       <div className={styles.content}>
         {step === 'ready' && (
-          <div className={styles.card}>
+          <Card padding="none" className={styles.card}>
             <div className={styles.reader}>
               <span className={styles.pulse} />
               <span className={`${styles.pulse} ${styles.pulseDelayed}`} />
@@ -273,48 +274,32 @@ export function ScanSpool() {
                 title="Tap, then hold the spool to your phone"
                 aria-label="Scan a spool"
               >
-                <svg width={52} height={52} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M5 8a10 10 0 0 1 0 8"
-                    stroke="var(--color-brand)"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M9 5a15 15 0 0 1 0 14"
-                    stroke="var(--color-brand)"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M13 3a20 20 0 0 1 0 18"
-                    stroke="var(--color-brand)"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                  />
-                  <circle cx={19} cy={12} r={1.5} fill="var(--color-brand)" />
-                </svg>
+                <NfcIcon size={52} />
               </button>
             </div>
-            <h1 className={styles.title}>Scan a spool</h1>
-            <p className={styles.subtitle}>
+            <Text variant="h1">Scan a spool</Text>
+            <Text tone="muted" className={styles.subtitle}>
               {nfc.isScanning
                 ? 'Hold your tagged spool against the back of your phone — the OpenPrintTag is read and every field fills in automatically.'
                 : 'Tap the reader above to start scanning, then hold your tagged spool against the back of your phone.'}
-            </p>
+            </Text>
             <div className={styles.readerStatus} data-armed={nfc.isScanning}>
               <span className={styles.readerStatusDot} />
               {nfc.isScanning ? 'Listening for a tag' : 'Tap the reader to start'}
             </div>
-            {scanError && <div className={styles.scanError}>{scanError.message}</div>}
-            <button type="button" className={styles.manualLink} onClick={enterManually}>
+            {scanError && (
+              <Alert tone="error" className={styles.scanError}>
+                {scanError.message}
+              </Alert>
+            )}
+            <Button variant="ghost" className={styles.manualLink} onClick={enterManually}>
               Enter manually instead
-            </button>
-          </div>
+            </Button>
+          </Card>
         )}
 
         {step === 'detected' && (
-          <div className={styles.detectedCard}>
+          <Card padding="none" className={styles.detectedCard}>
             {source === 'tag' && scannedTag ? (
               <div className={styles.detectedBanner}>
                 <span className={styles.detectedDot} />
@@ -332,39 +317,7 @@ export function ScanSpool() {
               <div className={styles.manualBanner}>
                 <span className={styles.detectedTitle}>Manual entry</span>
                 {nfc.isSupported && (
-                  <Button
-                    variant="secondary"
-                    onClick={switchToNfc}
-                    icon={
-                      <svg
-                        width={14}
-                        height={14}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M5 8a10 10 0 0 1 0 8"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M9 5a15 15 0 0 1 0 14"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M13 3a20 20 0 0 1 0 18"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                        />
-                        <circle cx={19} cy={12} r={1.5} fill="currentColor" />
-                      </svg>
-                    }
-                  >
+                  <Button variant="secondary" onClick={switchToNfc} icon={<NfcIcon size={14} />}>
                     Switch to NFC
                   </Button>
                 )}
@@ -376,17 +329,20 @@ export function ScanSpool() {
                 <div className={styles.preview}>
                   <div
                     className={styles.previewSwatch}
-                    style={{ background: scannedTag.values.colorHex }}
+                    // The filament color is data, so it reaches CSS as a custom property.
+                    style={{ '--swatch': scannedTag.values.colorHex } as CSSProperties}
                   />
                   <div>
                     <div className={styles.previewName}>{scannedTag.values.materialName}</div>
                     <div className={styles.previewBrand}>
                       {scannedTag.values.brand} · {scannedTag.values.materialType}{' '}
-                      {formatTag(scannedTag.values.finish)}
+                      {humanizeEnum(scannedTag.values.finish)}
                     </div>
                   </div>
                   <div className={styles.previewWeight}>
-                    <div className={styles.previewWeightLabel}>ON TAG</div>
+                    <Text variant="label" as="div">
+                      On tag
+                    </Text>
                     <div className={styles.previewWeightValue}>
                       {scannedTag.values.netWeightG} g
                     </div>
@@ -394,9 +350,9 @@ export function ScanSpool() {
                 </div>
               )}
 
-              <div className={styles.reviewLabel}>
-                {source === 'tag' ? 'REVIEW & CONFIRM — pre-filled from tag' : 'SPOOL DETAILS'}
-              </div>
+              <Text variant="label" as="div" className={styles.reviewLabel}>
+                {source === 'tag' ? 'Review & confirm — pre-filled from tag' : 'Spool details'}
+              </Text>
 
               {addSpool.isError && <ErrorMessage message={addSpool.error.message} />}
 
@@ -407,26 +363,28 @@ export function ScanSpool() {
                 onSubmit={handleSubmit}
               />
             </div>
-          </div>
+          </Card>
         )}
 
         {step === 'added' && addedSpool && (
-          <div className={styles.card}>
-            <div className={styles.successIcon}>✓</div>
-            <h1 className={styles.title}>Added to inventory</h1>
-            <p className={styles.subtitle}>
+          <Card padding="none" className={styles.card}>
+            <div className={styles.successIcon} aria-hidden="true">
+              ✓
+            </div>
+            <Text variant="h1">Added to inventory</Text>
+            <Text tone="muted" className={styles.subtitle}>
               {addedSpool.materialName} · {addedSpool.brand} {addedSpool.materialType} is now
               tracked.
-            </p>
+            </Text>
             <div className={styles.finalActions}>
-              <Link to="/inventory" className={styles.viewInventoryButton}>
+              <Button to="/inventory" variant="secondary" size="lg">
                 View inventory
-              </Link>
-              <button type="button" className={styles.scanAnotherButton} onClick={reset}>
+              </Button>
+              <Button size="lg" onClick={reset}>
                 Scan another
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         )}
       </div>
     </PageShell>

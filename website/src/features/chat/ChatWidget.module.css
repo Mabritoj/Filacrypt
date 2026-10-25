@@ -2,7 +2,8 @@
   position: fixed;
   right: 20px;
   bottom: 20px;
-  z-index: 42;
+  /* Above its own panel so the toggle stays clickable. */
+  z-index: calc(var(--z-floating) + 1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,21 +12,22 @@
   border: none;
   border-radius: 50%;
   background: var(--color-brand);
+  color: var(--color-brand-ink);
   cursor: pointer;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+  box-shadow: var(--shadow-raised);
 }
 
 .panel {
   position: fixed;
   right: 20px;
   bottom: 88px;
-  z-index: 41;
+  z-index: var(--z-floating);
   display: flex;
   flex-direction: column;
   width: min(380px, calc(100vw - 32px));
   max-height: min(560px, calc(100vh - 108px));
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   overflow: hidden;
 }
@@ -36,17 +38,6 @@
   justify-content: space-between;
   padding: 12px 14px;
   border-bottom: 1px solid var(--color-border);
-  color: var(--color-text);
-  font-weight: 700;
-}
-
-.close {
-  border: none;
-  background: none;
-  color: var(--color-text-muted);
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
 }
 
 .log {
@@ -61,14 +52,14 @@
 
 .empty {
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: var(--text-base);
 }
 
 .user,
 .assistant {
   min-width: 0;
   color: var(--color-text);
-  font-size: 14px;
+  font-size: var(--text-base);
   line-height: 1.5;
   white-space: pre-wrap;
 }
@@ -77,7 +68,7 @@
   align-self: flex-end;
   max-width: 85%;
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--color-brand);
   color: var(--color-brand-ink);
 }
@@ -89,11 +80,6 @@
   margin-top: 10px;
 }
 
-.error {
-  color: var(--color-danger);
-  font-size: 14px;
-}
-
 .form {
   display: flex;
   gap: 8px;
@@ -103,28 +89,6 @@
 
 .input {
   flex: 1;
-  min-width: 0;
-  padding: 9px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 9px;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font: inherit;
-}
-
-.send {
-  padding: 9px 14px;
-  border: none;
-  border-radius: 9px;
-  background: var(--color-brand);
-  color: var(--color-brand-ink);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.send:disabled {
-  opacity: 0.5;
-  cursor: default;
 }
 
 @media (max-width: 640px) {

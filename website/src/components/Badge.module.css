@@ -1,0 +1,74 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* A tag names what something is: PLA, Glitter, LOW. */
+.tag {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+}
+
+.tag.sm {
+  padding: 2px 6px;
+  font-size: var(--text-2xs);
+}
+
+.tag.md {
+  padding: 2px 8px;
+  font-size: var(--text-xs);
+}
+
+/* A status says what state something is in: Healthy, Needs attention. */
+.status {
+  font: 600 var(--text-xs) var(--font-sans);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+}
+
+.status.sm {
+  font-size: var(--text-2xs);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* tones: neutral is outlined, the rest are soft fills */
+
+.neutral {
+  color: var(--color-text-muted-2);
+  border-color: var(--color-border-strong);
+}
+
+.brand {
+  color: var(--color-brand);
+  background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+}
+
+.warning {
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.success {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.destructive {
+  color: var(--color-destructive);
+  background: var(--color-destructive-bg);
+}
